@@ -16,14 +16,9 @@ Status: experimental.
 
 ## Install
 
-```jsonc
-// moon.mod.json
-{
-  "deps": {
-    "mizchi/luna": "0.20.0",
-    "mizchi/luna_components": "0.20.0"
-  }
-}
+```sh
+moon add mizchi/luna
+moon add mizchi/luna_components
 ```
 
 ## Examples

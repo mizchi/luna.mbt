@@ -337,8 +337,7 @@ pub fn is_web_component(component_name : String) -> Bool {
 
 ///|
 /// Read exports from moon.pkg or moon.pkg.json (for user-managed exports mode)
-/// Tries moon.pkg.json first (legacy JSON format), then falls back to moon.pkg
-/// Note: Currently only JSON format is parsed; new moon.pkg format requires TOML-like parser
+/// Prefer moon.pkg, matching MoonBit's manifest selection.
 fn read_exports_from_pkg(island_dir : String) -> Array[String] {
   let fs = @fs_adapter.NodeFsAdapter::new()
   read_exports_from_pkg_with_fs(fs, island_dir)
@@ -349,14 +348,21 @@ fn[FS : @env.FileSystem] read_exports_from_pkg_with_fs(
   fs : FS,
   island_dir : String,
 ) -> Array[String] {
-  // Try moon.pkg.json first (legacy JSON format)
-  let pkg_json_path = @path.join2(island_dir, "moon.pkg.json")
-  let content : String = fs.read_file_sync(pkg_json_path) catch {
-    // If moon.pkg.json doesn't exist, try moon.pkg (new format)
-    // Note: For now, we only parse JSON format
-    _ => return []
+  let pkg_path = @path.join2(island_dir, "moon.pkg")
+  let json = if fs.exists_sync(pkg_path) {
+    let content = fs.read_file_sync(pkg_path) catch { _ => return [] }
+    let (ast, diagnostics) = @moon_config.parse_moon_pkg(content)
+    if !diagnostics.is_empty() {
+      return []
+    }
+    ToJson::to_json(ast)
+  } else {
+    let legacy_path = @path.join2(island_dir, "moon.pkg.json")
+    let content = fs.read_file_sync(legacy_path) catch { _ => return [] }
+    @json.parse(content.view()) catch {
+      _ => return []
+    }
   }
-  let json = @json.parse(content.view()) catch { _ => return [] }
   guard json is Object(obj) else { return [] }
   match obj.get("link") {
     Some(Object(link)) =>
@@ -389,7 +395,10 @@ fn func_export_from_name(name : String, source_pattern : String) -> FuncExport {
   FuncExport::{
     name,
     signature: "(\{props_type}) -> DomNode", // Assumed signature
-    contract: { props_type: Some(props_type), return_kind: ClientReturnDomNode },
+    contract: {
+      props_type: Some(props_type),
+      return_kind: ClientReturnDomNode,
+    },
     package_path: source_pattern,
     import_alias: get_dir_name(source_pattern),
     source_pattern,

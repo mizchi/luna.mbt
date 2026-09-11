@@ -1,12 +1,6 @@
 {
-  "ssg": {
-    "docs": "docs",
-    "output": "dist",
-    "title": "Shiki Test",
-    "base": "/",
-    "sidebar": "auto",
-    "theme": {
-      "primary_color": "#3451b2"
-    }
-  }
+  "title": "Shiki Test",
+  "docs_dir": "docs",
+  "out_dir": "dist",
+  "base_url": "/"
 }

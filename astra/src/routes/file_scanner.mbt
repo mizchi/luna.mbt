@@ -19,7 +19,7 @@ pub(all) struct ScanOptions {
 ///|
 /// Default scan options
 pub fn ScanOptions::default() -> ScanOptions {
-  { exclude: [], trailing_slash: true }
+  { exclude: [], trailing_slash: true, }
 }
 
 // =============================================================================
@@ -160,9 +160,9 @@ pub fn is_moonbit_markdown(filename : String) -> Bool {
 }
 
 ///|
-/// Check if file is a component indicator (moon.pkg.json)
+/// Check if file is a component package manifest.
 pub fn is_moonbit_component(filename : String) -> Bool {
-  filename == "moon.pkg.json"
+  filename == "moon.pkg" || filename == "moon.pkg.json"
 }
 
 ///|

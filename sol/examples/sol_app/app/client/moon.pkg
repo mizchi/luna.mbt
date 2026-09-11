@@ -1,0 +1,20 @@
+supported_targets = "js"
+
+import {
+  "mizchi/luna/dom" @element,
+  "mizchi/signals" @signal,
+  "mizchi/sol/action",
+  "example/sol-app/__gen__/types",
+  "mizchi/js/core" @js,
+  "mizchi/js_browser/dom" @js_dom,
+  "moonbitlang/core/json",
+}
+
+options(
+  link: {
+    "js": {
+      "exports": [ "contact_form", "counter", "wc_counter" ],
+      "format": "esm",
+    },
+  },
+)

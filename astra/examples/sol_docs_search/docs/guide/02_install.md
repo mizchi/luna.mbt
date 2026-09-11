@@ -23,15 +23,15 @@ If you are starting from scratch (i.e. not in the `luna.mbt` monorepo), create a
 my-docs/
 ├── app/
 │   └── routes/
-│       ├── moon.pkg.json
+│       ├── moon.pkg
 │       └── routes.mbt
 ├── docs/
 │   ├── index.md
 │   └── guide/
 │       └── 01_intro.md
 ├── astra.config.json
-├── moon.mod.json
-├── moon.pkg.json
+├── moon.mod
+├── moon.pkg
 └── package.json
 ```
 

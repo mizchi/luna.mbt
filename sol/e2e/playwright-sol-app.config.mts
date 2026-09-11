@@ -27,10 +27,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node ${rootDir}/_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js dev --no-watch -p 3457`,
+    command: "node ../../../scripts/run-cli.mjs sol dev --no-watch -p 3457",
     cwd: resolve(rootDir, "examples/sol_app"),
     url: "http://localhost:3457",
-    reuseExistingServer: !process.env.CI,
-    timeout: 30000,
+    reuseExistingServer: false,
+    timeout: 120000,
   },
 });

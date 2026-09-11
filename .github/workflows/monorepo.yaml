@@ -47,11 +47,12 @@ jobs:
           version: latest
       - run: |
           moon update
+          node scripts/generate-examples.mjs
       - name: Setup CJS test environment
         run: |
           mkdir -p _build/js/debug/test
           echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
-      - name: moon check (workspace — luna + sol + astra)
+      - name: moon check (workspace — libraries + docs + examples)
         run: moon check --target js
       - name: Build workspace packages
         run: |
@@ -59,9 +60,7 @@ jobs:
           cd ../stella && pnpm build
       - name: TypeScript check
         run: pnpm tsc -b
-      - name: moon test (workspace — luna + sol + astra)
-        # moon.work members [".", "./sol", "./astra"]; this runs every
-        # test across the three packages in one pass.
+      - name: moon test (workspace — libraries + docs + examples)
         run: moon test --target js
 
   # Cross-package node:test smokes (build/dev parity + examples matrix
@@ -86,6 +85,7 @@ jobs:
           version: latest
       - run: |
           moon update
+          node scripts/generate-examples.mjs
       - name: Build workspace
         run: moon build --target js --release
       - name: Build debug for sol generate flow (sol_app/auth/todo)

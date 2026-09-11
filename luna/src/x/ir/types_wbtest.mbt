@@ -20,7 +20,7 @@ test "StructDef serialization" {
       Field::optional("age", TypeRef::int()),
       {
         ..Field::new("active", TypeRef::bool_()),
-        default: Some(true.to_json()),
+        default: Some(ToJson::to_json(true)),
       },
     ],
     derives: ["Serialize", "Eq"],
@@ -41,15 +41,15 @@ test "TypeRef primitives" {
   let int_ref = TypeRef::int()
   let str_ref = TypeRef::string()
   assert_eq(
-    bool_ref.to_json().stringify(),
+    ToJson::to_json(bool_ref).stringify(),
     "{\"kind\":\"primitive\",\"type\":\"bool\"}",
   )
   assert_eq(
-    int_ref.to_json().stringify(),
+    ToJson::to_json(int_ref).stringify(),
     "{\"kind\":\"primitive\",\"type\":\"int\"}",
   )
   assert_eq(
-    str_ref.to_json().stringify(),
+    ToJson::to_json(str_ref).stringify(),
     "{\"kind\":\"primitive\",\"type\":\"string\"}",
   )
 }
@@ -57,7 +57,7 @@ test "TypeRef primitives" {
 ///|
 test "TypeRef array" {
   let arr = TypeRef::array(TypeRef::string())
-  let json = arr.to_json().stringify()
+  let json = ToJson::to_json(arr).stringify()
   assert_true(json.contains("array"))
   assert_true(json.contains("string"))
 }
@@ -65,7 +65,7 @@ test "TypeRef array" {
 ///|
 test "TypeRef option" {
   let opt = TypeRef::option(TypeRef::int())
-  let json = opt.to_json().stringify()
+  let json = ToJson::to_json(opt).stringify()
   assert_true(json.contains("option"))
   assert_true(json.contains("int"))
 }
@@ -73,7 +73,7 @@ test "TypeRef option" {
 ///|
 test "TypeRef named" {
   let named = TypeRef::named("SwitchProps")
-  let json = named.to_json().stringify()
+  let json = ToJson::to_json(named).stringify()
   assert_true(json.contains("named"))
   assert_true(json.contains("SwitchProps"))
 }
@@ -84,7 +84,7 @@ test "TypeRef union" {
     TypeRef::string_lit("open"),
     TypeRef::string_lit("closed"),
   ])
-  let json = union.to_json().stringify()
+  let json = ToJson::to_json(union).stringify()
   assert_true(json.contains("union"))
   assert_true(json.contains("open"))
   assert_true(json.contains("closed"))
@@ -108,7 +108,7 @@ test "Full schema serialization" {
     definitions: defs,
     source: Some({ file: "switch.mbt", lang: MoonBit }),
   }
-  let json = schema.to_json().stringify()
+  let json = ToJson::to_json(schema).stringify()
   assert_true(json.contains("SwitchProps"))
   assert_true(json.contains("checked"))
   assert_true(json.contains("moonbit"))

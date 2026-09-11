@@ -1,0 +1,6 @@
+supported_targets = "js"
+
+import {
+  "mizchi/sol",
+  "mizchi/sol/action",
+}

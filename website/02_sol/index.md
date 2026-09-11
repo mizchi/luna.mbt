@@ -46,7 +46,7 @@ pnpm dev
 
 ```
 myapp/
-├── moon.mod.json           # MoonBit module
+├── moon.mod           # MoonBit module
 ├── package.json            # npm package
 ├── sol.config.json         # Sol configuration
 ├── app/

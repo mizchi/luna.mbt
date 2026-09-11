@@ -55,6 +55,7 @@ jobs:
       - run: moon update
 
       - run: pnpm install --frozen-lockfile
+      - run: node scripts/generate-examples.mjs
 
       - run: pnpm build:npm
 

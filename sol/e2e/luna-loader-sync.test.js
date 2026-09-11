@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const scriptPath = path.join(root, "scripts", "sync-luna-loader-assets.mjs");
-const lunaDir = process.env.LUNA_REPO_DIR ?? path.resolve(root, "..", "luna.mbt");
+const lunaDir = process.env.LUNA_REPO_DIR ?? path.resolve(root, "..");
 const lunaDistDir = path.join(lunaDir, "js", "loader", "dist");
 
 test(

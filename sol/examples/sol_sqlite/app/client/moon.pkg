@@ -1,0 +1,8 @@
+supported_targets = "js"
+
+import {
+}
+
+options(
+  link: { "js": { "exports": [ ], "format": "esm" } },
+)

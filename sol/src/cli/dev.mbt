@@ -50,6 +50,14 @@ fn cloudflare_dev_worker_entry_mjs() -> String {
     #|
     #|export default {
     #|  fetch(request, env, ctx) {
+    #|    const url = new URL(request.url);
+    #|    if (env.ASSETS && url.pathname.startsWith('/static/')) {
+    #|      url.pathname = url.pathname.slice('/static'.length);
+    #|      return env.ASSETS.fetch(new Request(url, request));
+    #|    }
+    #|    if (env.ASSETS && url.pathname.startsWith('/__sol__/')) {
+    #|      return env.ASSETS.fetch(request);
+    #|    }
     #|    return solApp.fetch(request, env, ctx);
     #|  },
     #|};
@@ -60,7 +68,7 @@ fn cloudflare_dev_worker_entry_mjs() -> String {
 fn cloudflare_dev_wrangler_toml(name : String) -> String {
   "name = \"" +
   name +
-  "\"\nmain = \"worker.entry.mjs\"\ncompatibility_date = \"2025-01-01\"\n"
+  "\"\nmain = \"worker.entry.mjs\"\ncompatibility_date = \"2025-01-01\"\n\n[assets]\ndirectory = \"./static\"\nbinding = \"ASSETS\"\nrun_worker_first = true\n"
 }
 
 ///|
@@ -88,6 +96,18 @@ fn[FS : @env.FileSystem] ensure_cloudflare_dev_files_with_fs(
   }
   let sol_dev_dir = @path.join2(cwd, ".sol/dev")
   fs.mkdir_sync(sol_dev_dir, true)
+  fs.mkdir_sync(@path.join2(sol_dev_dir, "static"), true)
+  let assets_dir = @path.join2(sol_dev_dir, "static/__sol__")
+  fs.mkdir_sync(assets_dir, true)
+  for file in sol_asset_files {
+    let source = @path.join2(sol_dev_dir, "__sol__/" + file)
+    if fs.exists_sync(source) {
+      fs.write_file_sync(
+        @path.join2(assets_dir, file),
+        fs.read_file_sync(source),
+      )
+    }
+  }
   fs.write_file_sync(
     @path.join2(sol_dev_dir, "worker.entry.mjs"),
     cloudflare_dev_worker_entry_mjs(),
@@ -320,6 +340,9 @@ fn[FS : @env.FileSystem] run_incremental_build_dev_with_fs(
   }
   println(@colorette.green("✓ Build complete"))
   patch_mars_reschedule_shim_with_fs(fs, cwd, "js", "debug")
+  if is_cloudflare_runtime_project_with_fs(fs, cwd) {
+    patch_cloudflare_global_seed_with_fs(fs, cwd, "js", "debug")
+  }
   // Bundle client code with rolldown if manifest exists
   let manifest_path = @path.join2(cwd, ".sol/dev/manifest.json")
   if fs.exists_sync(manifest_path) {
@@ -381,7 +404,7 @@ async fn run_dev_watch_mode(
       set_env("HMR_PORT", hmr_port.to_string())
       let hmr_server = @hmr.HmrServer::start(hmr_port).wait()
       // Start server process (non-blocking)
-      let server_proc : Ref[@child_process.ChildProcess?] = { val: None }
+      let server_proc : Ref[@child_process.ChildProcess?] = { val: None, }
       fn start_server() -> Unit {
         println(@colorette.cyan("Starting server: \{entry_path}..."))
         let proc = @child_process.spawn("node", args=[entry_path], cwd~)
@@ -431,7 +454,7 @@ async fn run_dev_watch_mode(
         @colorette.cyan("Watching for .mbt file changes... (Ctrl+C to stop)"),
       )
       // Debounce mechanism
-      let last_rebuild : Ref[Double] = { val: 0.0 }
+      let last_rebuild : Ref[Double] = { val: 0.0, }
       let debounce_ms = 300.0
       // Watch the directories listed in sol.config.json's `watch_dirs`
       // (defaults to `["src", "app"]` when unset / unparseable). Projects

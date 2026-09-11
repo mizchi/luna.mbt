@@ -35,6 +35,10 @@ test "ensure_cloudflare_dev_files_with_fs writes fallback wrangler config" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
   mem.mkdirSync("/project", recursive=true)
+  mem.mkdirSync("/project/.sol/dev/__sol__", recursive=true)
+  mem.writeFileSync(
+    "/project/.sol/dev/__sol__/wc-loader.js", "// loader fixture",
+  )
   let config_path = ensure_cloudflare_dev_files_with_fs(fs, "/project")
   assert_eq(config_path, ".sol/dev/wrangler.toml")
   let worker = mem.readFileSync("/project/.sol/dev/worker.entry.mjs")
@@ -43,6 +47,13 @@ test "ensure_cloudflare_dev_files_with_fs writes fallback wrangler config" {
   assert_true(worker.contains("solApp.fetch(request, env, ctx)"))
   assert_true(wrangler.contains("main = \"worker.entry.mjs\""))
   assert_true(wrangler.contains("compatibility_date = \"2025-01-01\""))
+  assert_true(wrangler.contains("directory = \"./static\""))
+  assert_true(wrangler.contains("binding = \"ASSETS\""))
+  assert_true(worker.contains("env.ASSETS.fetch"))
+  assert_eq(
+    mem.readFileSync("/project/.sol/dev/static/__sol__/wc-loader.js"),
+    "// loader fixture",
+  )
 }
 
 ///|

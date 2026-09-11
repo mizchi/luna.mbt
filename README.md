@@ -21,17 +21,17 @@ Each package's README has the canonical usage doc.
 
 ## Install — library
 
-Add to your `moon.mod.json`:
+Add imports to your `moon.mod`:
 
-```jsonc
+```moonbit
 // UI library only
-{ "deps": { "mizchi/luna": "0.21.0" } }
+import { "mizchi/luna@0.25.0" }
 
 // SSR framework
-{ "deps": { "mizchi/sol": "0.21.1", "mizchi/luna": "0.21.0" } }
+import { "mizchi/sol@0.23.2", "mizchi/luna@0.25.0" }
 
 // Static-site middleware (mounts on a Mars Server)
-{ "deps": { "mizchi/astra": "0.21.0", "mizchi/luna": "0.21.0" } }
+import { "mizchi/astra@0.23.2", "mizchi/luna@0.25.0" }
 ```
 
 ## Install — CLI
@@ -80,17 +80,42 @@ requirements. Run `moon upgrade` and `moon update` when upgrading an older
 toolchain. All npm packages and examples share the root pnpm workspace and
 `pnpm-lock.yaml`; run `pnpm install` from the repository root.
 
+The root `moon.work` includes the six libraries, documentation, and all 15
+MoonBit example modules under `sol/examples`, `astra/examples`, and
+`js/stella/examples`. Manifests use `moon.mod` / `moon.pkg`; local dependencies
+are resolved through workspace members. Run `moon work use <directory>` when
+adding a module and `moon work sync` to align member dependency versions.
+
+Sol examples import generated `app/__gen__` packages. `just check`,
+`just test-moonbit`, and `pnpm build:moon` prepare these automatically.
+Before invoking `moon` directly in a fresh checkout, run `just generate-examples`.
+Its `scripts/moon.work` builds the Sol generator using only library members,
+then generates the examples without requiring existing build artifacts.
+
+Example-local `moon.work` files preserve local `_build` paths for standalone
+CLI and browser builds. JavaScript examples declare `supported_targets = "js"`;
+the Wasm island PoC uses `wasm-gc` and is checked separately by
+`just test-workspace`. The browser-driven `sol/e2e/mbt_e2e` runner remains a
+separate module because it requires a running server and Playwright.
+It uses `mizchi/playwright@0.3.9`, which supports the current MoonBit compiler.
+Check or build it independently with `cd sol/e2e/mbt_e2e && moon check --target js`
+or `moon build --target js` before starting the browser tests.
+
+Integration test files run sequentially because the example matrix regenerates
+packages that other workspace builds also read.
+
 `pnpm build:moon` and the npm publish hooks check the compiler returned by
 `moon version --all` before building. If it reports an older `moonc`, run
 `moon upgrade` and `moon update` in your normal shell. An alternate toolchain
 used in a separate shell does not update the compiler on your default PATH.
 
 ```sh
-just check          # Type check workspace-wide
+just check          # Generate examples, then type check workspace-wide
 just fmt            # Format
-just test-unit      # MoonBit tests (luna + sol + astra)
+just test-moonbit   # MoonBit tests across the workspace
+just test-workspace # Manifest checks + all 15 examples, including wasm-gc
 just test-e2e       # Playwright e2e (luna + sol + astra)
-pnpm test:integration   # build/dev parity + 7-example matrix (node:test)
+pnpm test:integration   # build/dev parity + example matrix (node:test)
 ```
 
 ## Release pipeline

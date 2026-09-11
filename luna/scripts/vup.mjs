@@ -338,7 +338,7 @@ function applyPlan(plan, dryRun) {
   // bumped moon.mod values. Without this `sol new` scaffolds a project
   // that pins the previous release line; tracked as TODO.md refactor #2.
   rewriteEmbeddedVersionLiterals(plan, dryRun);
-  rewriteLegacyExampleManifests(plan, dryRun);
+  rewriteExampleManifests(plan, dryRun);
 }
 
 // Re-target every "mizchi/<pkg>@<semver>" or legacy
@@ -355,6 +355,7 @@ function rewriteEmbeddedVersionLiterals(plan, dryRun) {
   const templateFiles = [
     "sol/src/cli/templates.mbt",
     "sol/src/scaffold_templates/templates.mbt",
+    "js/luna/bin/cli.ts",
   ];
   for (const rel of templateFiles) {
     const abs = join(rootDir, rel);
@@ -413,46 +414,28 @@ function rewriteEmbeddedVersionLiterals(plan, dryRun) {
   }
 }
 
-// Keep checked-in example projects buildable before the just-bumped mooncakes
-// are published. These examples use legacy moon.mod.json path dependencies so
-// local CI can resolve the workspace packages, but their version pins must
-// still match the package versions required by transitive deps.
-function rewriteLegacyExampleManifests(plan, dryRun) {
+// Keep example imports aligned with workspace releases. Local resolution is
+// provided by moon.work; examples retain their own independent versions.
+function rewriteExampleManifests(plan, dryRun) {
   const versionByPkg = versionByPackage(plan);
   const manifestFiles = [
-    ...findNamedFiles("sol/examples", "moon.mod.json"),
-    ...findNamedFiles("astra/examples", "moon.mod.json"),
+    ...findNamedFiles("sol/examples", "moon.mod"),
+    ...findNamedFiles("astra/examples", "moon.mod"),
+    ...findNamedFiles("js", "moon.mod"),
   ];
 
   for (const rel of manifestFiles) {
     const abs = join(rootDir, rel);
-    const json = JSON.parse(readFileSync(abs, "utf-8"));
-    if (!json.deps || typeof json.deps !== "object") continue;
+    const manifest = readJson(abs);
     let touched = false;
-
     for (const [pkg, version] of Object.entries(versionByPkg)) {
-      const dep = json.deps[pkg];
-      if (!dep) continue;
-      if (typeof dep === "object" && dep !== null && typeof dep.version === "string") {
-        if (dep.version === version) continue;
-        console.log(`  ${rel}: deps.${pkg}.version ${dep.version} -> ${version}`);
-        dep.version = version;
-        touched = true;
-      } else if (typeof dep === "string" && /^\d+\.\d+\.\d+$/.test(dep)) {
-        if (dep === version) continue;
-        console.log(`  ${rel}: deps.${pkg} ${dep} -> ${version}`);
-        json.deps[pkg] = version;
-        touched = true;
-      }
+      const current = manifest.deps[pkg];
+      if (!current || current === version) continue;
+      console.log(`  ${rel}: ${pkg}@${current} -> ${version}`);
+      manifest.deps[pkg] = version;
+      touched = true;
     }
-
-    if (touched) {
-      if (dryRun) {
-        console.log(`  [dry-run] write ${rel}`);
-      } else {
-        writeFileSync(abs, JSON.stringify(json, null, 2) + "\n");
-      }
-    }
+    if (touched) writeJson(abs, manifest, dryRun);
   }
 }
 

@@ -7,8 +7,6 @@ import { fileURLToPath } from "node:url";
 // browser context itself (calls `chaos()` instead of using the Playwright
 // page fixture), so the rest of the sol e2e suite shouldn't get tangled in.
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// sol/e2e -> sol -> luna.mbt (workspace root, where _build/ lives)
-const repoRoot = resolve(__dirname, "..", "..");
 const solDir = resolve(__dirname, "..");
 
 const port = Number(process.env.SOL_APP_CHAOS_PORT ?? 3458);
@@ -35,10 +33,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node ${repoRoot}/_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js dev --no-watch -p ${port}`,
+    command: `node ../../../scripts/run-cli.mjs sol dev --no-watch -p ${port}`,
     cwd: resolve(solDir, "examples/sol_app"),
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 30000,
+    timeout: 120000,
   },
 });

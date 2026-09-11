@@ -20,6 +20,8 @@ pub fn[E, A] component(() -> Node[E, A]) -> Node[E, A]
 
 pub fn[T] component_ref(String, T, trigger? : TriggerType) -> ComponentRef[T]
 
+pub fn component_tag_name(String) -> String
+
 pub fn[E, A] error_boundary(children~ : () -> Node[E, A] raise, fallback~ : (Error, () -> Unit) -> Node[E, A] raise) -> Node[E, A]
 
 pub fn event_handler() -> EventHandler[Unit]

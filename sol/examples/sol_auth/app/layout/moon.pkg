@@ -1,10 +1,10 @@
 supported_targets = "js"
 
 import {
-  "mizchi/luna" @luna,
-  "mizchi/sol/router" @router,
+  "mizchi/luna",
+  "mizchi/sol/router",
   "mizchi/luna/dom/static" @server_dom,
-  "mizchi/luna_components/styled" @styled,
+  "mizchi/luna_components/styled",
   "mizchi/luna_components/styled/alert" @styled_alert,
   "mizchi/luna_components/styled/table" @styled_table,
 }

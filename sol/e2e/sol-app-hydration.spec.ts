@@ -1,119 +1,80 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
-// This test runs against the actual sol_app example server
-// Start with: cd examples/sol_app && sol dev --no-watch -p 3457
-
-const BASE = "http://localhost:3457";
+async function hydrated(page: Page, host: string) {
+  await expect(page.locator(host)).toHaveAttribute("data-sol-hydrated", "");
+  return page.locator(host);
+}
 
 test.describe("sol_app island hydration", () => {
-  test("home page renders and counter island hydrates", async ({ page }) => {
-    await page.goto(`${BASE}/`);
-
-    // Page loads with SSR content
-    await expect(page.locator("h1")).toContainText("Welcome to Sol");
-
-    // Counter island should be present (SSR fallback)
-    const counter = page.locator(".counter");
-    await expect(counter).toBeVisible();
-
-    // Wait for hydration — the counter should become interactive
-    // The hydration marker is luna:id attribute being processed
-    await page.waitForTimeout(2000);
-
-    // Check no console errors about hydration
-    const errors: string[] = [];
-    page.on("console", (msg) => {
-      if (msg.type() === "error") {
-        errors.push(msg.text());
+  let errors: string[];
+  test.beforeEach(async ({ page }) => {
+    errors = [];
+    page.on("pageerror", error => errors.push(error.message));
+    page.on("console", message => {
+      if (message.type() === "error" && message.text().includes("[sol] Hydration failed")) {
+        errors.push(message.text());
       }
     });
-    await page.reload();
-    await page.waitForTimeout(3000);
+  });
+  test.afterEach(() => expect(errors).toEqual([]));
 
-    // Filter out non-critical errors (CSP warnings etc)
-    const hydrationErrors = errors.filter((e) =>
-      e.includes("[sol] Hydration failed")
-    );
-    expect(hydrationErrors).toEqual([]);
+  test("home counter renders and increments after hydration", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Welcome to Sol" })).toBeVisible();
+    const counter = await hydrated(page, "luna-counter");
+    const display = counter.locator(".count-display");
+    const initial = Number(await display.textContent());
+    await counter.getByRole("button", { name: "+", exact: true }).click();
+    await expect(display).toHaveText(String(initial + 1));
   });
 
-  test("counter island JS is loaded and executable", async ({ page }) => {
-    const consoleErrors: string[] = [];
-    page.on("console", (msg) => {
-      if (msg.type() === "error") consoleErrors.push(msg.text());
+  test("counter module loads and exports its hydration entry point", async ({ page }) => {
+    await page.goto("/");
+    await hydrated(page, "luna-counter");
+    const module = await page.evaluate(async () => {
+      const url = "/static/counter.js";
+      const response = await fetch(url);
+      return { status: response.status, hydrate: typeof (await import(url)).hydrate };
     });
-
-    await page.goto(`${BASE}/`);
-    await page.waitForTimeout(3000);
-
-    // Counter JS should be loaded (no 404)
-    const jsResponse = await page.evaluate(async () => {
-      const res = await fetch("/static/counter.js");
-      return res.status;
-    });
-    expect(jsResponse).toBe(200);
-
-    // No hydration errors should have occurred
-    const hydrationErrors = consoleErrors.filter(
-      (e) => e.includes("[sol] Hydration failed")
-    );
-    expect(hydrationErrors).toEqual([]);
+    expect(module).toEqual({ status: 200, hydrate: "function" });
   });
 
-  test("API health endpoint returns JSON", async ({ page }) => {
-    const response = await page.goto(`${BASE}/api/health`);
-    expect(response?.status()).toBe(200);
-    const body = await response?.json();
-    expect(body).toHaveProperty("status", "ok");
+  test("API health endpoint returns JSON", async ({ request }) => {
+    const response = await request.get("/api/health");
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toHaveProperty("status", "ok");
   });
 
-  test("about page renders via CSR navigation", async ({ page }) => {
-    await page.goto(`${BASE}/`);
-    await page.waitForTimeout(2000);
-
-    // Click about link (CSR navigation)
-    await page.click('a[href="/about"]');
-    await page.waitForTimeout(1000);
-
-    // Should navigate to about page
-    await expect(page.locator("h1")).toContainText("About");
+  test("counter hydrates again after CSR navigation", async ({ page }) => {
+    await page.goto("/");
+    await hydrated(page, "luna-counter");
+    await page.getByRole("link", { name: "About", exact: true }).click();
+    await expect(page).toHaveURL(/\/about$/);
+    await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+    await page.getByRole("link", { name: "Home", exact: true }).click();
+    const counter = await hydrated(page, "luna-counter");
+    const display = counter.locator(".count-display");
+    const initial = Number(await display.textContent());
+    await counter.getByRole("button", { name: "+", exact: true }).click();
+    await expect(display).toHaveText(String(initial + 1));
   });
 
-  test("no hydration errors on any page", async ({ page }) => {
-    const errors: string[] = [];
-    page.on("console", (msg) => {
-      if (
-        msg.type() === "error" &&
-        msg.text().includes("[sol] Hydration failed")
-      ) {
-        errors.push(msg.text());
-      }
-    });
-
-    // Visit main pages (skip /form as it may have action-specific setup)
-    for (const path of ["/", "/about"]) {
-      await page.goto(`${BASE}${path}`);
-      await page.waitForTimeout(2000);
-    }
-
-    expect(errors).toEqual([]);
+  test("form binds input and submits an action", async ({ page }) => {
+    await page.goto("/form");
+    const form = await hydrated(page, "contact-form");
+    await form.getByLabel("Name").fill("Hydration Test");
+    await form.getByLabel("Email").fill("hydration@example.com");
+    await expect(form.locator(".preview-name")).toContainText("Hydration Test");
+    await form.getByRole("button", { name: "Submit" }).click();
+    await expect(form.locator(".form-result")).toContainText("Form submitted successfully!");
   });
 
-  test("WC counter island hydrates without errors", async ({ page }) => {
-    const errors: string[] = [];
-    page.on("console", (msg) => {
-      if (msg.type() === "error") {
-        errors.push(msg.text());
-      }
-    });
-
-    await page.goto(`${BASE}/`);
-    await page.waitForTimeout(3000);
-
-    // Check for the specific WcCounterProps error that was fixed
-    const wcErrors = errors.filter((e) =>
-      e.includes("WcCounterProps") || e.includes("wc_counter")
-    );
-    expect(wcErrors).toEqual([]);
+  test("WC counter renders and increments inside its shadow root", async ({ page }) => {
+    await page.goto("/wc-counter");
+    const counter = await hydrated(page, "wc-counter");
+    const display = counter.locator(".count-display");
+    await expect(display).toHaveText("0");
+    await counter.getByRole("button", { name: "+", exact: true }).click();
+    await expect(display).toHaveText("1");
   });
 });

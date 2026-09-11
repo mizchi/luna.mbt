@@ -154,7 +154,7 @@ stella init my-widget
 
 ```
 src/stella/component/
-├── moon.pkg.json      # パッケージ設定
+├── moon.pkg      # パッケージ設定
 ├── types.mbt          # AttrType, ComponentMeta (コード生成用)
 ├── codegen.mbt        # MoonBit → JS コード生成
 ├── context.mbt        # WcContext, JsSignal* (FFIラッパー)

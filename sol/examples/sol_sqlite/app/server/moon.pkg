@@ -1,0 +1,13 @@
+supported_targets = "js"
+
+import {
+  "mizchi/luna",
+  "mizchi/sol",
+  "mizchi/sol/middleware" @mw,
+  "mizchi/sol/action",
+  "mizchi/luna/dom/static" @server_dom,
+  "mizchi/js/core",
+  "example/sol-sqlite/__gen__/types",
+}
+
+warnings = "-35-67-24"

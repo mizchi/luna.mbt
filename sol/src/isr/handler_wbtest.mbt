@@ -170,7 +170,7 @@ test "ISRHandler handle flow debug" {
   }
 
   // Step 4: Check cache get using dot notation (how handler does it)
-  match handler.cache.get(key) {
+  match ISRCache::get(handler.cache, key) {
     Some(e) => assert_eq(e.html, "<html>cached</html>")
     None =>
       fail(
@@ -180,7 +180,7 @@ test "ISRHandler handle flow debug" {
 
   // Step 5: Check status - use fixed time for predictable result
   let check_time = base_time + 1000L // 1 second after cache entry was created
-  let entry_opt = handler.cache.get(key)
+  let entry_opt = ISRCache::get(handler.cache, key)
   let status = check_status(entry_opt, check_time)
   match status {
     Fresh => ()

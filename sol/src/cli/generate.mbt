@@ -731,9 +731,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       }
     }
   }
-  // Write built-in assets to .sol/prod/__sol__/ for production serving
-  if mode == "prod" {
-    let sol_asset_dir = @path.join2(cwd, ".sol/prod/__sol__")
+  // Materialize runtime assets for both local and edge adapters.
+  {
+    let sol_asset_dir = @path.join2(cwd, ".sol/\{mode}/__sol__")
     fs.mkdir_sync(sol_asset_dir, true) catch {
       _ => ()
     }
@@ -758,7 +758,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     if asset_count > 0 {
       println(
         @colorette.gray(
-          "  Written \{asset_count} built-in assets to .sol/prod/__sol__/",
+          "  Written \{asset_count} built-in assets to .sol/\{mode}/__sol__/",
         ),
       )
     }

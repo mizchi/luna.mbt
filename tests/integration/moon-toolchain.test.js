@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +10,11 @@ const root = fileURLToPath(new URL("../../", import.meta.url));
 
 function buildWithCompiler(version, check) {
   const stage = mkdtempSync(path.join(tmpdir(), "luna-moon-toolchain-"));
+  mkdirSync(path.join(stage, "scripts/lib"), { recursive: true });
+  mkdirSync(path.join(stage, "sol/examples"), { recursive: true });
+  for (const file of ["package.json", "scripts/check-moon-toolchain.mjs", "scripts/generate-examples.mjs", "scripts/lib/workspace-cli.mjs"]) {
+    writeFileSync(path.join(stage, file), readFileSync(path.join(root, file)));
+  }
   const calls = path.join(stage, "calls.jsonl");
   writeFileSync(calls, "");
   writeFileSync(path.join(stage, "moon"), `#!/usr/bin/env node
@@ -20,7 +25,7 @@ if (args[0] === 'version') console.log(${JSON.stringify(version)});
 `, { mode: 0o755 });
   try {
     const result = spawnSync("pnpm", ["run", "build:moon"], {
-      cwd: root,
+      cwd: stage,
       env: { ...process.env, PATH: `${stage}${path.delimiter}${process.env.PATH}` },
       encoding: "utf8",
     });

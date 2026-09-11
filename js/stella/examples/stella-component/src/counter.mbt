@@ -5,6 +5,7 @@
 // Template - Initial HTML (used when no SSR content exists)
 // =============================================================================
 
+///|
 pub fn template(props : @js.Any) -> String {
   let initial = props_get_int(props, "initial")
   let label = props_get_string(props, "label")
@@ -27,6 +28,7 @@ pub fn template(props : @js.Any) -> String {
 // Setup - Reactivity and Event Handling
 // =============================================================================
 
+///|
 pub fn setup(ctx : @js.Any) -> @js.Any {
   // Get prop signals
   let initial_signal = ctx_get_prop(ctx, "initial")
@@ -48,8 +50,12 @@ pub fn setup(ctx : @js.Any) -> @js.Any {
   })
 
   // Bind disabled attribute
-  let unbind_dec_disabled = ctx_bind_attr(ctx, ".dec", "disabled", disabled_signal)
-  let unbind_inc_disabled = ctx_bind_attr(ctx, ".inc", "disabled", disabled_signal)
+  let unbind_dec_disabled = ctx_bind_attr(
+    ctx, ".dec", "disabled", disabled_signal,
+  )
+  let unbind_inc_disabled = ctx_bind_attr(
+    ctx, ".inc", "disabled", disabled_signal,
+  )
 
   // Decrement handler
   let unbind_dec = ctx_on(ctx, ".dec", "click", fn() {
@@ -77,42 +83,37 @@ pub fn setup(ctx : @js.Any) -> @js.Any {
 }
 
 // =============================================================================
-// Mutable Reference Helper
-// =============================================================================
-
-priv struct Ref[T] {
-  mut val : T
-}
-
-fn[T] Ref(val : T) -> Ref[T] {
-  { val, }
-}
-
-// =============================================================================
 // FFI Functions
 // =============================================================================
 
+///|
 extern "js" fn props_get_int(props : @js.Any, name : String) -> Int =
   #| (props, name) => props[name] ?? 0
 
+///|
 extern "js" fn props_get_string(props : @js.Any, name : String) -> String =
   #| (props, name) => props[name] ?? ''
 
+///|
 extern "js" fn ctx_get_prop(ctx : @js.Any, name : String) -> @js.Any =
   #| (ctx, name) => ctx.props[name]
 
+///|
 extern "js" fn signal_get_int(signal : @js.Any) -> Int =
   #| (s) => s.get()
 
+///|
 extern "js" fn signal_get_string(signal : @js.Any) -> String =
   #| (s) => s.get()
 
+///|
 extern "js" fn signal_subscribe(
   signal : @js.Any,
   callback : () -> Unit,
 ) -> () -> Unit =
   #| (s, cb) => s.subscribe(cb)
 
+///|
 extern "js" fn ctx_bind(
   ctx : @js.Any,
   selector : String,
@@ -120,6 +121,7 @@ extern "js" fn ctx_bind(
 ) -> () -> Unit =
   #| (ctx, selector, getter) => ctx.bind(selector, getter)
 
+///|
 extern "js" fn ctx_bind_attr(
   ctx : @js.Any,
   selector : String,
@@ -128,6 +130,7 @@ extern "js" fn ctx_bind_attr(
 ) -> () -> Unit =
   #| (ctx, selector, attr, signal) => ctx.bindAttr(selector, attr, signal)
 
+///|
 extern "js" fn ctx_on(
   ctx : @js.Any,
   selector : String,
@@ -136,16 +139,27 @@ extern "js" fn ctx_on(
 ) -> () -> Unit =
   #| (ctx, selector, event, handler) => ctx.on(selector, event, handler)
 
-extern "js" fn update_dom(ctx : @js.Any, selector : String, value : String) -> Unit =
+///|
+extern "js" fn update_dom(
+  ctx : @js.Any,
+  selector : String,
+  value : String,
+) -> Unit =
   #| (ctx, selector, value) => {
   #|   const el = ctx.shadow.querySelector(selector);
   #|   if (el) el.textContent = value;
   #| }
 
-extern "js" fn dispatch_event(ctx : @js.Any, name : String, value : Int) -> Unit =
+///|
+extern "js" fn dispatch_event(
+  ctx : @js.Any,
+  name : String,
+  value : Int,
+) -> Unit =
   #| (ctx, name, value) => {
   #|   ctx.element.dispatchEvent(new CustomEvent(name, { detail: { value }, bubbles: true }));
   #| }
 
+///|
 extern "js" fn make_cleanup(cleanup : () -> Unit) -> @js.Any =
   #| (cleanup) => cleanup

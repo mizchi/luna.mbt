@@ -1,8 +1,8 @@
 supported_targets = "js"
 
 import {
-  "mizchi/luna" @luna,
-  "mizchi/sol/router" @router,
+  "mizchi/luna",
+  "mizchi/sol/router",
   "mizchi/luna/dom/static" @server_dom,
 }
 

@@ -1,22 +1,15 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// Helper: wait for island hydration by checking if interactive elements exist
+test('missing static and runtime scripts return 404', async ({ request }) => {
+  for (const path of ['/static/missing-component.js', '/__sol__/missing-runtime.js']) {
+    const response = await request.get(path);
+    expect(response.status()).toBe(404);
+  }
+});
+
+// Wait for the generated wrapper to finish rendering and attach event handlers.
 async function waitForHydration(page: Page, selector: string, timeout = 10000) {
-  await page.waitForSelector(selector, { state: 'attached', timeout });
-  await page.waitForFunction(
-    (sel) => {
-      const el = document.querySelector(sel);
-      if (!el) return false;
-      // Check light DOM first, then shadow DOM for Web Components
-      if (el.querySelector('button')) return true;
-      if (el.shadowRoot?.querySelector('button')) return true;
-      // For non-button islands (forms etc.), check if any input exists
-      if (el.querySelector('input')) return true;
-      return false;
-    },
-    selector,
-    { timeout }
-  );
+  await expect(page.locator(selector)).toHaveAttribute('data-sol-hydrated', '', { timeout });
 }
 
 test.describe('Sol App E2E', () => {
@@ -50,7 +43,7 @@ test.describe('Sol App E2E', () => {
     await expect(page).toHaveURL('/');
 
     // Wait for counter hydration
-    await waitForHydration(page, '.counter');
+    await waitForHydration(page, 'luna-counter');
 
     const countDisplay = page.locator('.count-display');
     const initialText = await countDisplay.textContent();
@@ -102,7 +95,7 @@ test.describe('Sol App E2E', () => {
 
     // Wait for form hydration
     await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
-    await page.waitForTimeout(500);
+    await waitForHydration(page, 'contact-form');
 
     const nameInput = page.locator('input[name="name"]');
     const emailInput = page.locator('input[name="email"]');
@@ -137,7 +130,7 @@ test.describe('Sol App E2E', () => {
 
     // Wait for hydration
     await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
-    await page.waitForTimeout(500);
+    await waitForHydration(page, 'contact-form');
 
     await page.fill('input[name="name"]', 'Test User');
     await page.fill('input[name="email"]', 'test@example.com');
@@ -275,7 +268,7 @@ test.describe('Sol App E2E', () => {
       await page.goto('/');
       await expect(page).toHaveURL('/');
 
-      await waitForHydration(page, '.counter');
+      await waitForHydration(page, 'luna-counter');
 
       const countDisplay = page.locator('.count-display');
       const initialText = await countDisplay.textContent();
@@ -292,7 +285,7 @@ test.describe('Sol App E2E', () => {
       await expect(page).toHaveURL('/', { timeout: 10000 });
 
       // Wait for re-hydration
-      await waitForHydration(page, '.counter');
+      await waitForHydration(page, 'luna-counter');
 
       const counterAfterNav = page.locator('.counter');
       await expect(counterAfterNav).toBeVisible();
@@ -310,7 +303,7 @@ test.describe('Sol App E2E', () => {
 
       // Wait for form hydration
       await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
-      await page.waitForTimeout(500);
+      await waitForHydration(page, 'contact-form');
 
       const nameInput = page.locator('input[name="name"]');
       await nameInput.fill('Original Name');
@@ -325,7 +318,7 @@ test.describe('Sol App E2E', () => {
 
       // Wait for re-hydration
       await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
-      await page.waitForTimeout(500);
+      await waitForHydration(page, 'contact-form');
 
       const newNameInput = page.locator('input[name="name"]');
       await newNameInput.fill('New Name');
@@ -343,7 +336,7 @@ test.describe('Sol App E2E', () => {
       await page.locator('nav a[href="/"]').first().click();
       await expect(page).toHaveURL('/', { timeout: 10000 });
 
-      await waitForHydration(page, '.counter');
+      await waitForHydration(page, 'luna-counter');
       await expect(page.locator('.counter')).toBeVisible();
       await page.locator('button.inc').click();
 
@@ -353,7 +346,7 @@ test.describe('Sol App E2E', () => {
       await page.locator('nav a[href="/"]').first().click();
       await expect(page).toHaveURL('/', { timeout: 10000 });
 
-      await waitForHydration(page, '.counter');
+      await waitForHydration(page, 'luna-counter');
       await expect(page.locator('.counter')).toBeVisible();
       await page.locator('button.dec').click();
 

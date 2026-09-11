@@ -1,8 +1,0 @@
-{
-  "name": "example/stella-component",
-  "version": "0.0.1",
-  "deps": {
-    "mizchi/js": "0.12.2"
-  },
-  "source": "src"
-}

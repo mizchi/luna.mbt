@@ -69,9 +69,10 @@ fn numeric_condition(condition : String) -> (String, String, Double)? {
       _ => return None
     }
   }
-  match (try? @string.parse_double(number)) {
-    Ok(size) => Some((feature, unit, size))
-    Err(_) => None
+  try @string.parse_double(number) catch {
+    _ => None
+  } noraise {
+    size => Some((feature, unit, size))
   }
 }
 

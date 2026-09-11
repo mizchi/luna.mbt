@@ -265,34 +265,43 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
 }
 
 ///|
-/// Extract quoted string values after a prefix pattern
+/// Extract quoted string values after a prefix pattern. Whitespace before the
+/// opening quote is insignificant, including line breaks inserted by moon fmt.
 fn extract_quoted_values(
   content : String,
   prefix : String,
   result : Array[String],
 ) -> Unit {
-  let prefix_len = prefix.length()
+  let key = prefix[:prefix.length() - 1].to_owned()
+  let prefix_len = key.length()
   let mut search_pos = 0
   while search_pos < content.length() {
     let remaining = content.unsafe_substring(
       start=search_pos,
       end=content.length(),
     )
-    match remaining.find(prefix) {
+    match remaining.find(key) {
       Some(start) => {
-        let after_key = remaining.unsafe_substring(
+        let tail = remaining.unsafe_substring(
           start=start + prefix_len,
           end=remaining.length(),
         )
+        let quoted = tail.trim_start()
+        let whitespace_len = tail.length() - quoted.length()
+        search_pos = search_pos + start + prefix_len + whitespace_len
+        if !quoted.has_prefix("\"") {
+          continue
+        }
+        let after_key = quoted[1:]
         match after_key.find("\"") {
           Some(end_idx) => {
-            let value = after_key.unsafe_substring(start=0, end=end_idx)
+            let value = after_key[:end_idx].to_owned()
             if !result.contains(value) {
               result.push(value)
             }
-            search_pos = search_pos + start + prefix_len + end_idx + 1
+            search_pos = search_pos + end_idx + 2
           }
-          None => search_pos = search_pos + start + prefix_len
+          None => break
         }
       }
       None => break
@@ -770,7 +779,7 @@ fn parse_sidebar_config(obj : Map[String, Json]) -> @astra.SidebarConfig {
             _ => ()
           }
           if !text.is_empty() {
-            groups.push(@astra.SidebarGroup::{ text, link, collapsed, items })
+            groups.push(@astra.SidebarGroup::{ text, link, collapsed, items, })
           }
         }
       }
@@ -796,7 +805,7 @@ fn parse_i18n_config(obj : Map[String, Json]) -> @astra.I18nConfig {
               let code = @json_utils.extract_string(locale_obj, "code", "en")
               let label = @json_utils.extract_string(locale_obj, "label", code)
               let path = @json_utils.extract_string(locale_obj, "path", "")
-              locales.push(@astra.LocaleConfig::{ code, label, path })
+              locales.push(@astra.LocaleConfig::{ code, label, path, })
             }
           }
         _ => ()
@@ -808,7 +817,7 @@ fn parse_i18n_config(obj : Map[String, Json]) -> @astra.I18nConfig {
           path: "",
         })
       }
-      @astra.I18nConfig::{ default_locale, locales }
+      @astra.I18nConfig::{ default_locale, locales, }
     }
     _ => @astra.I18nConfig::default()
   }
@@ -824,7 +833,7 @@ fn parse_navigation_config(obj : Map[String, Json]) -> @astra.NavigationConfig {
         nav_obj, "view_transitions", true,
       )
       let keyboard = @json_utils.extract_bool(nav_obj, "keyboard", true)
-      @astra.NavigationConfig::{ spa, view_transitions, keyboard }
+      @astra.NavigationConfig::{ spa, view_transitions, keyboard, }
     }
     _ => @astra.NavigationConfig::default()
   }
@@ -993,7 +1002,7 @@ fn parse_header_config(obj : Map[String, Json]) -> @astra.HeaderConfig? {
         _ => ()
       }
       let sticky = @json_utils.extract_bool(header_obj, "sticky", false)
-      Some(@astra.HeaderConfig::{ left, center, right, sticky })
+      Some(@astra.HeaderConfig::{ left, center, right, sticky, })
     }
     _ => None
   }
@@ -1036,13 +1045,13 @@ fn parse_footer_config(obj : Map[String, Json]) -> @astra.FooterConfig? {
                         link_obj, "href", "",
                       )
                       if !label.is_empty() && !href.is_empty() {
-                        col_items.push(@astra.FooterLink::{ label, href })
+                        col_items.push(@astra.FooterLink::{ label, href, })
                       }
                     }
                   }
                 _ => ()
               }
-              links.push(@astra.FooterColumn::{ title, items: col_items })
+              links.push(@astra.FooterColumn::{ title, items: col_items, })
             }
           }
         _ => ()
@@ -1067,7 +1076,7 @@ fn parse_footer_config(obj : Map[String, Json]) -> @astra.FooterConfig? {
           }
         _ => ()
       }
-      Some(@astra.FooterConfig::{ message, copyright, links, top, bottom })
+      Some(@astra.FooterConfig::{ message, copyright, links, top, bottom, })
     }
     _ => None
   }
@@ -1084,7 +1093,7 @@ fn parse_social_links(obj : Map[String, Json]) -> Array[@astra.SocialLink] {
           let icon = @json_utils.extract_string(link_obj, "icon", "")
           let link = @json_utils.extract_string(link_obj, "link", "")
           if !icon.is_empty() && !link.is_empty() {
-            result.push(@astra.SocialLink::{ icon, link })
+            result.push(@astra.SocialLink::{ icon, link, })
           }
         }
       }
@@ -1104,7 +1113,7 @@ fn parse_ogp_config(obj : Map[String, Json]) -> @astra.OgpConfig {
         ogp_obj, "twitter_handle",
       )
       let twitter_card = @json_utils.extract_string_opt(ogp_obj, "twitter_card")
-      @astra.OgpConfig::{ site_url, image, twitter_handle, twitter_card }
+      @astra.OgpConfig::{ site_url, image, twitter_handle, twitter_card, }
     }
     _ => @astra.OgpConfig::default()
   }

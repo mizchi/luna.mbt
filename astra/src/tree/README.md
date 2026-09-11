@@ -216,7 +216,7 @@ Reference: https://llmstxt.org/
 ```
 src/sol/ssg/tree/
 ├── README.md           # This file
-├── moon.pkg.json
+├── moon.pkg
 ├── builder.mbt         # build_document_tree
 └── *_test.mbt          # Tests
 

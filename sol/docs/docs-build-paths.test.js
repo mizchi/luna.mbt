@@ -11,12 +11,11 @@ function read(relPath) {
   return fs.readFileSync(path.join(ROOT, relPath), "utf8");
 }
 
-test("justfile uses _build paths for CLI and test setup", () => {
+test("development tasks use the workspace CLI runner", () => {
   const justfile = read("justfile");
-  assert.match(justfile, /_build\/js\/debug\/build\/cli\/cli\.js/);
-  assert.match(justfile, /_build\/js\/debug\/test\/package\.json/);
-  assert.doesNotMatch(justfile, /target\/js\/debug\/build\/cli\/cli\.js/);
-  assert.doesNotMatch(justfile, /target\/js\/debug\/test\/package\.json/);
+  assert.match(justfile, /node \.\.\/scripts\/run-cli\.mjs sol/);
+  assert.doesNotMatch(justfile, /_build\/js\/debug\/build\/cli\/cli\.js/);
+  assert.doesNotMatch(justfile, /_setup-test-env/);
 });
 
 test("sol_auth runtime imports use _build output", () => {
@@ -29,7 +28,7 @@ test("sol_auth runtime imports use _build output", () => {
 });
 
 test("ssg component SSR loader resolves from _build", () => {
-  const loader = read("src/ssg/generator/component_ssr.mbt");
+  const loader = read("../astra/src/render/component_ssr.mbt");
   assert.match(loader, /_build\/js\/release\/build/);
   assert.doesNotMatch(loader, /target\/js\/release\/build/);
 });
@@ -37,7 +36,7 @@ test("ssg component SSR loader resolves from _build", () => {
 test("public docs avoid stale target/js path reference", () => {
   const readme = read("README.md");
   const srcReadme = read("src/README.md");
-  const websiteIndex = read("website/02_sol/index.md");
+  const websiteIndex = read("../website/02_sol/index.md");
   assert.doesNotMatch(readme, /target\/js\/debug\/build\/cli\/cli\.js/);
   assert.doesNotMatch(srcReadme, /target\/js\/debug\/build\/cli\/cli\.js/);
   assert.doesNotMatch(websiteIndex, /target\/js\/debug\/build\/cli\/cli\.js/);

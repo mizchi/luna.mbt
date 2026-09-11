@@ -1,11 +1,8 @@
 import {
   "mizchi/playwright" @pw,
-  "moonbitlang/async" @async,
-  "moonbitlang/core/strconv" @strconv,
+  "moonbitlang/async",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")
 
 supported_targets = "js"

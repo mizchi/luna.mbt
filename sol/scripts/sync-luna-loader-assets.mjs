@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 
 function parseArgs(argv) {
-  let lunaDir = process.env.LUNA_REPO_DIR ?? path.resolve(root, "..", "luna.mbt");
+  let lunaDir = process.env.LUNA_REPO_DIR ?? path.resolve(root, "..");
   let check = false;
   let strict = false;
 
@@ -85,20 +85,20 @@ function run() {
   const mappings = [
     {
       source: path.join(lunaDist, "loader.iife.js"),
-      target: path.join(root, "src", "ssg", "assets", "scripts", "loader.js"),
+      target: path.join(root, "..", "astra", "src", "assets", "scripts", "loader.js"),
       requiredMarkers: ["__LUNA_ALLOWED_HOSTS__", "__LUNA_SET_ALLOWED_HOSTS__"],
     },
     {
       source: path.join(lunaDist, "wc-loader.iife.js"),
-      target: path.join(root, "src", "ssg", "assets", "scripts", "wc-loader.js"),
+      target: path.join(root, "..", "astra", "src", "assets", "scripts", "wc-loader.js"),
     },
     {
       source: path.join(lunaDist, "sol-nav.js"),
-      target: path.join(root, "src", "ssg", "assets", "scripts", "sol-nav.js"),
+      target: path.join(root, "..", "astra", "src", "assets", "scripts", "sol-nav.js"),
     },
     {
       source: path.join(lunaDist, "lib.js"),
-      target: path.join(root, "src", "ssg", "assets", "scripts", "lib.js"),
+      target: path.join(root, "..", "astra", "src", "assets", "scripts", "lib.js"),
     },
   ];
 

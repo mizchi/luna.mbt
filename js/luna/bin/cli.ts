@@ -310,23 +310,21 @@ function getMbtTemplates(projectName: string): Template[] {
       ),
     },
     {
-      path: "moon.mod.json",
-      content: JSON.stringify(
-        {
-          name: `internal/${projectName}`,
-          version: "0.0.1",
-          deps: {
-            "mizchi/luna": "0.23.1",
-            "mizchi/signals": "0.6.4",
-            "mizchi/js": "0.12.1",
-            "mizchi/js_browser": "0.12.1",
-          },
-          source: "src",
-          "preferred-target": "js",
-        },
-        null,
-        2
-      ),
+      path: "moon.mod",
+      content: `name = ${JSON.stringify(`internal/${projectName}`)}
+version = "0.0.1"
+
+import {
+  "mizchi/luna@0.25.0",
+  "mizchi/signals@0.6.5",
+  "mizchi/js@0.12.2",
+  "mizchi/js_browser@0.12.2",
+}
+
+source = "src"
+preferred_target = "js"
+supported_targets = "js"
+`,
     },
     {
       path: "tsconfig.json",
@@ -392,34 +390,20 @@ import "mbt:internal/${projectName}";
 `,
     },
     {
-      path: "src/moon.pkg.json",
-      content: JSON.stringify(
-        {
-          "is-main": true,
-          "supported-targets": ["js"],
-          import: [
-            {
-              path: "mizchi/signals",
-              alias: "signal",
-            },
-            {
-              path: "mizchi/luna/dom",
-              alias: "dom",
-            },
-            {
-              path: "mizchi/js_browser/dom",
-              alias: "js_dom",
-            },
-          ],
-          link: {
-            js: {
-              format: "esm",
-            },
-          },
-        },
-        null,
-        2
-      ),
+      path: "src/moon.pkg",
+      content: `import {
+  "mizchi/signals" @signal,
+  "mizchi/luna/dom" @dom,
+  "mizchi/js_browser/dom" @js_dom,
+}
+
+supported_targets = "js"
+
+options(
+  "is-main": true,
+  link: { "js": { "format": "esm" } },
+)
+`,
     },
     {
       path: "src/lib.mbt",

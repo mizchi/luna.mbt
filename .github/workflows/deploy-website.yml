@@ -39,6 +39,7 @@ jobs:
       - run: moon update
 
       - run: pnpm install --frozen-lockfile
+      - run: node scripts/generate-examples.mjs
 
       # astra binary lives at _build/js/release/build/mizchi/astra/cmd/astra/astra.js,
       # produced by `moon build --target js --release`. Workspace-wide build

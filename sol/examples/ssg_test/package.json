@@ -3,9 +3,8 @@
   "version": "0.3.1",
   "type": "module",
   "scripts": {
-    "build": "node ../../_build/js/release/build/cli/cli.js build && npx tsx ../../scripts/shiki-highlight.ts dist",
-    "build:only": "node ../../_build/js/release/build/cli/cli.js build",
-    "shiki": "npx tsx ../../scripts/shiki-highlight.ts dist"
+    "build": "node ../../../scripts/run-cli.mjs astra build",
+    "build:only": "node ../../../scripts/run-cli.mjs astra build"
   },
   "devDependencies": {
     "shiki": "^4.4.3",

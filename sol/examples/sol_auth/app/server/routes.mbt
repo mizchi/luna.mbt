@@ -565,7 +565,7 @@ async fn user_profile(props : @sol.PageProps) -> @server_dom.ServerNode {
   let content = [
     div(class="user-profile", [
       div(class="user-header", [
-        div(class="user-avatar", [text(user_id[0:1].to_string())]),
+        div(class="user-avatar", [text(user_id[0:1].to_owned())]),
         div(class="user-info", [
           h1([text("@" + user_id)]),
           p(class="user-bio", [text("User profile for " + user_id)]),

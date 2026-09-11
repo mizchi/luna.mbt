@@ -1,23 +1,24 @@
 supported_targets = "js"
 
 import {
-  "mizchi/luna" @luna,
-  "mizchi/sol" @sol,
+  "mizchi/luna",
+  "mizchi/sol",
   "mizchi/sol/middleware" @mw,
-  "mizchi/sol/action" @action,
+  "mizchi/sol/action",
   "mizchi/sol_adapter_cloudflare" @sol_cloudflare,
   "mizchi/luna/dom/static" @server_dom,
-  "mizchi/js/core" @core,
-  "example/sol-auth/layout" @layout,
-  "example/sol-auth/__gen__/types" @types,
-  "example/sol-auth/client" @client,
+  "mizchi/js/core",
+  "example/sol-auth/layout",
+  "example/sol-auth/__gen__/types",
+  "example/sol-auth/client",
   "moonbitlang/core/json",
   "moonbitlang/async",
 }
 
 warnings = "-35-67-24-29"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: { "js": { "format": "esm" } },
 )

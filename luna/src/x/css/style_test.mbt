@@ -6,8 +6,8 @@ test "composition replaces a property together with its conditions" {
     rule_media("min-width:768px", "color", "purple"),
     rule("display", "flex"),
   ])
-  let override = create([rule("color", "blue")])
-  let result = compose([base, override])
+  let replacement = create([rule("color", "blue")])
+  let result = compose([base, replacement])
   assert_eq(
     attrs([result]).class_name,
     attrs([create([rule("color", "blue"), rule("display", "flex")])]).class_name,
@@ -148,7 +148,19 @@ test "themes compose while dynamic values stay out of generated CSS" {
 
 ///|
 test "custom property APIs reject ordinary properties" {
-  assert_true((try? create_theme([("color", "red")])) is Err(_))
-  assert_true((try? create([]).with_vars([("width", "12px")])) is Err(_))
-  assert_true((try? create_theme([("--bad;name", "red")])) is Err(_))
+  try create_theme([("color", "red")]) catch {
+    _ => ()
+  } noraise {
+    _ => fail("ordinary properties must be rejected")
+  }
+  try create([]).with_vars([("width", "12px")]) catch {
+    _ => ()
+  } noraise {
+    _ => fail("ordinary properties must be rejected")
+  }
+  try create_theme([("--bad;name", "red")]) catch {
+    _ => ()
+  } noraise {
+    _ => fail("invalid custom property names must be rejected")
+  }
 }

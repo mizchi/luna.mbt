@@ -56,15 +56,10 @@ Astra has no edge to Sol: its dependency graph is built on mars, markdown and lu
 
 Library:
 
-```jsonc
-// moon.mod.json
-{
-  "deps": {
-    "mizchi/astra": "0.23.2",
-    "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.23.2"
-  }
-}
+```sh
+moon add mizchi/astra
+moon add mizchi/mars
+moon add mizchi/luna
 ```
 
 CLI:

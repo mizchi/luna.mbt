@@ -187,7 +187,7 @@ fn convert_inline(inline : @md_parser.Inline) -> @markdown.MdNode? {
         definitions: [],
         span,
       })
-      Some(@markdown.MdNode::Html(html[3:html.length() - 5].to_string()))
+      Some(@markdown.MdNode::Html(html[3:html.length() - 5].to_owned()))
     }
     @md_parser.Inline::Text(content~, ..) =>
       Some(@markdown.MdNode::Text(content))

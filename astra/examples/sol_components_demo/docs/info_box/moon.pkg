@@ -1,0 +1,7 @@
+import {
+  "mizchi/luna",
+}
+
+options(
+  link: { "js": { "exports": [ "render" ], "format": "esm" } },
+)

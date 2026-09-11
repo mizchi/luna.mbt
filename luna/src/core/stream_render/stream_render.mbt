@@ -289,7 +289,7 @@ fn render_node_collecting_async(
         island_ids,
       )
       write("</div>")
-      boundaries.push({ id, async_node })
+      boundaries.push({ id, async_node, })
     }
     ErrorBoundary(boundary) =>
       render_node_collecting_async(
@@ -399,19 +399,7 @@ pub async fn render_to_stream_with_async(
 
 ///|
 fn extract_wc_name_from_url(url : String) -> String {
-  let parts = url.split("/").collect()
-  let filename_view = if parts.length() > 0 {
-    parts[parts.length() - 1]
-  } else {
-    "".view()
-  }
-  let filename = filename_view.to_owned()
-  let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    filename[:filename.length() - 3].to_owned()
-  } else {
-    filename
-  }
-  name.replace(old="_", new="-")
+  @core.component_tag_name(url)
 }
 
 ///|
@@ -421,5 +409,5 @@ priv struct IslandIdAllocator {}
 
 ///|
 fn new_island_id_allocator() -> IslandIdAllocator {
-  IslandIdAllocator::{  }
+  IslandIdAllocator::{ }
 }

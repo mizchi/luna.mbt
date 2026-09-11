@@ -4,14 +4,12 @@ UI primitive for MoonBit / JS. Fine-grained reactive signals, VDOM,
 hydration, stream renderer, file-based routing core, and the Island
 runtime that powers `mizchi/sol` and `mizchi/astra`.
 
-```jsonc
-// moon.mod.json
-{ "deps": { "mizchi/luna": "0.19.2" } }
+```sh
+moon add mizchi/luna
 ```
 
 For TypeScript consumers, the JS bindings ship as
-[`@luna_ui/luna`](https://www.npmjs.com/package/@luna_ui/luna) (also at
-0.19.x) — see `../js/luna/`.
+[`@luna_ui/luna`](https://www.npmjs.com/package/@luna_ui/luna) — see `../js/luna/`. npm and Mooncake versions are independent.
 
 ## Layout
 

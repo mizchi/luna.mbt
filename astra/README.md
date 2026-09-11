@@ -19,15 +19,10 @@ deps: mars + markdown + luna       (no edge to sol)
 
 Library:
 
-```jsonc
-// moon.mod.json
-{
-  "deps": {
-    "mizchi/astra": "0.23.2",
-    "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.23.2"
-  }
-}
+```sh
+moon add mizchi/astra
+moon add mizchi/mars
+moon add mizchi/luna
 ```
 
 CLI (binary):
@@ -122,7 +117,7 @@ Fences tagged plain ` ```mbt ` or ` ```moonbit ` are left as prose — only
 ` ```mbt check ` is compiled, so illustrative fragments still render fine.
 `_build/`, `target/` and `.mooncakes/` are always skipped by the docs walk.
 
-One caveat: astra treats a directory containing `moon.pkg.json` as a MoonBit
+One caveat: astra treats a directory containing `moon.pkg` or legacy `moon.pkg.json` as a MoonBit
 *component* directory. A directory holding `*.mbt.md` pages is recognised as a
 documentation package instead and walked for pages.
 

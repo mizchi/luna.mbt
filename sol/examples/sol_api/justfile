@@ -2,11 +2,11 @@
 
 # Generate code from sol.config.json
 gen:
-  node ../../_build/js/release/build/cli/cli.js generate
+  node ../../../scripts/run-cli.mjs sol generate
 
 # Build MoonBit to JS
 build:
-  moon build --target js
+  node ../../../scripts/run-cli.mjs sol build
 
 # Run all steps
 all: gen build
@@ -39,4 +39,4 @@ test-errors:
 
 # Clean generated files
 clean:
-  rm -rf app/__gen__ .sol target
+  rm -rf app/__gen__ .sol target _build

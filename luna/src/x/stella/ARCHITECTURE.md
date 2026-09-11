@@ -214,7 +214,7 @@ export function render(element: HTMLElement, state: unknown): void {
 ```
 src/stella/
 ├── ARCHITECTURE.md      # This file
-├── moon.pkg.json        # Package config
+├── moon.pkg        # Package config
 ├── types.mbt            # ShardConfig, StateConfig, ShardOutput
 ├── serializer.mbt       # JSON serialization with XSS escaping
 ├── html_builder.mbt     # HTML snippet generation

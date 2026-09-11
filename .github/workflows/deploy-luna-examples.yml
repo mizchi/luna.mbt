@@ -36,6 +36,7 @@ jobs:
       - run: moon update
 
       - run: pnpm install --frozen-lockfile
+      - run: node scripts/generate-examples.mjs
 
       # Examples emit to _build/js/release/build/mizchi/luna/examples/<id>/<id>.js.
       - run: moon build --target js --release

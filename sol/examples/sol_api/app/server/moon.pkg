@@ -1,7 +1,7 @@
 import {
-  "mizchi/sol" @sol,
-  "mizchi/sol/middleware" @middleware,
-  "example/sol-api/__gen__/types" @types,
+  "mizchi/sol",
+  "mizchi/sol/middleware",
+  "example/sol-api/__gen__/types",
   "moonbitlang/core/json",
   "moonbitlang/core/string",
   "moonbitlang/async",
@@ -9,9 +9,10 @@ import {
 
 warnings = "-35-67-29"
 
-options(
-  "is-main": true,
-  link: { "js": { "format": "esm" } },
-)
+pkgtype(kind: "executable")
 
 supported_targets = "js"
+
+options(
+  link: { "js": { "format": "esm" } },
+)

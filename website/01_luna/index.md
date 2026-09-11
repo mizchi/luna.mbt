@@ -82,9 +82,8 @@ export default function hydrate(element: Element, state: { initial: number }) {
 
 ### MoonBit (mooncake)
 
-```jsonc
-// moon.mod.json
-{ "deps": { "mizchi/luna": "0.23.0" } }
+```sh
+moon add mizchi/luna
 ```
 
 ### TypeScript (npm)

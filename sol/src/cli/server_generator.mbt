@@ -74,7 +74,7 @@ fn generate_server_main_mbt(
   buf.write_string("  app\n")
   buf.write_string("}\n\n")
   buf.write_string("///|\n")
-  buf.write_string("async fn main {\n")
+  buf.write_string("fn main {\n")
   let runner = match runtime {
     RuntimeNode => "@sol_node"
     RuntimeCloudflare => "@sol_cloudflare"

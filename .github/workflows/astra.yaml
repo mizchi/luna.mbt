@@ -45,6 +45,7 @@ jobs:
           version: latest
       - run: |
           moon update
+          node scripts/generate-examples.mjs
       - name: Build astra CLI bundle
         run: moon build --target js --release
       - name: Install Playwright Chromium

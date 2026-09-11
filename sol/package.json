@@ -1,15 +1,17 @@
 {
   "name": "@luna_ui/sol-workspace",
   "private": true,
-  "description": "MoonBit SSR/SSG Framework — workspace dev package (the npm-published CLI lives at js/sol/, name @luna_ui/sol)",
+  "description": "MoonBit SSR/SSG Framework \u2014 workspace dev package (the npm-published CLI lives at js/sol/, name @luna_ui/sol)",
   "type": "module",
   "scripts": {
-    "test": "moon test --target js",
+    "test": "just test",
     "test:e2e": "pnpm playwright test --config e2e/playwright.config.mts",
-    "check": "moon check",
-    "build": "moon build --target js",
+    "check": "just check",
+    "build": "just build",
     "bench:k6": "just bench-k6",
-    "bench:k6:quick": "just bench-k6-quick"
+    "bench:k6:quick": "just bench-k6-quick",
+    "test:mbt-e2e": "just test-mbt-e2e",
+    "test:hydration": "just test-sol-app-hydration"
   },
   "devDependencies": {
     "@hono/node-server": "^2.1.1",

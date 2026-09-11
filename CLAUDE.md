@@ -1,6 +1,6 @@
 # luna.mbt — Agent Notes
 
-Monorepo for five MoonBit packages plus their npm wrappers. Each
+Monorepo for six MoonBit packages plus their npm wrappers. Each
 mooncake publishes independently but lives and is tested together.
 
 ## Layout
@@ -8,13 +8,19 @@ mooncake publishes independently but lives and is tested together.
 | Path | Mooncake / npm | Role |
 |------|----------------|------|
 | `luna/`  | `mizchi/luna`  / `@luna_ui/luna`  | UI primitives — VDOM, hydration, stream renderer, Island runtime, signals, vite plugin |
+| `luna_components/` | `mizchi/luna_components` / `@luna_ui/components` | Headless and styled UI components |
 | `sol/`   | `mizchi/sol`   / `@luna_ui/sol`   | SSR framework over Mars (file-based routes, CLI under `sol/src/cmd/sol`) |
 | `sol_adapter_cloudflare/` | `mizchi/sol_adapter_cloudflare` / n/a | Cloudflare/Wrangler adapter utilities for Sol; depends on Sol, never the other way around |
+| `sol_adapter_node/` | `mizchi/sol_adapter_node` / n/a | Node.js adapter utilities for Sol |
 | `astra/` | `mizchi/astra` / `@luna_ui/astra` | Mountable Mars middleware for SSG (CLI under `astra/src/cmd/astra`) |
 
-`moon.work` ties the five together, plus `website/` — a docs-only
+`moon.work` ties the six libraries and 15 examples together, plus `website/` — a docs-only
 module (`mizchi/luna_docs`) whose `.mbt.md` pages carry compiled sample
-code. Workspace-wide `moon check` / `moon test` cover them all. `js/*`
+code. Run `just generate-examples` before calling `moon` in a fresh checkout;
+`just check` and `just test-moonbit` do this automatically. The JS checks cover
+the libraries, docs, and JS examples; `just test-workspace` also checks the
+Wasm island example with `wasm-gc`. The browser runner in `sol/e2e/mbt_e2e`
+is a separate module. `js/*`
 holds the npm wrappers — most are thin re-exports; `js/luna` is the real
 npm artifact (built by tsdown).
 
@@ -35,10 +41,11 @@ config — `luna/cliff.toml`), `sol/CHANGELOG.md`, `astra/CHANGELOG.md`.
 ```sh
 just check          # moon check --target js (workspace-wide)
 just fmt            # moon fmt
-just test-moonbit   # moon test --target js  (must stay 2891 PASS)
+just test-moonbit   # moon test --target js (baseline: 2941 passing tests)
+just test-workspace # manifests + standalone checks for all 15 examples
 just test-vitest    # node + browser vitest (luna)
 just test-e2e       # playwright (luna)
-pnpm test:integration   # cross-package smoke (build/dev parity + 7-example matrix)
+pnpm test:integration   # cross-package smoke (build/dev parity + 15-example matrix)
 ```
 
 Coordinated bumps:
@@ -47,18 +54,20 @@ node luna/scripts/vup.mjs --dry-run patch   # preview
 just vup patch                              # bump + per-package CHANGELOG
 just vup patch --release                    # commit + per-pkg tags (idempotent: reuses the pending bump above)
 ```
-`vup` is idempotent on semver bumps: if `moon.mod.json` in the working tree
+`vup` is idempotent on semver bumps: if `moon.mod` in the working tree
 is already ahead of HEAD, `--release` will NOT bump again — it will commit
 and tag the pending version. So the two-step flow above is safe, and so is
 running `just vup patch --release` directly from a clean tree.
-The script bumps the 5 mooncake manifests (`luna`, `luna_components`,
-`sol`, `sol_adapter_cloudflare`, `astra`) and the mooncake inter-dep refs.
+The script bumps the 6 mooncake manifests (`luna`, `luna_components`,
+`sol`, `sol_adapter_cloudflare`, `sol_adapter_node`, `astra`) and the mooncake inter-dep refs.
+It synchronizes those dependencies in example manifests while preserving
+the examples' own versions.
 It also rewrites the version literals embedded in
 `sol/src/cli/templates.mbt`, `sol/src/scaffold_templates/templates.mbt`,
 and `sol/src/version/version.mbt` so `sol new` scaffolds and the
 `sol --version` output stay aligned with the just-bumped versions.
 Tags are per-package: `luna-v<v>`, `luna_components-v<v>`, `sol-v<v>`,
-`sol_adapter_cloudflare-v<v>`, `astra-v<v>`.
+`sol_adapter_cloudflare-v<v>`, `sol_adapter_node-v<v>`, `astra-v<v>`.
 
 Mooncake publish after the tags land on origin:
 ```sh
@@ -95,10 +104,11 @@ independent of Mooncake versions, and recursive publish does not bump them.
 
 - Conventional Commits (`feat`/`fix`/`refactor`/`docs`/`chore`/...).
 - English for commit messages and public docs.
-- Every package targets `js` by default (`supported_targets = "js"` —
-  use the statement form, not the deprecated `options("supported-targets": ...)`).
-- `moon check` should stay at 0 errors; warnings are tracked but not
-  gated. `moon test --target js` MUST stay at 2891 PASS.
+- JS packages declare `supported_targets = "js"` in `moon.pkg` —
+  use the statement form, not the deprecated `options("supported-targets": ...)`.
+  `sol/examples/wasm_island_poc` targets `wasm-gc`.
+- Keep `moon check --target js --deny-warn` passing. The MoonBit test baseline
+  is 2941 passing tests; retain existing coverage when adding or reorganizing tests.
 - Code generation: sol's `__gen__/` lives under example projects and
   is regenerated by `sol generate`. Generators live in
   `sol/src/cli/{server,type,hydrate}_generator.mbt` and `templates.mbt` —

@@ -149,7 +149,7 @@ async fn get_item_handler(props : @sol.PageProps) -> Json {
   }
   let found = items_store.val.iter().find_first(fn(item) { item.id == id })
   match found {
-    Some(item) => item.to_json()
+    Some(item) => ToJson::to_json(item)
     None => @sol.not_found_response(message="Item not found").to_json()
   }
 }
@@ -171,7 +171,7 @@ async fn create_item_handler(props : @sol.PageProps) -> Json {
     created_at: get_timestamp(),
   }
   items_store.val.push(new_item)
-  new_item.to_json()
+  ToJson::to_json(new_item)
 }
 
 ///|
@@ -201,7 +201,7 @@ async fn update_item_handler(props : @sol.PageProps) -> Json {
     created_at: old_item.created_at,
   }
   items_store.val[i] = updated_item
-  updated_item.to_json()
+  ToJson::to_json(updated_item)
 }
 
 ///|
@@ -220,7 +220,7 @@ async fn delete_item_handler(props : @sol.PageProps) -> Json {
     .iter()
     .filter(fn(item) { item.id != id })
     .collect()
-  @sol.ok([("deleted", true.to_json()), ("item", removed.to_json())]).to_json()
+  @sol.ok([("deleted", true.to_json()), ("item", ToJson::to_json(removed))]).to_json()
 }
 
 ///|

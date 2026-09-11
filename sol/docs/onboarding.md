@@ -10,7 +10,7 @@ This establishes the steps for new members to join development as quickly as pos
 
 ## 1. Initial Setup
 
-Run the following after cloning this repository.
+From the monorepo, enter `sol/` and run the following after cloning.
 
 ```bash
 just bootstrap
@@ -20,7 +20,7 @@ What `just bootstrap` runs internally:
 
 - `pnpm install`
 - `moon update`
-- `moon install`
+- `node ../scripts/generate-examples.mjs`
 
 ## 2. Golden Path (Shortest Flow)
 

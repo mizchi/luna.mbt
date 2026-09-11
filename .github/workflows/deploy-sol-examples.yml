@@ -36,6 +36,7 @@ jobs:
       - run: moon update
 
       - run: pnpm install --frozen-lockfile
+      - run: node scripts/generate-examples.mjs
 
       # `sol build` runs `moon build --target js --release` itself, but the
       # workspace build also wires up loader / island chunks that downstream

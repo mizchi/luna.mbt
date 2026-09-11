@@ -78,37 +78,13 @@ test("worker auth doc covers route middleware and host Worker composition", () =
   assert.match(doc, /wrangler dev/);
 });
 
-test("deploy and runbook docs describe large-change deploy guard", () => {
-  const deploy = fs.readFileSync(DEPLOY, "utf8");
-  const runbook = fs.readFileSync(RUNBOOK, "utf8");
-  assert.match(deploy, /override_change_warning/);
-  assert.match(deploy, /FORCE_DEPLOY_LARGE_CHANGE/);
-  assert.match(deploy, /DOCS_CHANGE_WARN_THRESHOLD/);
-  assert.match(deploy, /docs-deploy-guard/);
-  assert.match(deploy, /close|クローズ/i);
-  assert.match(deploy, /同じ ref|same ref/i);
-  assert.match(deploy, /再利用|reuse|コメント/i);
-  assert.match(deploy, /最新|latest|集約|consolidat/i);
-  assert.match(deploy, /同じ sha|same sha/i);
-  assert.match(deploy, /整合性|integrity|sha256/i);
-  assert.match(deploy, /integrity_status|expected_sha256|verified_sha256/i);
-  assert.match(deploy, /docs_ref=|docs_sha=|検索|search/i);
-  assert.match(deploy, /stale_issue_count|stale_issue_numbers|summary|サマリ/i);
-  assert.match(deploy, /concurrency|同時実行/i);
-  assert.match(runbook, /DOCS_CHANGE_WARN_THRESHOLD/);
-  assert.match(runbook, /FORCE_DEPLOY_LARGE_CHANGE/);
-  assert.match(runbook, /docs-deploy-guard/);
-  assert.match(runbook, /close|クローズ/i);
-  assert.match(runbook, /同じ sha|same sha/i);
-  assert.match(runbook, /整合性|integrity|sha256/i);
-  assert.match(runbook, /integrity_status|expected_sha256|verified_sha256/i);
-  assert.match(runbook, /docs_ref=|docs_sha=|検索|search/i);
-  assert.match(runbook, /stale_issue_count|stale_issue_numbers|summary|サマリ/i);
-  assert.match(runbook, /同じ ref|same ref/i);
-  assert.match(runbook, /最新|latest|集約|consolidat/i);
-  assert.match(runbook, /成功|successful|close.*最新|latest/i);
-  assert.match(runbook, /再利用|reuse|comment|コメント/i);
-  assert.match(runbook, /concurrency|同時実行/i);
+test("deploy and runbook docs identify the active monorepo deployment", () => {
+  for (const file of [DEPLOY, RUNBOOK]) {
+    const doc = fs.readFileSync(file, "utf8");
+    assert.match(doc, /deploy-website\.yml/);
+    assert.match(doc, /website\/dist-docs/);
+    assert.doesNotMatch(doc, /FORCE_DEPLOY_LARGE_CHANGE|docs-deploy-guard/);
+  }
 });
 
 test("root README links quickstart and troubleshooting docs", () => {

@@ -225,12 +225,14 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         None => ()
       }
 
-      // Check if this is a component directory (contains moon.pkg.json).
+      // Check if this is a component directory (contains moon.pkg or moon.pkg.json).
       // A directory that also holds `*.mbt.md` pages is a documentation
       // package, not a component: recurse into it so those pages are routed.
-      let moon_pkg_path = join_path(entry_path, "moon.pkg.json")
-      if @env.FileSystem::exists_sync(filesystem, moon_pkg_path) &&
-        !has_moonbit_markdown(filesystem, entry_path) {
+      let has_package = filesystem.exists_sync(
+          join_path(entry_path, "moon.pkg"),
+        ) ||
+        filesystem.exists_sync(join_path(entry_path, "moon.pkg.json"))
+      if has_package && !has_moonbit_markdown(filesystem, entry_path) {
         // This is a component directory - treat as a single page
         let page = scan_component_dir_with_fs(
           filesystem, entry_path, entry_relative, i18n, trailing_slash,
@@ -956,7 +958,7 @@ pub fn check_duplicate_pages(
   for url in url_to_sources.keys() {
     let sources = url_to_sources.get(url).unwrap()
     if sources.length() > 1 {
-      duplicates.push(DuplicatePage::{ url_path: url, sources })
+      duplicates.push(DuplicatePage::{ url_path: url, sources, })
     }
   }
   duplicates
@@ -1019,12 +1021,12 @@ pub fn resolve_duplicate_pages(
         result.push(dynamic_pages[0])
         if dynamic_pages.length() > 1 {
           let sources = dynamic_pages.map(fn(p) { p.source_path })
-          unresolved.push(DuplicatePage::{ url_path: url, sources })
+          unresolved.push(DuplicatePage::{ url_path: url, sources, })
         }
       } else {
         // Multiple static pages or other conflict - can't auto-resolve
         let sources = page_list.map(fn(p) { p.source_path })
-        unresolved.push(DuplicatePage::{ url_path: url, sources })
+        unresolved.push(DuplicatePage::{ url_path: url, sources, })
         // Use first static page as fallback
         if static_pages.length() > 0 {
           result.push(static_pages[0])
@@ -1052,7 +1054,7 @@ pub fn find_prev_page(
     if page.url_path == current_url && i > 0 {
       let prev = sorted[i - 1]
       let text = prev.frontmatter.title.unwrap_or(url_to_name(prev.url_path))
-      return Some(@astra.NavLink::{ text, link: prev.url_path })
+      return Some(@astra.NavLink::{ text, link: prev.url_path, })
     }
   }
   None
@@ -1069,7 +1071,7 @@ pub fn find_next_page(
     if page.url_path == current_url && i < sorted.length() - 1 {
       let next = sorted[i + 1]
       let text = next.frontmatter.title.unwrap_or(url_to_name(next.url_path))
-      return Some(@astra.NavLink::{ text, link: next.url_path })
+      return Some(@astra.NavLink::{ text, link: next.url_path, })
     }
   }
   None

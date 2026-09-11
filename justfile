@@ -10,19 +10,27 @@ default: test-incremental
 # =============================================================================
 
 # インクリメンタルテスト（キャッシュ済みはスキップ）
-test-incremental:
+test-incremental: generate-examples
     pnpm turbo run test:moonbit test:vitest
 
 # 型チェック
-check:
+check: generate-examples
     moon check --target js
+
+# Sol サンプルの生成コードを準備（クリーン checkout から実行可能）
+generate-examples:
+    node scripts/generate-examples.mjs
+
+# ワークスペース登録・設定形式・サンプル単体の検証
+test-workspace:
+    node --test tests/integration/moon-workspace.test.js tests/integration/examples_matrix.test.js
 
 # フォーマット
 fmt:
     moon fmt
 
 # 自動リビルド
-watch:
+watch: generate-examples
     moon build --target js --watch
 
 # クリーン
@@ -39,7 +47,7 @@ retest *tasks="test:moonbit test:vitest":
 # =============================================================================
 
 # MoonBit ビルド
-build-moon:
+build-moon: generate-examples
     moon build --target js --release luna/src
     moon build --target js --release luna/src/js/api
     moon build --target js --release luna/src/js/api_signals
@@ -48,7 +56,7 @@ build-moon:
     @rm -f _build/js/release/build/package.json
 
 # MoonBit デバッグビルド（ソースマップ付き）
-build-debug:
+build-debug: generate-examples
     moon build --target js -g luna/src
     moon build --target js -g luna/src/js/api
     moon build --target js -g luna/src/js/api_signals
@@ -60,7 +68,7 @@ build-loader:
     pnpm turbo run @luna_ui/luna-loader#build
 
 # フルビルド（turbo経由）
-build:
+build: generate-examples
     pnpm turbo run build
     pnpm vite build --config luna/vite.config.ts
 
@@ -69,7 +77,7 @@ build:
 # =============================================================================
 
 # MoonBit ユニットテスト
-test-moonbit: _setup-test-env
+test-moonbit: generate-examples _setup-test-env
     moon test --target js
 
 # Vitest テスト

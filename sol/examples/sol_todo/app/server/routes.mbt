@@ -272,7 +272,7 @@ fn delete_todo(id : Int) -> Bool {
 /// GET /api/todos - List all todos
 async fn api_get_todos(_props : @sol.PageProps) -> Json {
   let todos = get_todos()
-  let todos_json : Array[Json] = todos.map(fn(t) { t.to_json() })
+  let todos_json : Array[Json] = todos.map(fn(t) { ToJson::to_json(t) })
   { "todos": todos_json.to_json() }.to_json()
 }
 
@@ -298,7 +298,7 @@ async fn api_add_todo(props : @sol.PageProps) -> Json {
     return { "error": "text is required" }.to_json()
   }
   let todo = add_todo(text)
-  todo.to_json()
+  ToJson::to_json(todo)
 }
 
 ///|

@@ -23,7 +23,7 @@ Islands を使用すると、静的ページ内にインタラクティブな Lu
 
 ## 設定
 
-### 1. sol.config.json
+### 1. astra.config.json
 
 Islands ディレクトリを設定します：
 
@@ -42,32 +42,26 @@ Islands ディレクトリを設定します：
 
 ```moonbit
 // src/examples/wiki/main.mbt
-pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
-  // コンポーネントを初期化
-  let container = el |> @luna_dom.DomElement::from_dom
-  // ... レンダリングロジック
+pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
+  let container = @luna_dom.DomElement::from_dom(el)
+  @luna_dom.render(container, @luna_dom.text("Hello from an island"))
 }
 ```
 
-パッケージ設定（`moon.pkg.json`）：
+パッケージ設定（`moon.pkg`）：
 
-```json
-{
-  "is-main": true,
-  "supported-targets": ["js"],
-  "import": [
-    "mizchi/luna/signal",
-    { "path": "mizchi/luna/dom/element", "alias": "dom" },
-    { "path": "mizchi/js_browser/dom", "alias": "js_dom" },
-    { "path": "mizchi/js/core", "alias": "js" }
-  ],
-  "link": {
-    "js": {
-      "format": "esm",
-      "exports": ["hydrate"]
-    }
-  }
+```moonbit
+import {
+  "mizchi/luna/dom" @luna_dom,
+  "mizchi/js_browser/dom" @js_dom,
+  "mizchi/js/core" @js,
 }
+
+supported_targets = "js"
+
+options(
+  link: { "js": { "format": "esm", "exports": ["hydrate"] } },
+)
 ```
 
 ### 3. Islands ディレクトリにコピー
@@ -75,7 +69,7 @@ pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
 ビルド後、コンパイルされた JS を Islands ディレクトリにコピーします：
 
 ```bash
-moon build --target js
+moon build --target js --release
 cp _build/js/release/build/examples/wiki/wiki.js docs/public/islands/
 ```
 
@@ -128,7 +122,7 @@ fn create_routes() -> Array[@routes.Routes] {
   ]
 }
 
-pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
+pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
   let base = "/wiki"
   let routes = create_routes()
   let router = @router.BrowserRouter::new(routes, base~)

@@ -53,9 +53,10 @@ fn send_static_text(
   body : String,
   content_type : String,
   cache_control : String,
+  status? : Int = 200,
 ) -> Unit {
   apply_static_headers(c, content_type, cache_control)
-  c.text(body)
+  c.text(body, status~)
 }
 
 ///|
@@ -124,7 +125,7 @@ pub fn StaticFileConfig::with_mapping(
 ) -> StaticFileConfig {
   let new_mappings = self.mappings.copy()
   new_mappings.push((url_filename, local_path))
-  { ..self, mappings: new_mappings }
+  { ..self, mappings: new_mappings, }
 }
 
 ///|
@@ -145,7 +146,7 @@ pub fn StaticDirServeConfig::new(
   // Map to .sol/prod/static/{path_prefix}
   let local_dir = ".sol/prod/static" +
     path_prefix.trim_end(chars="/").to_owned()
-  { path_prefix, local_dir }
+  { path_prefix, local_dir, }
 }
 
 ///|
@@ -209,7 +210,7 @@ async fn serve_static_html_async(
   let path = local_dir + "/" + filename
   match read_file_text(path) {
     Some(content) => c.html(content)
-    None => c.text("Not found: " + filename)
+    None => c.text("Not found: " + filename, status=404)
   }
 }
 
@@ -225,7 +226,7 @@ async fn serve_static_text_file(
   c.set_header("Content-Type", content_type)
   match read_file_text(path) {
     Some(content) => c.text(content)
-    None => c.text(not_found_body)
+    None => c.text(not_found_body, status=404)
   }
 }
 
@@ -242,6 +243,7 @@ async fn resolve_builtin_asset_from_disk(filename : String) -> String? {
     filename
   }
   let candidates = [
+    ".sol/dev/__sol__/" + filename,
     ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
     ".mooncakes/mizchi/astra/src/assets/scripts/" + filename,
   ]
@@ -274,7 +276,6 @@ async fn ensure_assets_preloaded() -> Unit {
   if assets_preloaded.val {
     return
   }
-  assets_preloaded.val = true
   for filename in sol_builtin_assets {
     // Try pre-built .sol/prod/__sol__/ first, then fallback to disk resolution
     let content = match read_file_text(".sol/prod/__sol__/" + filename) {
@@ -286,6 +287,8 @@ async fn ensure_assets_preloaded() -> Unit {
       None => ()
     }
   }
+  // Concurrent initial requests must wait for populated cache entries.
+  assets_preloaded.val = true
 }
 
 ///|
@@ -321,6 +324,7 @@ pub fn serve_sol_assets(app : App) -> Unit {
             "// Not found: " + filename,
             content_type,
             cache_ctl,
+            status=404,
           )
       }
     }),
@@ -362,6 +366,7 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> Unit {
                 "// " + url_file + " not found",
                 content_type,
                 cache_ctl,
+                status=404,
               )
               return
             }
@@ -388,7 +393,13 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> Unit {
           send_static_text(c, content, content_type, cache_ctl)
         }
         None =>
-          send_static_text(c, "Not found: " + filename, "text/plain", cache_ctl)
+          send_static_text(
+            c,
+            "Not found: " + filename,
+            "text/plain",
+            cache_ctl,
+            status=404,
+          )
       }
     }),
   )

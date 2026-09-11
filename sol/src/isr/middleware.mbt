@@ -64,7 +64,7 @@ pub async fn handle_isr_request(path : String) -> (String?, Bool) {
 pub fn schedule_revalidation(path : String) -> Unit {
   match get_isr_handler() {
     Some(handler) =>
-      handler.cache.schedule_revalidation(async fn() {
+      ISRCache::schedule_revalidation(handler.cache, async fn() {
         // In a real implementation, this would call SSG to regenerate
         // For now, just log
         println("ISR: Revalidating \{path}")
@@ -108,7 +108,7 @@ pub async fn create_isr_middleware(
       None => return None
     }
     let key = cache_key(path, [])
-    let entry = handler.cache.get(key)
+    let entry = ISRCache::get(handler.cache, key)
     let now = now_ms()
     let status = check_status(entry, now)
     let (html, needs_revalidation) = match status {

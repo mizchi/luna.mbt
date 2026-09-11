@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Resolve development CLI, example, SSG and documentation tasks from the monorepo.
+- Preserve typed route paths when `moon fmt` splits route calls across lines.
+- Apply the Cloudflare global seed compatibility patch in development and serve
+  generated runtime and island scripts through Wrangler Assets.
+- Wait for runtime asset cache initialization before serving concurrent requests;
+  return HTTP 404 for missing assets.
+- Mark successful island hydration and verify counter, form and CSR behavior
+  using Chromium and the published MoonBit Playwright bindings.
+
 ## 0.22.2 (2026-05-15)
 
 ### Added

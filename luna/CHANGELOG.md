@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Bug Fixes
+
+- Generate valid custom element names for plain component module filenames,
+  keeping Shadow DOM rendering consistent across DOM and SSR renderers.
+
+## [luna-v0.25.0] - 2026-09-10
+
+### Features
+
+- **luna**: Add animation and easing APIs with interactive demo
+
 ## [luna-v0.24.1] - 2026-09-10
 
 ### Bug Fixes
@@ -1351,5 +1364,4 @@ All notable changes to this project will be documented in this file.
 - Misc changes
 - Add types package generation for Props structs
 - Sol generate - parse mbti with moonbitlang/parser
-
 

@@ -1,18 +1,32 @@
 ///| Sol E2E Tests — MoonBit Playwright (WebDriver BiDi)
+
 ///|
+
 ///| Replaces parts of e2e/sol-app-hydration.spec.ts with MoonBit.
-///| Runs against sol_app example on localhost:3457.
 
-let base = "http://localhost:3457"
+///|
+/// The Playwright fixture supplies the server and owns the browser process.
+let base : String = ffi_env("SOL_E2E_BASE_URL")
 
+///|
+extern "js" fn ffi_env(name : String) -> String =
+  #| (name) => {
+  #|   const value = process.env[name];
+  #|   if (!value) throw new Error(`Missing ${name}; run just test-mbt-e2e from sol/`);
+  #|   return value;
+  #| }
+
+///|
 /// Per-test timeout (ms)
 let test_timeout = 15000
 
+///|
 /// Total suite timeout (ms)
 let suite_timeout = 300000
 
+///|
 async fn main {
-  // Global timeout: kill everything if suite hangs
+  // The parent fixture also enforces a timeout and closes its owned browser.
   match @async.with_timeout_opt(suite_timeout, run_suite) {
     Some(_) => ()
     None => {
@@ -24,70 +38,245 @@ async fn main {
 
 ///|
 async fn run_suite() -> Unit {
-  let browser = @pw.chromium().launch(headless=true)
+  let browser = @pw.chromium().connect(ffi_env("SOL_E2E_BIDI_URL"))
   println("Browser: \{browser.version()}")
   let passed = Ref(0)
   let failed = Ref(0)
   let errors : Array[String] = []
 
   // === Core functionality ===
-  run("evaluate expression", (b) => { test_evaluate(b) }, browser, passed, failed, errors)
-  run("evaluate arrow function", (b) => { test_arrow_fn(b) }, browser, passed, failed, errors)
-  run("evaluate returns object", (b) => { test_object_return(b) }, browser, passed, failed, errors)
+  run(
+    "evaluate expression",
+    b => test_evaluate(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "evaluate arrow function",
+    b => test_arrow_fn(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "evaluate returns object",
+    b => test_object_return(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === sol_app hydration tests (replaces sol-app-hydration.spec.ts) ===
-  run("home page SSR content", (b) => { test_home_ssr(b) }, browser, passed, failed, errors)
-  run("counter island visible", (b) => { test_counter_island_visible(b) }, browser, passed, failed, errors)
-  run("counter island JS loads", (b) => { test_island_js_loads(b) }, browser, passed, failed, errors)
-  run("API health returns 200 JSON", (b) => { test_api_health(b) }, browser, passed, failed, errors)
-  run("about page renders", (b) => { test_about_page(b) }, browser, passed, failed, errors)
-  run("CSR navigation click", (b) => { test_csr_navigation(b) }, browser, passed, failed, errors)
-  run("404 response", (b) => { test_404(b) }, browser, passed, failed, errors)
-  run("fragment request works", (b) => { test_fragment_request(b) }, browser, passed, failed, errors)
+  run(
+    "home page SSR content",
+    b => test_home_ssr(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "counter island visible",
+    b => test_counter_island_visible(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "counter island JS loads",
+    b => test_island_js_loads(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "API health returns 200 JSON",
+    b => test_api_health(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "about page renders",
+    b => test_about_page(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "CSR navigation click",
+    b => test_csr_navigation(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run("404 response", b => test_404(b), browser, passed, failed, errors)
+  run(
+    "fragment request works",
+    b => test_fragment_request(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === Hydration error detection (replaces TS console event tests) ===
-  run("no hydration errors on home", (b) => { test_no_hydration_errors(b, "/") }, browser, passed, failed, errors)
-  run("no hydration errors on about", (b) => { test_no_hydration_errors(b, "/about") }, browser, passed, failed, errors)
-  run("no WC counter errors", (b) => { test_no_wc_errors(b) }, browser, passed, failed, errors)
+  run(
+    "no hydration errors on home",
+    b => test_no_hydration_errors(b, "/"),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "no hydration errors on about",
+    b => test_no_hydration_errors(b, "/about"),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "no WC counter errors",
+    b => test_no_wc_errors(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === Interaction + fetch helpers ===
-  run("counter click increments", (b) => { test_counter_click(b) }, browser, passed, failed, errors)
-  run("fetch_json API health", (b) => { test_fetch_json(b) }, browser, passed, failed, errors)
-  run("fetch_json POST action", (b) => { test_fetch_post(b) }, browser, passed, failed, errors)
+  run(
+    "counter click increments",
+    b => test_counter_click(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "fetch_json API health",
+    b => test_fetch_json(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "fetch_json POST action",
+    b => test_fetch_post(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === Navigation ===
-  run("navigate all pages", (b) => { test_navigate_all(b) }, browser, passed, failed, errors)
+  run(
+    "navigate all pages",
+    b => test_navigate_all(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === Admin layout ===
-  run("admin nested layout", (b) => { test_admin_layout(b) }, browser, passed, failed, errors)
-  run("admin CSR navigation", (b) => { test_admin_csr_nav(b) }, browser, passed, failed, errors)
+  run(
+    "admin nested layout",
+    b => test_admin_layout(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "admin CSR navigation",
+    b => test_admin_csr_nav(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === WC Counter (shadow DOM) ===
-  run("WC counter direct load", (b) => { test_wc_counter_direct(b) }, browser, passed, failed, errors)
+  run(
+    "WC counter direct load",
+    b => test_wc_counter_direct(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === Form ===
-  run("form fill + two-way binding", (b) => { test_form_binding(b) }, browser, passed, failed, errors)
-  run("form submit via fetch", (b) => { test_form_submit(b) }, browser, passed, failed, errors)
-  run("form re-hydration", (b) => { test_form_rehydration(b) }, browser, passed, failed, errors)
+  run(
+    "form fill + two-way binding",
+    b => test_form_binding(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "form submit via fetch",
+    b => test_form_submit(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "form re-hydration",
+    b => test_form_rehydration(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === Re-hydration ===
-  run("counter A→B→A re-hydration", (b) => { test_counter_rehydration(b) }, browser, passed, failed, errors)
-  run("multiple round trips", (b) => { test_round_trips(b) }, browser, passed, failed, errors)
+  run(
+    "counter A→B→A re-hydration",
+    b => test_counter_rehydration(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
+  run(
+    "multiple round trips",
+    b => test_round_trips(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === Parallel safety ===
-  run("parallel: home", (b) => { test_home_ssr(b) }, browser, passed, failed, errors)
-  run("parallel: api", (b) => { test_api_health(b) }, browser, passed, failed, errors)
+  run("parallel: home", b => test_home_ssr(b), browser, passed, failed, errors)
+  run("parallel: api", b => test_api_health(b), browser, passed, failed, errors)
 
   println("")
   println("Results: \{passed.val} passed, \{failed.val} failed")
-  if !(errors.is_empty()) {
+  if !errors.is_empty() {
     println("Failures:")
     for e in errors {
       println("  ✗ \{e}")
     }
   }
   browser.close()
-  // Force exit — chromium-bidi's WebSocketServer keeps the process alive
+  // Report suite failures through the process status to the parent fixture.
   ffi_exit(if failed.val > 0 { 1 } else { 0 })
 }
 
@@ -128,14 +317,14 @@ async fn run(
 ///|
 async fn test_evaluate(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
-  @pw.expect(page.evaluate("1 + 1")).to_equal(Json::number(2.0))
+  assert_eq(page.evaluate("1 + 1"), Json::number(2.0))
   page.close()
 }
 
 ///|
 async fn test_arrow_fn(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
-  @pw.expect(page.evaluate("() => 42")).to_equal(Json::number(42.0))
+  assert_eq(page.evaluate("() => 42"), Json::number(42.0))
   page.close()
 }
 
@@ -166,14 +355,71 @@ async fn test_home_ssr(browser : @pw.Browser) -> Unit {
 }
 
 ///|
+async fn wait_hydrated(page : @pw.Page) -> Unit {
+  let _ = page.wait_for_function(
+    "() => Array.from(document.querySelectorAll('*')).filter(el => el.hasAttribute('luna:wc-url')).every(el => el.hasAttribute('data-sol-hydrated'))",
+  )
+}
+
+///|
+async fn navigate(page : @pw.Page, path : String) -> Unit {
+  page.locator("nav a[href=\"\{path}\"]").first().click()
+  let _ = page.wait_for_function(
+    "() => location.pathname === " + Json::string(path).stringify(),
+  )
+  wait_hydrated(page)
+}
+
+///|
+async fn increment_counter(
+  page : @pw.Page,
+  host? : String = "luna-counter",
+) -> Unit {
+  wait_hydrated(page)
+  let root = "document.querySelector(" +
+    Json::string(host).stringify() +
+    ").shadowRoot"
+  let read_count = "Number(" +
+    root +
+    ".querySelector('.count-display').textContent)"
+  let initial = match page.evaluate("() => " + read_count) {
+    Number(n, ..) => n.to_int()
+    _ => fail("expected a numeric counter value")
+  }
+  let _ = page.evaluate(
+    "() => " + root + ".querySelector('button.inc').click()",
+  )
+  let _ = page.wait_for_function(
+    "() => " + read_count + " === " + (initial + 1).to_string(),
+  )
+}
+
+///|
+async fn fill_form(page : @pw.Page, name : String, email : String) -> Unit {
+  wait_hydrated(page)
+  let _ = page.evaluate(
+    "() => { const root = document.querySelector('contact-form').shadowRoot; " +
+    "const values = { name: " +
+    Json::string(name).stringify() +
+    ", email: " +
+    Json::string(email).stringify() +
+    " }; " +
+    "for (const [key, value] of Object.entries(values)) { const el = root.querySelector('#' + key); el.value = value; el.dispatchEvent(new Event('input', { bubbles: true, composed: true })); } }",
+  )
+  let _ = page.wait_for_function(
+    "() => document.querySelector('contact-form').shadowRoot.querySelector('.preview-name').textContent === " +
+    Json::string(name).stringify(),
+  )
+}
+
+///|
 async fn test_counter_island_visible(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  // Check counter element exists in SSR HTML
-  let has_counter = page.evaluate(
-    "() => document.querySelector('.counter') !== null",
+  let _ = page.wait_for_function(
+    "() => !!document.querySelector('luna-counter')?.shadowRoot?.querySelector('.counter')",
   )
-  @pw.expect(has_counter).to_equal(Json::boolean(true))
+  @pw.expect(page.shadow_text("luna-counter", ".count-display").length() > 0).to_be_truthy()
   page.close()
 }
 
@@ -185,7 +431,7 @@ async fn test_island_js_loads(browser : @pw.Browser) -> Unit {
   let status = page.evaluate(
     "() => fetch('/static/counter.js').then(r => r.status)",
   )
-  @pw.expect(status).to_equal(Json::number(200.0))
+  assert_eq(status, Json::number(200.0))
   page.close()
 }
 
@@ -216,24 +462,8 @@ async fn test_about_page(browser : @pw.Browser) -> Unit {
 async fn test_csr_navigation(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  page.wait_for_load_state(state="load")
-  // Click the about link via evaluate (CSR navigation)
-  let _ = page.evaluate(
-    "() => { const a = document.querySelector('a[href=\"/about\"]'); if (a) a.click(); }",
-  )
-  // Wait for navigation
-  page.wait_for_timeout(2000)
-  // Check URL changed
-  let url = page.evaluate("() => location.pathname")
-  match url {
-    String(path) => @pw.expect(path).to_contain("about")
-    _ =>
-      // CSR navigation may not change URL in headless — check content instead
-      {
-        let content = page.content()
-        @pw.expect(content).to_contain("About")
-      }
-  }
+  navigate(page, "/about")
+  @pw.expect(page.wait_for_content("About")).to_be_truthy()
   page.close()
 }
 
@@ -254,7 +484,7 @@ async fn test_fragment_request(browser : @pw.Browser) -> Unit {
   let status = page.evaluate(
     "() => fetch('/about', { headers: { 'X-Sol-Fragment': '1' } }).then(r => r.status)",
   )
-  @pw.expect(status).to_equal(Json::number(200.0))
+  assert_eq(status, Json::number(200.0))
   page.close()
 }
 
@@ -267,7 +497,7 @@ async fn test_no_hydration_errors(browser : @pw.Browser, path : String) -> Unit 
   let page = browser.new_page()
   let _ = page.goto("\{base}\{path}")
   // Wait for hydration to complete
-  page.ensure_hydration()
+  wait_hydrated(page)
   // Check console errors for hydration failures
   let errors = page.console_errors()
   let hydration_errors = errors.filter(fn(m) {
@@ -281,7 +511,7 @@ async fn test_no_hydration_errors(browser : @pw.Browser, path : String) -> Unit 
 async fn test_no_wc_errors(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  page.ensure_hydration()
+  wait_hydrated(page)
   let errors = page.console_errors()
   let wc_errors = errors.filter(fn(m) {
     m.text.contains("WcCounterProps") || m.text.contains("wc_counter")
@@ -298,24 +528,7 @@ async fn test_no_wc_errors(browser : @pw.Browser) -> Unit {
 async fn test_counter_click(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  page.ensure_hydration()
-  let initial = page.evaluate(
-    "() => parseInt(document.querySelector('.count-display')?.textContent || '0')",
-  )
-  let initial_n = match initial {
-    Number(n, ..) => n.to_int()
-    _ => 0
-  }
-  // Use evaluate click (locator.click may trigger unintended navigation)
-  let _ = page.evaluate("() => document.querySelector('button.inc')?.click()")
-  page.wait_for_timeout(500)
-  let after = page.evaluate(
-    "() => parseInt(document.querySelector('.count-display')?.textContent || '0')",
-  )
-  match after {
-    Number(n, ..) => @pw.expect(n.to_int()).to_be(initial_n + 1)
-    _ => fail("expected number after click")
-  }
+  increment_counter(page)
   page.close()
 }
 
@@ -342,7 +555,7 @@ async fn test_fetch_post(browser : @pw.Browser) -> Unit {
   let _ = page.goto("\{base}/")
   let (status, json) = page.fetch_json(
     "\{base}/_action/submit-contact",
-    method="POST",
+    http_method="POST",
     body="{\"name\":\"Test\",\"email\":\"test@example.com\"}",
     headers=[("Content-Type", "application/json"), ("Origin", "\{base}")],
   )
@@ -366,22 +579,10 @@ async fn test_fetch_post(browser : @pw.Browser) -> Unit {
 async fn test_navigate_all(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  // Navigate via evaluate click (more reliable than locator for CSR links)
-  let nav_click = fn(href : String) {
-    "() => { document.querySelector('nav a[href=\"" + href + "\"]')?.click(); }"
+  for path in ["/about", "/form", "/wc-counter", "/"] {
+    navigate(page, path)
+    assert_eq(page.evaluate("() => location.pathname"), Json::string(path))
   }
-  let _ = page.evaluate(nav_click("/about"))
-  page.wait_for_timeout(2000)
-  @pw.expect(page.evaluate("() => location.pathname")).to_equal(Json::string("/about"))
-  let _ = page.evaluate(nav_click("/form"))
-  page.wait_for_timeout(2000)
-  @pw.expect(page.evaluate("() => location.pathname")).to_equal(Json::string("/form"))
-  let _ = page.evaluate(nav_click("/wc-counter"))
-  page.wait_for_timeout(2000)
-  @pw.expect(page.evaluate("() => location.pathname")).to_equal(Json::string("/wc-counter"))
-  let _ = page.evaluate(nav_click("/"))
-  page.wait_for_timeout(2000)
-  @pw.expect(page.evaluate("() => location.pathname")).to_equal(Json::string("/"))
   page.close()
 }
 
@@ -404,11 +605,15 @@ async fn test_admin_csr_nav(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/admin")
   // Admin → Settings (via evaluate click + wait_for_content)
-  let _ = page.evaluate("() => document.querySelector('.admin-sidebar a[href=\"/admin/settings\"]')?.click()")
+  let _ = page.evaluate(
+    "() => document.querySelector('.admin-sidebar a[href=\"/admin/settings\"]')?.click()",
+  )
   @pw.expect(page.wait_for_content("Settings")).to_be_truthy()
   @pw.expect(page.content()).to_contain("admin-sidebar")
   // Settings → Users
-  let _ = page.evaluate("() => document.querySelector('.admin-sidebar a[href=\"/admin/users\"]')?.click()")
+  let _ = page.evaluate(
+    "() => document.querySelector('.admin-sidebar a[href=\"/admin/users\"]')?.click()",
+  )
   @pw.expect(page.wait_for_content("User Management")).to_be_truthy()
   page.close()
 }
@@ -421,19 +626,7 @@ async fn test_admin_csr_nav(browser : @pw.Browser) -> Unit {
 async fn test_form_binding(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/form")
-  page.wait_for_timeout(2000)
-  // Fill name via locator
-  page.fill_input("input[name=\"name\"]","Test User")
-  page.fill_input("input[name=\"email\"]","test@example.com")
-  page.wait_for_timeout(500)
-  // Check two-way binding preview
-  let preview = page.evaluate(
-    "() => document.querySelector('.preview-name')?.textContent || ''",
-  )
-  match preview {
-    String(s) => @pw.expect(s).to_contain("Test User")
-    _ => fail("expected preview text")
-  }
+  fill_form(page, "Test User", "test@example.com")
   page.close()
 }
 
@@ -444,7 +637,7 @@ async fn test_form_submit(browser : @pw.Browser) -> Unit {
   let _ = page.goto("\{base}/form")
   let (status, json) = page.fetch_json(
     "\{base}/_action/submit-contact",
-    method="POST",
+    http_method="POST",
     body="{\"name\":\"Submit User\",\"email\":\"submit@example.com\"}",
     headers=[("Content-Type", "application/json"), ("Origin", "\{base}")],
   )
@@ -468,42 +661,7 @@ async fn test_form_submit(browser : @pw.Browser) -> Unit {
 async fn test_wc_counter_direct(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/wc-counter")
-  page.wait_for_timeout(3000)
-  // WC uses Declarative Shadow DOM — access via shadowRoot
-  let count_text = page.shadow_text("wc-counter", ".count-display")
-  @pw.expect(count_text.length() > 0).to_be_truthy()
-  let initial = try { @strconv.parse_int(count_text) } catch { _ => 0 }
-  // Click increment via shadow DOM
-  page.shadow_click("wc-counter", "button.inc")
-  page.wait_for_timeout(500)
-  let after_text = page.shadow_text("wc-counter", ".count-display")
-  let after = try { @strconv.parse_int(after_text) } catch { _ => 0 }
-  // NOTE: shadow_click dispatches DOM click but luna WC event handlers use
-  //   data-on-click attribute binding. If handler isn't attached yet, count won't change.
-  //   Verify at least that shadow DOM is accessible and count is readable.
-  @pw.expect(after_text.length() > 0).to_be_truthy()
-  page.close()
-}
-
-///|
-async fn test_wc_counter_csr(browser : @pw.Browser) -> Unit {
-  let page = browser.new_page()
-  let _ = page.goto("\{base}/")
-  // CSR navigate to wc-counter
-  page.locator("nav a[href=\"/wc-counter\"]").first().click()
-  page.wait_for_timeout(2000)
-  let content = page.content()
-  @pw.expect(content).to_contain("wc-counter")
-  // Verify counter works
-  let _ = page.evaluate("() => document.querySelector('wc-counter button.inc')?.click()")
-  page.wait_for_timeout(500)
-  let count = page.evaluate(
-    "() => parseInt(document.querySelector('wc-counter .count-display')?.textContent || '0')",
-  )
-  match count {
-    Number(v, ..) => @pw.expect(v.to_int() > 0).to_be_truthy()
-    _ => fail("expected counter value")
-  }
+  increment_counter(page, host="wc-counter")
   page.close()
 }
 
@@ -515,26 +673,10 @@ async fn test_wc_counter_csr(browser : @pw.Browser) -> Unit {
 async fn test_counter_rehydration(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  page.wait_for_timeout(2000)
-  // Click increment
-  page.locator("button.inc").click()
-  page.wait_for_timeout(500)
-  // Navigate to About
-  page.locator("nav a[href=\"/about\"]").first().click()
-  page.wait_for_timeout(1000)
-  // Navigate back to Home
-  page.locator("nav a[href=\"/\"]").first().click()
-  page.wait_for_timeout(2000)
-  // Counter should work again
-  page.locator("button.inc").click()
-  page.wait_for_timeout(500)
-  let count = page.evaluate(
-    "() => parseInt(document.querySelector('.count-display')?.textContent || '0')",
-  )
-  match count {
-    Number(v, ..) => @pw.expect(v.to_int() > 0).to_be_truthy()
-    _ => fail("expected counter value after re-hydration")
-  }
+  increment_counter(page)
+  navigate(page, "/about")
+  navigate(page, "/")
+  increment_counter(page)
   page.close()
 }
 
@@ -542,24 +684,10 @@ async fn test_counter_rehydration(browser : @pw.Browser) -> Unit {
 async fn test_form_rehydration(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/form")
-  page.wait_for_timeout(2000)
-  page.fill_input("input[name=\"name\"]","Original")
-  page.wait_for_timeout(500)
-  // Navigate away and back
-  page.locator("nav a[href=\"/about\"]").first().click()
-  page.wait_for_timeout(1000)
-  page.locator("nav a[href=\"/form\"]").first().click()
-  page.wait_for_timeout(2000)
-  // Form should be functional again
-  page.fill_input("input[name=\"name\"]","New Name")
-  page.wait_for_timeout(500)
-  let preview = page.evaluate(
-    "() => document.querySelector('.preview-name')?.textContent || ''",
-  )
-  match preview {
-    String(s) => @pw.expect(s).to_contain("New Name")
-    _ => fail("expected preview after re-hydration")
-  }
+  fill_form(page, "Original", "original@example.com")
+  navigate(page, "/about")
+  navigate(page, "/form")
+  fill_form(page, "New Name", "new@example.com")
   page.close()
 }
 
@@ -567,24 +695,10 @@ async fn test_form_rehydration(browser : @pw.Browser) -> Unit {
 async fn test_round_trips(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  // Round trip 1: Home → About → Home
-  page.locator("nav a[href=\"/about\"]").first().click()
-  page.wait_for_timeout(1000)
-  page.locator("nav a[href=\"/\"]").first().click()
-  page.wait_for_timeout(2000)
-  page.locator("button.inc").click()
-  // Round trip 2: Home → Form → Home
-  page.locator("nav a[href=\"/form\"]").first().click()
-  page.wait_for_timeout(1000)
-  page.locator("nav a[href=\"/\"]").first().click()
-  page.wait_for_timeout(2000)
-  // Counter should still work
-  let count = page.evaluate(
-    "() => document.querySelector('.count-display')?.textContent || ''",
-  )
-  match count {
-    String(s) => @pw.expect(s.length() > 0).to_be_truthy()
-    _ => ()
+  for path in ["/about", "/form"] {
+    navigate(page, path)
+    navigate(page, "/")
+    increment_counter(page)
   }
   page.close()
 }

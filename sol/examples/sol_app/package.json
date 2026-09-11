@@ -3,9 +3,9 @@
   "version": "0.3.1",
   "type": "module",
   "scripts": {
-    "dev": "node ../../_build/js/release/build/cli/cli.js dev",
-    "build": "node ../../_build/js/release/build/cli/cli.js build",
-    "serve": "node ../../_build/js/release/build/cli/cli.js serve",
+    "dev": "node ../../../scripts/run-cli.mjs sol dev",
+    "build": "node ../../../scripts/run-cli.mjs sol build",
+    "serve": "node ../../../scripts/run-cli.mjs sol serve",
     "test": "playwright test",
     "test:e2e": "playwright test tests/e2e.test.ts",
     "bench": "k6 run bench/all.js",

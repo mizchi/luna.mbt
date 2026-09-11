@@ -1,0 +1,9 @@
+// Build the generator before examples' app/__gen__ packages exist.
+members = [
+  "../luna",
+  "../luna_components",
+  "../sol",
+  "../sol_adapter_cloudflare",
+  "../sol_adapter_node",
+  "../astra",
+]

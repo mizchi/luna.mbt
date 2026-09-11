@@ -329,16 +329,12 @@ test("generated types dependency remains acyclic for client code", () => {
     `sol generate failed\nstdout:\n${generate.stdout}\nstderr:\n${generate.stderr}`
   );
 
-  const appClientPkg = JSON.parse(
-    fs.readFileSync(path.join(SOL_APP, "app", "client", "moon.pkg.json"), "utf8")
+  const appClientPkg = fs.readFileSync(
+    path.join(SOL_APP, "app", "client", "moon.pkg"), "utf8"
   );
-  assert.ok(
-    appClientPkg.import.some(
-      (entry) =>
-        typeof entry === "object" &&
-        entry.path === "example/sol-app/__gen__/types" &&
-        entry.alias === "types"
-    ),
+  assert.match(
+    appClientPkg,
+    /"example\/sol-app\/__gen__\/types"(?:\s+@types)?\s*,/,
     "app/client must import generated @types for action keys and props"
   );
 

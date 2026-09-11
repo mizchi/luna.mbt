@@ -24,7 +24,7 @@ pub fn[FS : @env.FileSystem] scan_pages_dir(
   let routes : Array[RouteEntry] = []
   let root_config = PageConfig::default()
   scan_recursive(fs, full_path, pages_dir, "", root_config, routes)
-  RouteManifest::{ routes, fallback: FallbackConfig::default() }
+  RouteManifest::{ routes, fallback: FallbackConfig::default(), }
 }
 
 ///|
@@ -61,9 +61,9 @@ fn[FS : @env.FileSystem] scan_recursive(
       rel_path + "/" + entry
     }
     if is_directory(fs, entry_path) {
-      // Check if it's a component directory (has moon.pkg.json)
-      let moon_pkg_path = join_path(entry_path, "moon.pkg.json")
-      if fs.exists_sync(moon_pkg_path) {
+      // Recognize current and legacy package manifests.
+      if fs.exists_sync(join_path(entry_path, "moon.pkg")) ||
+        fs.exists_sync(join_path(entry_path, "moon.pkg.json")) {
         // Component directory - process as component
         process_component_dir(
           fs, entry_path, pages_dir, entry_rel, config, routes,
@@ -187,7 +187,7 @@ pub fn build_static_paths(
     // Build output path from params
     // e.g., base="counter", params={"id": "1"} -> "counter/1/index.html"
     let output = build_output_path_from_params(base_path, params)
-    result.push(StaticPathEntry::{ params, output })
+    result.push(StaticPathEntry::{ params, output, })
   }
   result
 }
@@ -265,7 +265,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir(
       )
       let regex_pattern = build_regex_pattern(url_pattern)
       let catch_all_info = if is_catch_all {
-        Some(CatchAllInfo::{ name: param_name, optional: false })
+        Some(CatchAllInfo::{ name: param_name, optional: false, })
       } else {
         None
       }
@@ -325,7 +325,7 @@ fn process_dynamic_page_file(
   )
   let regex_pattern = build_regex_pattern(url_pattern)
   let catch_all_info = if is_catch_all {
-    Some(CatchAllInfo::{ name: param_name, optional: false })
+    Some(CatchAllInfo::{ name: param_name, optional: false, })
   } else {
     None
   }
@@ -418,7 +418,7 @@ fn process_page_file(
       } else {
         handler_config.islands
       }
-      PageConfig::{ ..config, layout, islands }
+      PageConfig::{ ..config, layout, islands, }
     }
     None => config
   }
@@ -477,7 +477,7 @@ pub fn extract_param_name(dir_name : String) -> ParamInfo? {
   // Check for catch-all pattern with triple underscores: ___name___
   if dir_name.has_prefix("___") && dir_name.has_suffix("___") && len > 6 {
     let inner = @utils.extract_substring(dir_name, 3, len - 3)
-    return Some(ParamInfo::{ name: inner, catch_all: true })
+    return Some(ParamInfo::{ name: inner, catch_all: true, })
   }
   // Check for single param pattern: _name_
   if dir_name.has_prefix("_") && dir_name.has_suffix("_") && len > 2 {
@@ -486,9 +486,9 @@ pub fn extract_param_name(dir_name : String) -> ParamInfo? {
     // Check for catch-all pattern _...name_ (legacy)
     if inner.has_prefix("...") && inner.length() > 3 {
       let name = @utils.extract_substring(inner, 3, inner.length())
-      Some(ParamInfo::{ name, catch_all: true })
+      Some(ParamInfo::{ name, catch_all: true, })
     } else {
-      Some(ParamInfo::{ name: inner, catch_all: false })
+      Some(ParamInfo::{ name: inner, catch_all: false, })
     }
   } else {
     None

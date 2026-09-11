@@ -48,11 +48,11 @@ myapp/
 myapp/
 ├── index.html
 ├── package.json
-├── moon.mod.json
+├── moon.mod
 ├── vite.config.ts
 ├── main.ts
 └── src/
-    ├── moon.pkg.json
+    ├── moon.pkg
     └── lib.mbt
 ```
 

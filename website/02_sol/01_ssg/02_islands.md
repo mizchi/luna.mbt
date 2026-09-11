@@ -23,7 +23,7 @@ Islands allow you to embed interactive Luna (MoonBit) components within static p
 
 ## Configuration
 
-### 1. sol.config.json
+### 1. astra.config.json
 
 Configure the islands directory:
 
@@ -42,32 +42,26 @@ Create a MoonBit component with a `hydrate` export:
 
 ```moonbit
 // src/examples/wiki/main.mbt
-pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
-  // Initialize your component
-  let container = el |> @luna_dom.DomElement::from_dom
-  // ... render logic
+pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
+  let container = @luna_dom.DomElement::from_dom(el)
+  @luna_dom.render(container, @luna_dom.text("Hello from an island"))
 }
 ```
 
-Package configuration (`moon.pkg.json`):
+Package configuration (`moon.pkg`):
 
-```json
-{
-  "is-main": true,
-  "supported-targets": ["js"],
-  "import": [
-    "mizchi/luna/signal",
-    { "path": "mizchi/luna/dom/element", "alias": "dom" },
-    { "path": "mizchi/js_browser/dom", "alias": "js_dom" },
-    { "path": "mizchi/js/core", "alias": "js" }
-  ],
-  "link": {
-    "js": {
-      "format": "esm",
-      "exports": ["hydrate"]
-    }
-  }
+```moonbit
+import {
+  "mizchi/luna/dom" @luna_dom,
+  "mizchi/js_browser/dom" @js_dom,
+  "mizchi/js/core" @js,
 }
+
+supported_targets = "js"
+
+options(
+  link: { "js": { "format": "esm", "exports": ["hydrate"] } },
+)
 ```
 
 ### 3. Copy to Islands Directory
@@ -75,7 +69,7 @@ Package configuration (`moon.pkg.json`):
 After building, copy the compiled JS to the islands directory:
 
 ```bash
-moon build --target js
+moon build --target js --release
 cp _build/js/release/build/examples/wiki/wiki.js docs/public/islands/
 ```
 
@@ -128,7 +122,7 @@ fn create_routes() -> Array[@routes.Routes] {
   ]
 }
 
-pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
+pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
   let base = "/wiki"
   let routes = create_routes()
   let router = @router.BrowserRouter::new(routes, base~)

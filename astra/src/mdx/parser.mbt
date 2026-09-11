@@ -387,7 +387,7 @@ fn convert_inline(inline : @md_parser.Inline) -> @astra.MdNode? {
         definitions: [],
         span,
       })
-      Some(@astra.MdNode::Html(html[3:html.length() - 5].to_string()))
+      Some(@astra.MdNode::Html(html[3:html.length() - 5].to_owned()))
     }
     @md_parser.Inline::Text(content~, ..) => Some(@astra.MdNode::Text(content))
     @md_parser.Inline::SoftBreak(..) => Some(@astra.MdNode::Text(" "))

@@ -55,7 +55,7 @@ export interface SolConfig {
   output?: string;
   /** Server runtime target */
   runtime?: 'node' | 'cloudflare' | 'deno' | 'bun';
-  /** Auto-generate exports in moon.pkg.json (default: true) */
+  /** Auto-generate exports in moon.pkg (default: true) */
   client_auto_exports?: boolean;
   /** Static directories for SSG */
   staticDirs?: StaticDirEntry[];

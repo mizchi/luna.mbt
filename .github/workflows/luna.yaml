@@ -61,6 +61,7 @@ jobs:
           version: latest
       - run: |
           moon update
+          node scripts/generate-examples.mjs
       - name: Bundle size baseline
         id: bundle_size
         run: node luna/scripts/bundle-size.mjs --build --check --report /tmp/bundle-size-report.txt
@@ -181,11 +182,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
       - run: |
           moon update
+          node scripts/generate-examples.mjs
       - name: Test core/routes (wasm, wasm-gc, native)
         run: |
           moon test --target wasm luna/src/core/routes
@@ -222,6 +230,7 @@ jobs:
           version: latest
       - run: |
           moon update
+          node scripts/generate-examples.mjs
       - name: Build MoonBit
         run: |
           # Core libraries
@@ -265,6 +274,7 @@ jobs:
           version: latest
       - run: |
           moon update
+          node scripts/generate-examples.mjs
       - name: Build MoonBit
         run: |
           # Core libraries

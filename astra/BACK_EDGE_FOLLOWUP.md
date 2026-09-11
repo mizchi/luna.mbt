@@ -1,22 +1,15 @@
-# `astra → mizchi/sol/*` back-edges (post-cleanup)
+# Astra dependency boundary
 
-Status: Phase C cleanup complete. Only 3 routes-import back-edges
-remain, all by design per plan T12 ("routes/ stays in sol — it's the
-SSR file router").
+The routes-import follow-up is complete. Astra owns `mizchi/astra/routes`,
+and its middleware, renderer, and components import that package.
+`astra/moon.mod` has no dependency on `mizchi/sol`; Sol depends on Astra.
+The local modules are resolved together through the root `moon.work`.
 
-## Surviving imports
+The current dependency manifests are `astra/moon.mod` and `sol/moon.mod`.
+The extraction plans under `sol/docs/superpowers/` describe earlier stages
+and retain the configuration names used at the time.
 
-| File:line | Import | Why |
-|---|---|---|
-| `astra/src/middleware/moon.pkg:9` | `mizchi/sol/routes` | `scan_docs_dir`, `resolve_duplicate_pages`. Sol owns the SSR file router (plan T12). |
-| `astra/src/render/moon.pkg:15`     | `mizchi/sol/routes` | Same. Used by `page_generator.mbt`. |
-| `astra/src/components/moon.pkg:4`  | `mizchi/sol/routes` | Same. Used by sidebar/nav components. |
-
-These three imports keep `mizchi/sol` in `astra/moon.mod.json` (currently
-a `{ path: "../sol" }` dev dep; flipped to a registry version at publish
-time per `astra/CHANGELOG.md`).
-
-## What was lifted in Phase C cleanup
+## Earlier extraction work
 
 | Was | Now | Why |
 |---|---|---|
@@ -29,10 +22,3 @@ The lift kept all sol consumers compiling by switching their imports
 from `@env`/`@fs_adapter` aliases pointing at `mizchi/sol/...` to the
 same aliases pointing at `mizchi/astra/...`. Source `.mbt` files were
 unchanged.
-
-## What is NOT planned
-
-- We do NOT plan to lift `mizchi/sol/routes`. Plan T12 line 965 keeps it
-  in sol; the three back-edges above are acknowledged in the design.
-- We do NOT plan to remove the `mizchi/sol` dep from astra. As long as
-  routes lives in sol and astra needs it, the dep stays.

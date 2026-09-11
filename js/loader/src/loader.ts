@@ -89,7 +89,12 @@ const parseState = async (el: Element): Promise<unknown> => {
 const hydrate = async (el: Element): Promise<void> => {
   const id = el.getAttribute('luna:id') ?? el.tagName.toLowerCase();
   const url = isAllowedModuleUrl(el.getAttribute('luna:url'));
-  if (!url || isLoaded(el)) return;
+  if (!url) {
+    // A later allowed-host update and scan can schedule this element again.
+    delete (el as Element & { __lunaSetup?: 1 }).__lunaSetup;
+    return;
+  }
+  if (isLoaded(el)) return;
 
   markLoaded(el);
   S[id] = await parseState(el);

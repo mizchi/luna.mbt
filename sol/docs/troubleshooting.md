@@ -12,7 +12,7 @@ Symptoms:
 Checks:
 
 1. Run `sol doctor` from the project root
-2. Fix any reported adapter dependency mismatch in `moon.mod.json`
+2. Fix any reported adapter dependency mismatch in `moon.mod`
 3. If generated output is missing, run `sol generate` or `sol build`
 
 ## 1. Route Returns 404

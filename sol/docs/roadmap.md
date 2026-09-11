@@ -96,4 +96,5 @@ mizchi/mars (context_native.mbt — uses x/http)
 mizchi/sol (bench_native_api — uses mars)
 ```
 
-All 4 repos need `path` overrides in moon.mod.json for local patching.
+For local patching, add the four checkouts to a development `moon.work`.
+Workspace members override registry dependencies by module name.

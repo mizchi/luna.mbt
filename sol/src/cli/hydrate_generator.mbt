@@ -38,6 +38,15 @@ fn generate_hydrate_mbt(
       "extern \"js\" fn ffi_json_stringify(value : @js.Any) -> String =\n",
     )
     buf.write_string("  #| (v) => JSON.stringify(v)\n\n")
+    buf.write_string(
+      "///| Mark successful hydration for browser integrations\n",
+    )
+    buf.write_string(
+      "extern \"js\" fn ffi_mark_hydrated(element : @js.Any) -> Unit =\n",
+    )
+    buf.write_string(
+      "  #| (element) => element.setAttribute('data-sol-hydrated', '')\n\n",
+    )
     buf.write_string("///| Log hydration Props validation error\n")
     buf.write_string(
       "extern \"js\" fn ffi_log_hydration_error(component : String, error : String) -> Unit =\n",
@@ -78,6 +87,7 @@ fn generate_hydrate_mbt(
       } else {
         buf.write_string("  @wc.hydrate_auto(jsdom_el, node, is_rerender~)\n")
       }
+      buf.write_string("  ffi_mark_hydrated(element)\n")
       buf.write_string("}\n\n")
     }
   }

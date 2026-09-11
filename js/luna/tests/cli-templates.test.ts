@@ -3,6 +3,8 @@
  * Verifies that generated templates use correct API signatures and dependencies.
  */
 import { describe, test, expect } from "vitest";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 
 // We dynamically import the template functions from cli.ts
 // by extracting and testing them directly
@@ -49,29 +51,47 @@ describe("Issue #12: CLI TSX template - render argument order", () => {
 });
 
 describe("Issue #12: CLI MoonBit template - dependencies", () => {
-  test("moon.mod.json should include mizchi/signals dependency", () => {
-    // The template should include "mizchi/signals" in deps
-    expect(cliSource).toContain('"mizchi/signals"');
+  test("scaffolds current MoonBit manifest filenames", () => {
+    const stage = fs.mkdtempSync(path.join(tmpdir(), "luna-mbt-template-"));
+    try {
+      const result = spawnSync(
+        path.resolve(__dirname, "../../../sol/node_modules/.bin/tsx"),
+        [cliPath, "new", "sample", "--mbt"],
+        { cwd: stage, encoding: "utf8" }
+      );
+      expect(result.status, result.stderr).toBe(0);
+      const project = path.join(stage, "sample");
+      expect(fs.readFileSync(path.join(project, "moon.mod"), "utf8")).toContain('name = "internal/sample"');
+      expect(fs.readFileSync(path.join(project, "src/moon.pkg"), "utf8")).toContain('"mizchi/signals" @signal');
+      expect(fs.existsSync(path.join(project, "moon.mod.json"))).toBe(false);
+      expect(fs.existsSync(path.join(project, "src/moon.pkg.json"))).toBe(false);
+    } finally {
+      fs.rmSync(stage, { recursive: true, force: true });
+    }
   });
 
-  test("moon.mod.json should use up-to-date mizchi/luna version (>= 0.16.0)", () => {
+  test("moon.mod should include mizchi/signals dependency", () => {
+    expect(cliSource).toMatch(/"mizchi\/signals@\d+\.\d+\.\d+"/);
+  });
+
+  test("moon.mod should use up-to-date mizchi/luna version (>= 0.16.0)", () => {
     // Should NOT contain the old version "0.1.3"
-    expect(cliSource).not.toContain('"mizchi/luna": "0.1.3"');
+    expect(cliSource).not.toContain('"mizchi/luna@0.1.3"');
   });
 
-  test("moon.mod.json should use up-to-date mizchi/js version (>= 0.10.14)", () => {
-    expect(cliSource).not.toContain('"mizchi/js": "0.10.6"');
+  test("moon.mod should use up-to-date mizchi/js version (>= 0.10.14)", () => {
+    expect(cliSource).not.toContain('"mizchi/js@0.10.6"');
   });
 });
 
 describe("Issue #12: CLI MoonBit template - import paths", () => {
-  test("moon.pkg.json should import mizchi/signals, not mizchi/luna/signal", () => {
+  test("moon.pkg should import mizchi/signals, not mizchi/luna/signal", () => {
     // Old: "mizchi/luna/signal"
-    // New: { path: "mizchi/signals", alias: "signal" }
+    // New: "mizchi/signals" @signal
     expect(cliSource).not.toMatch(/"mizchi\/luna\/signal"/);
   });
 
-  test("moon.pkg.json should import mizchi/luna/dom, not mizchi/luna/platform/dom/element", () => {
+  test("moon.pkg should import mizchi/luna/dom, not mizchi/luna/platform/dom/element", () => {
     expect(cliSource).not.toContain("mizchi/luna/platform/dom/element");
   });
 });
@@ -87,8 +107,8 @@ describe("CLI MoonBit template - buildable out of the box", () => {
   // 0.23.0's _bench subpackage imports mizchi/js/browser/dom, which the
   // pinned mizchi/js@0.12.1 does not export, so `moon build` fails with
   // "Cannot find import 'mizchi/js/browser/dom' in mizchi/luna/_bench@0.23.0".
-  test("moon.mod.json must not pin the broken mizchi/luna 0.23.0", () => {
-    expect(cliSource).not.toContain('"mizchi/luna": "0.23.0"');
+  test("moon.mod must not pin the broken mizchi/luna 0.23.0", () => {
+    expect(cliSource).not.toContain('"mizchi/luna@0.23.0"');
   });
 
   // vite-plugin-moonbit resolves `mbt:` imports to the RELEASE artifact

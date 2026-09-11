@@ -1,5 +1,6 @@
 import {
   "moonbitlang/core/json",
+  "moonbitlang/moon_config",
   "mizchi/sol/internal/json_utils",
   "mizchi/sol/scaffold_templates",
   "mizchi/sol/version",
