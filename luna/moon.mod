@@ -10,7 +10,7 @@ import {
   "mizchi/npm_typed@0.1.15",
   "moonbitlang/parser@0.3.19",
   "mizchi/signals@0.6.5",
-  "mizchi/x@0.6.0",
+  "mizchi/x@0.6.1",
   "moonbitlang/lexer@0.3.16",
 }
 

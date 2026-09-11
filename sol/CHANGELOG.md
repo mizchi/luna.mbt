@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.23.3 (2026-09-11)
+
+### Changed
+
+- Update Mars to 0.3.12, mizchi/x to 0.6.1, and moonbitlang/x to 0.5.5.
+  The IO dependencies now support async 0.21.3 on native and JS.
+- Synchronize generated starter projects and workspace examples with Sol 0.23.3
+  and Mars 0.3.12. Adapter packages keep their independent published versions.
+
 ### Fixed
 
 - Resolve development CLI, example, SSG and documentation tasks from the monorepo.

@@ -1227,9 +1227,7 @@ test "template_moon_mod: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "moon.mod").unwrap_or("")
   assert_true(content.contains("\"mizchi/sol@\{@version.VERSION}\""))
-  assert_true(
-    content.contains("\"mizchi/sol_adapter_node@\{@version.VERSION}\""),
-  )
+  assert_true(content.contains("\"mizchi/sol_adapter_node@0.23.2\""))
   assert_true(content.contains("\"mizchi/luna@0.25.0\""))
   assert_true(content.contains("\"mizchi/signals@0.6.5\""))
   assert_true(content.contains("\"mizchi/js@0.12.2\""))
