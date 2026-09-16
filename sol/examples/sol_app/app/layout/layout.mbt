@@ -29,12 +29,19 @@ let sol_nav_script : String = "<script type=\"module\" src=\"/__sol__/sol-nav.js
 pub fn head() -> String {
   let theme_vars = "<style>:root { --muted: #f5f5f5; --foreground: #333; --muted-foreground: #666; --accent: #007bff; --destructive: #dc3545; --warning: #ffc107; --success: #28a745; }</style>"
   let alert_style = "<style>" + @alert_ui.alert_css() + "</style>"
-  default_style + theme_vars + alert_style + loader_script + wc_loader_script + sol_nav_script
+  default_style +
+  theme_vars +
+  alert_style +
+  loader_script +
+  wc_loader_script +
+  sol_nav_script
 }
 
 ///|
 /// Basic layout wrapper - wraps content in container with navigation
-pub fn layout(inner : Array[@luna.Node[Unit, String]]) -> @luna.Node[Unit, String] {
+pub fn layout(
+  inner : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   div(class="container", [
     nav([
       sol_link(href="/", [text("Home")]),

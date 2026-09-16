@@ -7,7 +7,8 @@
 // Note: DatabaseSync is pre-loaded via --import ./scripts/preload-sqlite.js
 // and available on globalThis.DatabaseSync
 
-///| Get all blog posts from the database
+///|
+/// Get all blog posts from the database
 extern "js" fn db_get_all_posts() -> @core.Any =
   #| () => {
   #|   const db = new globalThis.DatabaseSync('blog.db');
@@ -19,7 +20,8 @@ extern "js" fn db_get_all_posts() -> @core.Any =
   #|   }
   #| }
 
-///| Get a single blog post by slug
+///|
+/// Get a single blog post by slug
 extern "js" fn db_get_post_by_slug(slug : String) -> @core.Any =
   #| (slug) => {
   #|   const db = new globalThis.DatabaseSync('blog.db');
@@ -31,7 +33,8 @@ extern "js" fn db_get_post_by_slug(slug : String) -> @core.Any =
   #|   }
   #| }
 
-///| Increment view count for a post
+///|
+/// Increment view count for a post
 extern "js" fn db_increment_views(slug : String) -> Unit =
   #| (slug) => {
   #|   const db = new globalThis.DatabaseSync('blog.db');
@@ -42,7 +45,8 @@ extern "js" fn db_increment_views(slug : String) -> Unit =
   #|   }
   #| }
 
-///| Get aggregate statistics
+///|
+/// Get aggregate statistics
 extern "js" fn db_get_stats() -> @core.Any =
   #| () => {
   #|   const db = new globalThis.DatabaseSync('blog.db');
@@ -62,7 +66,8 @@ extern "js" fn db_get_stats() -> @core.Any =
   #|   }
   #| }
 
-///| Get current timestamp
+///|
+/// Get current timestamp
 extern "js" fn get_timestamp() -> String =
   #| () => new Date().toISOString()
 
@@ -70,22 +75,27 @@ extern "js" fn get_timestamp() -> String =
 // Data Access Helpers
 // =============================================================================
 
-///| Extract string field from JS object
+///|
+/// Extract string field from JS object
 extern "js" fn get_str(obj : @core.Any, field : String) -> String =
   #| (obj, field) => obj && obj[field] != null ? String(obj[field]) : ""
 
-///| Extract int field from JS object
+///|
+/// Extract int field from JS object
 extern "js" fn get_int(obj : @core.Any, field : String) -> Int =
   #| (obj, field) => obj && obj[field] != null ? Number(obj[field]) : 0
 
-///| Check if JS value is null/undefined
+///|
+/// Check if JS value is null/undefined
 extern "js" fn is_null(obj : @core.Any) -> Bool =
   #| (obj) => obj == null
 
-///| Get array length
+///|
+/// Get array length
 extern "js" fn array_len(arr : @core.Any) -> Int =
   #| (arr) => Array.isArray(arr) ? arr.length : 0
 
-///| Get array element
+///|
+/// Get array element
 extern "js" fn array_get(arr : @core.Any, idx : Int) -> @core.Any =
   #| (arr, idx) => arr[idx]

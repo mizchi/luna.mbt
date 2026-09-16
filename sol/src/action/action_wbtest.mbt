@@ -12,7 +12,7 @@ using @test {assert_eq}
 ///|
 test "ActionResult success variant carries Json internally" {
   let payload : Json = { "id": Json::number(1.0) }
-  let result = ActionResult::{ kind: JsonSuccess(payload) }
+  let result = ActionResult::{ kind: JsonSuccess(payload), }
   match result.kind {
     JsonSuccess(json) => assert_eq(json.stringify(), "{\"id\":1}")
     _ => fail("expected Success")
@@ -21,7 +21,7 @@ test "ActionResult success variant carries Json internally" {
 
 ///|
 test "ActionResult::json creates success result from ToJson payload" {
-  let result = ActionResult::json(CreateUserResponse::{ id: "user-1" })
+  let result = ActionResult::json(CreateUserResponse::{ id: "user-1", })
   match result.kind {
     JsonSuccess(json) => assert_eq(json.stringify(), "{\"id\":\"user-1\"}")
     _ => fail("expected Success")
@@ -173,7 +173,7 @@ impl ActionKey for ActionTwoKey with fn base_path(_self) {
 
 ///|
 test "action_url builds endpoint URL from action key" {
-  let key = CreateUserActionKey::{  }
+  let key = CreateUserActionKey::{ }
   assert_eq(action_id(key), "create-user")
   assert_eq(action_url(key), "/_action/create-user")
 }
@@ -203,10 +203,9 @@ extend CreateUserResponse with ToJson::{to_json}
 
 ///|
 test "TypedActionKey carries request and response phantom types" {
-  let req = CreateUserRequest::{ name: "Alice" }
-  let res = CreateUserResponse::{ id: "user-1" }
+  let req = CreateUserRequest::{ name: "Alice", }
+  let res = CreateUserResponse::{ id: "user-1", }
   let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
-
     },
   )
   assert_eq(req.name, "Alice")
@@ -219,7 +218,6 @@ test "TypedActionKey carries request and response phantom types" {
 ///|
 test "TypedActionKey can be used as an ActionKey" {
   let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
-
     },
   )
   assert_eq(action_id(key), "create-user")
@@ -228,7 +226,7 @@ test "TypedActionKey can be used as an ActionKey" {
 
 ///|
 test "decode_action_body decodes typed JSON request bodies" {
-  let body = CreateUserRequest::{ name: "Alice" }.to_json().stringify()
+  let body = CreateUserRequest::{ name: "Alice", }.to_json().stringify()
   let decoded : CreateUserRequest? = decode_action_body(body)
   match decoded {
     Some(req) => assert_eq(req.name, "Alice")
@@ -279,7 +277,6 @@ test "decode_action_form_urlencoded rejects missing required fields" {
 ///|
 test "typed action invoker carries request payload type" {
   let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
-
     },
   )
   let _invoker : (
@@ -291,7 +288,7 @@ test "typed action invoker carries request payload type" {
 ///|
 test "typed action response decodes success payload" {
   let raw = ActionResponse::Success(
-    @js_any.json_to_any(CreateUserResponse::{ id: "user-1" }.to_json()),
+    @js_any.json_to_any(CreateUserResponse::{ id: "user-1", }.to_json()),
   )
   let typed : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
     raw,
@@ -348,7 +345,7 @@ test "typed action response preserves non-success outcomes" {
 ///|
 test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
-  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
+  let action = ActionDef::from_key(CreateUserActionKey::{ }, handler)
   assert_eq(action.id, "create-user")
   assert_true(action.require_json)
   assert_true(action.middlewares.is_empty())
@@ -357,7 +354,7 @@ test "ActionDef::from_key creates definition from action key" {
 ///|
 test "ActionDef::with_require_json toggles json requirement" {
   let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
-  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler).with_require_json(
+  let action = ActionDef::from_key(CreateUserActionKey::{ }, handler).with_require_json(
     false,
   )
   assert_false(action.require_json)
@@ -383,7 +380,7 @@ test "ActionRegistry::with_base_path sets base path" {
 ///|
 test "ActionRegistry::register adds action" {
   let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
-  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
+  let action = ActionDef::from_key(CreateUserActionKey::{ }, handler)
   let registry = ActionRegistry::new().register(action)
   assert_eq(registry.action_ids().length(), 1)
   assert_true(registry.action_ids().contains("create-user"))
@@ -393,7 +390,7 @@ test "ActionRegistry::register adds action" {
 test "ActionRegistry::register_key adds generated-key action" {
   let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let registry = ActionRegistry::new().register_key(
-    CreateUserActionKey::{  },
+    CreateUserActionKey::{ },
     handler,
   )
   assert_eq(registry.action_ids().length(), 1)
@@ -403,7 +400,7 @@ test "ActionRegistry::register_key adds generated-key action" {
 ///|
 test "ActionRegistry::get returns registered action" {
   let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
-  let action = ActionDef::from_key(GetUserActionKey::{  }, handler)
+  let action = ActionDef::from_key(GetUserActionKey::{ }, handler)
   let registry = ActionRegistry::new().register(action)
   match registry.get("get-user") {
     Some(a) => assert_eq(a.id, "get-user")
@@ -428,8 +425,8 @@ test "ActionRegistry::register_all adds multiple actions" {
   let handler1 = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let handler2 = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let actions = [
-    ActionDef::from_key(ActionOneKey::{  }, handler1),
-    ActionDef::from_key(ActionTwoKey::{  }, handler2),
+    ActionDef::from_key(ActionOneKey::{ }, handler1),
+    ActionDef::from_key(ActionTwoKey::{ }, handler2),
   ]
   let registry = ActionRegistry::new().register_all(actions)
   assert_eq(registry.action_ids().length(), 2)
@@ -470,7 +467,6 @@ test "ActionState constructors cover idle pending success and error states" {
 ///|
 test "ActionFormConfig::from_key creates typed form config" {
   let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
-
     },
   )
   let config : ActionFormConfig[CreateUserResponse] = ActionFormConfig::from_key(
@@ -483,7 +479,6 @@ test "ActionFormConfig::from_key creates typed form config" {
 ///|
 test "ActionFormConfig builder methods preserve typed action url" {
   let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
-
     },
   )
   let config = ActionFormConfig::from_key(key)
@@ -504,7 +499,6 @@ test "ActionFormConfig builder methods preserve typed action url" {
 ///|
 test "ActionFormConfig::to_raw decodes success callback payload" {
   let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
-
     },
   )
   let mut received = ""
@@ -516,7 +510,7 @@ test "ActionFormConfig::to_raw decodes success callback payload" {
   match raw.on_success {
     Some(on_success) =>
       on_success(
-        @js_any.json_to_any(CreateUserResponse::{ id: "user-2" }.to_json()),
+        @js_any.json_to_any(CreateUserResponse::{ id: "user-2", }.to_json()),
       )
     None => fail("expected raw success callback")
   }
@@ -527,7 +521,6 @@ test "ActionFormConfig::to_raw decodes success callback payload" {
 ///|
 test "ActionFormConfig::to_raw reports decode error through typed error callback" {
   let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
-
     },
   )
   let mut received = ""

@@ -2,7 +2,7 @@
 
 ///|
 test "MbtxRoute struct creation" {
-  let route : MbtxRoute = { path: "/hello", js_path: "/tmp/hello.mjs" }
+  let route : MbtxRoute = { path: "/hello", js_path: "/tmp/hello.mjs", }
   assert_eq(route.path, "/hello")
   assert_eq(route.js_path, "/tmp/hello.mjs")
 }

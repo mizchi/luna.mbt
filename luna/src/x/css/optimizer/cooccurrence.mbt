@@ -48,7 +48,7 @@ pub fn matrix_to_cooccurrences(
   let result : Array[CoOccurrence] = []
   matrix.each(fn(class_a, inner) {
     inner.each(fn(class_b, frequency) {
-      result.push({ class_a, class_b, frequency })
+      result.push({ class_a, class_b, frequency, })
     })
   })
 
@@ -94,10 +94,10 @@ pub fn build_adjacency_list(
       // Add edge a -> b
       match adj.get(co.class_a) {
         Some(neighbors) =>
-          neighbors.push({ target: co.class_b, weight: co.frequency })
+          neighbors.push({ target: co.class_b, weight: co.frequency, })
         None => {
           let neighbors : Array[Edge] = []
-          neighbors.push({ target: co.class_b, weight: co.frequency })
+          neighbors.push({ target: co.class_b, weight: co.frequency, })
           adj[co.class_a] = neighbors
         }
       }
@@ -105,10 +105,10 @@ pub fn build_adjacency_list(
       // Add edge b -> a (undirected graph)
       match adj.get(co.class_b) {
         Some(neighbors) =>
-          neighbors.push({ target: co.class_a, weight: co.frequency })
+          neighbors.push({ target: co.class_a, weight: co.frequency, })
         None => {
           let neighbors : Array[Edge] = []
-          neighbors.push({ target: co.class_a, weight: co.frequency })
+          neighbors.push({ target: co.class_a, weight: co.frequency, })
           adj[co.class_b] = neighbors
         }
       }

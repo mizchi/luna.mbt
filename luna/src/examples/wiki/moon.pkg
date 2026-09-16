@@ -5,7 +5,7 @@ import {
   "mizchi/luna/dom/router",
   "mizchi/luna/dom" @element,
   "mizchi/js_browser/dom",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 
 supported_targets = "js"

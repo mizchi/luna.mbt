@@ -1,13 +1,23 @@
 ///| Authentication utilities for sol
+
 ///|
+
 ///| This module provides FFI bindings to access session data
+
 ///| set by the TypeScript auth middleware (dev-auth.ts).
+
 ///|
+
 ///| Usage:
+
 ///|   let session = get_session()
+
 ///|   match session {
+
 ///|     Some(s) => ... // authenticated
+
 ///|     None => ... // not authenticated
+
 ///|   }
 
 ///|
@@ -26,13 +36,11 @@ pub fn get_session() -> Session? {
   if is_null(raw) {
     None
   } else {
-    Some(
-      Session::{
-        user_id: get_user_field(raw, "id"),
-        user_name: get_user_field(raw, "name"),
-        user_email: get_user_field(raw, "email"),
-      },
-    )
+    Some(Session::{
+      user_id: get_user_field(raw, "id"),
+      user_name: get_user_field(raw, "name"),
+      user_email: get_user_field(raw, "email"),
+    })
   }
 }
 

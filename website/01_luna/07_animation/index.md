@@ -146,7 +146,7 @@ For native CSS easing, construct `Options::new(easing="ease-out")` and call
 transform)` computes the same keyframes used by TypeScript.
 
 Animation methods include `pause`, `play`, `reverse`, `cancel`, `finish`, and
-`seek(milliseconds)`. `finished()` returns `mizchi/js/core.Promise[Animation]`,
+`seek(milliseconds)`. `finished()` returns `mizchi/js_core.Promise[Animation]`,
 which can be awaited with `.wait()` in an async function.
 
 ## SSR and reduced motion

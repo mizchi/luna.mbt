@@ -19,7 +19,7 @@ pub struct ISRMiddlewareConfig {
 ///|
 /// Default ISR middleware configuration
 pub fn ISRMiddlewareConfig::default() -> ISRMiddlewareConfig {
-  { dist_dir: "dist", enabled: true }
+  { dist_dir: "dist", enabled: true, }
 }
 
 // =============================================================================

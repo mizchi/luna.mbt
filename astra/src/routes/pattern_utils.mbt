@@ -66,10 +66,10 @@ pub fn extract_catch_all(path : String) -> CatchAllInfo? {
     let optional = path.contains("[[...")
     // Extract param name - simplified extraction
     let name = extract_catch_all_name(path)
-    Some(CatchAllInfo::{ name, optional })
+    Some(CatchAllInfo::{ name, optional, })
   } else if path.contains("*") {
     // Wildcard style
-    Some(CatchAllInfo::{ name: "*", optional: false })
+    Some(CatchAllInfo::{ name: "*", optional: false, })
   } else {
     None
   }

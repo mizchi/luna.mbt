@@ -91,13 +91,13 @@ pub fn PageConfig::default() -> PageConfig {
 ///|
 /// Default file handler config
 pub fn FileHandlerConfig::default() -> FileHandlerConfig {
-  { layout: None, islands: [], passthrough: false }
+  { layout: None, islands: [], passthrough: false, }
 }
 
 ///|
 /// Default component config
 pub fn ComponentConfig::default() -> ComponentConfig {
-  { ssr: false, props_type: None, client_export: None, server_export: None }
+  { ssr: false, props_type: None, client_export: None, server_export: None, }
 }
 
 // =============================================================================

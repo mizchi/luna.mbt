@@ -26,7 +26,7 @@ pub(all) struct TabsSlots {
 
 ///|
 pub fn tabs_slots() -> TabsSlots {
-  { root: "tabs", list: "tabs__list", tab: "tabs__tab", panel: "tabs__panel" }
+  { root: "tabs", list: "tabs__list", tab: "tabs__tab", panel: "tabs__panel", }
 }
 
 ///|
@@ -42,7 +42,7 @@ pub fn tab_item(
   label : String,
   content : Array[@luna.Node[@js.Any, String]],
 ) -> TabItem {
-  { id, label, content }
+  { id, label, content, }
 }
 
 ///|

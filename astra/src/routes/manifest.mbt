@@ -19,7 +19,7 @@ pub(all) struct RouteManifest {
 ///|
 /// Create an empty route manifest
 pub fn RouteManifest::empty() -> RouteManifest {
-  { routes: [], fallback: FallbackConfig::NotFound(path="/404.html") }
+  { routes: [], fallback: FallbackConfig::NotFound(path="/404.html"), }
 }
 
 ///|
@@ -167,7 +167,7 @@ pub fn ApiRouteEntry::new(
   http_method~ : HttpMethod,
   source~ : String,
 ) -> ApiRouteEntry {
-  { path, pattern, param_names: [], http_method, source }
+  { path, pattern, param_names: [], http_method, source, }
 }
 
 // =============================================================================
@@ -247,7 +247,7 @@ pub fn StaticPathEntry::new(
   params~ : Map[String, String],
   output~ : String,
 ) -> StaticPathEntry {
-  { params, output }
+  { params, output, }
 }
 
 ///|
@@ -391,7 +391,7 @@ pub(all) struct DynamicPattern {
 ///|
 /// Create an empty hierarchical manifest
 pub fn HierarchicalManifest::empty() -> HierarchicalManifest {
-  { version: 2, base: "/_luna/", segments: {}, chunks: {}, routes: {} }
+  { version: 2, base: "/_luna/", segments: {}, chunks: {}, routes: {}, }
 }
 
 ///|
@@ -399,7 +399,7 @@ pub fn HierarchicalManifest::empty() -> HierarchicalManifest {
 pub fn HierarchicalManifest::new(
   base? : String = "/_luna/",
 ) -> HierarchicalManifest {
-  { version: 2, base, segments: {}, chunks: {}, routes: {} }
+  { version: 2, base, segments: {}, chunks: {}, routes: {}, }
 }
 
 ///|
@@ -410,13 +410,13 @@ pub fn SegmentRef::new(
   spa? : Bool = false,
   preload? : Bool = false,
 ) -> SegmentRef {
-  { path, pattern, spa, preload }
+  { path, pattern, spa, preload, }
 }
 
 ///|
 /// Create an empty segment manifest
 pub fn SegmentManifest::empty(base : String) -> SegmentManifest {
-  { base, routes: {}, dynamic: [], fallback: "404" }
+  { base, routes: {}, dynamic: [], fallback: "404", }
 }
 
 ///|
@@ -427,5 +427,5 @@ pub fn DynamicPattern::new(
   params~ : Array[String],
   catch_all? : Bool = false,
 ) -> DynamicPattern {
-  { pattern, regex, params, catch_all }
+  { pattern, regex, params, catch_all, }
 }

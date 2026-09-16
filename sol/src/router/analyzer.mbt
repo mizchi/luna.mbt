@@ -48,7 +48,7 @@ fn analyze_routes_inner(
         let _ = (handler, title, meta, cache)
         let full_path = normalize_path(prefix + path)
         let (kind, reason) = classify_page_route(full_path, revalidate)
-        result.push({ pattern: full_path, kind, reason })
+        result.push({ pattern: full_path, kind, reason, })
       }
       Layout(segment~, layout~, children~) => {
         let _ = layout

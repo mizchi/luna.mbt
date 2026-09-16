@@ -63,7 +63,7 @@ pub fn use_checkbox(
       ),
     ),
   )
-  { attrs, toggle, is_checked }
+  { attrs, toggle, is_checked, }
 }
 
 ///|

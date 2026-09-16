@@ -4,7 +4,7 @@ test "generate_server_pkg: uses modern import alias syntax" {
   assert_true(content.contains("\"tester/myapp/server\" @app_server"))
   assert_true(content.contains("\"mizchi/sol_adapter_node\" @sol_node"))
   assert_true(!content.contains(" as @"))
-  assert_true(!content.contains("\"mizchi/js/core\""))
+  assert_true(!content.contains("\"mizchi/js_core\""))
 }
 
 ///|
@@ -26,6 +26,7 @@ test "generate_client_gen_pkg: uses modern import alias syntax" {
   ])
   assert_true(content.contains("\"tester/myapp/client\" @client"))
   assert_true(content.contains("\"mizchi/js_browser/dom\" @js_dom"))
+  assert_true(content.contains("\"mizchi/js_core\" @js"))
   assert_true(content.contains("\"mizchi/luna/dom/client\" @wc"))
   assert_true(!content.contains(" as @"))
 }

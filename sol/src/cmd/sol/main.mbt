@@ -260,7 +260,7 @@ fn parse_new_args(args : Array[String]) -> ParsedNewArgs {
       i = i + 1
     }
   }
-  { project_name, user_ns, cloudflare, needs_delegate, show_help }
+  { project_name, user_ns, cloudflare, needs_delegate, show_help, }
 }
 
 ///|

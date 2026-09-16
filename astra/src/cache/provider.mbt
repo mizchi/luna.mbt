@@ -23,7 +23,7 @@ pub fn LocalFileProvider::new(
   cwd : String,
   exclude : Array[String],
 ) -> LocalFileProvider {
-  { docs_dir, cwd, exclude, cached_state: None }
+  { docs_dir, cwd, exclude, cached_state: None, }
 }
 
 ///|

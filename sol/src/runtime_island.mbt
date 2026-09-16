@@ -60,7 +60,7 @@ pub fn[E] IslandConfig::with_state(
   self : IslandConfig[E],
   json : String,
 ) -> IslandConfig[E] {
-  { ..self, state: @stella.StateConfig::Inline(json) }
+  { ..self, state: @stella.StateConfig::Inline(json), }
 }
 
 ///|
@@ -69,7 +69,7 @@ pub fn[E] IslandConfig::with_state_ref(
   self : IslandConfig[E],
   script_id : String,
 ) -> IslandConfig[E] {
-  { ..self, state: @stella.StateConfig::ScriptRef(script_id) }
+  { ..self, state: @stella.StateConfig::ScriptRef(script_id), }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub fn[E] IslandConfig::with_state_url(
   self : IslandConfig[E],
   url : String,
 ) -> IslandConfig[E] {
-  { ..self, state: @stella.StateConfig::Url(url) }
+  { ..self, state: @stella.StateConfig::Url(url), }
 }
 
 ///|
@@ -87,7 +87,7 @@ pub fn[E] IslandConfig::with_content(
   self : IslandConfig[E],
   node : @luna.Node[E, String],
 ) -> IslandConfig[E] {
-  { ..self, content: Some(node) }
+  { ..self, content: Some(node), }
 }
 
 ///|
@@ -96,7 +96,7 @@ pub fn[E] IslandConfig::with_ssr_html(
   self : IslandConfig[E],
   html : String,
 ) -> IslandConfig[E] {
-  { ..self, ssr_html: Some(html) }
+  { ..self, ssr_html: Some(html), }
 }
 
 ///|

@@ -13,7 +13,7 @@ pub fn render(node : @luna.Node[Unit, String]) -> String {
 /// Render a node tree to HTML with preload URLs for islands
 pub fn render_with_preloads(node : @luna.Node[Unit, String]) -> RenderResult {
   let result = @render.render_to_string(node, preload=true)
-  { html: result.html, preload_urls: result.preload_urls }
+  { html: result.html, preload_urls: result.preload_urls, }
 }
 
 ///|
@@ -28,7 +28,10 @@ pub fn render_document_with_preloads(
   node : @luna.Node[Unit, String],
 ) -> RenderResult {
   let result = render_with_preloads(node)
-  { html: "<!DOCTYPE html>\n" + result.html, preload_urls: result.preload_urls }
+  {
+    html: "<!DOCTYPE html>\n" + result.html,
+    preload_urls: result.preload_urls,
+  }
 }
 
 ///|

@@ -2,8 +2,8 @@
 package "mizchi/luna/js/animation"
 
 import {
-  "mizchi/js/core",
   "mizchi/js_browser/dom",
+  "mizchi/js_core",
   "mizchi/luna/easing",
   "mizchi/luna/x/css",
   "moonbitlang/core/debug",
@@ -29,7 +29,7 @@ pub fn play(@dom.Element, Array[Keyframe], Options, respect_reduced_motion? : Bo
 pub type Animation
 pub fn Animation::cancel(Self) -> Unit
 pub fn Animation::finish(Self) -> Unit
-pub fn Animation::finished(Self) -> @core.Promise[Self]
+pub fn Animation::finished(Self) -> @js_core.Promise[Self]
 pub fn Animation::pause(Self) -> Unit
 pub fn Animation::play(Self) -> Unit
 pub fn Animation::reverse(Self) -> Unit

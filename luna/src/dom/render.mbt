@@ -595,7 +595,7 @@ fn IndexEntry::new(
   dispose : () -> Unit,
   disposed : Ref[Bool],
 ) -> IndexEntry {
-  { node, dispose, disposed }
+  { node, dispose, disposed, }
 }
 
 ///|

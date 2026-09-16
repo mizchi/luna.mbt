@@ -3,15 +3,17 @@ package "mizchi/luna/dom/client/repair"
 
 import {
   "mizchi/js_browser/dom",
+  "mizchi/js_core",
+  "mizchi/luna/core",
   "mizchi/luna/dom/client",
 }
 
 // Values
-pub fn experimental_hydrate(@dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], logger? : StringBuilder) -> ExperimentalHydrationResult
+pub fn experimental_hydrate(@dom.Element, @core.Node[@js_core.Any, String], logger? : StringBuilder) -> ExperimentalHydrationResult
 
-pub fn experimental_hydrate_with_report(@dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], logger? : StringBuilder) -> ExperimentalHydrationReport
+pub fn experimental_hydrate_with_report(@dom.Element, @core.Node[@js_core.Any, String], logger? : StringBuilder) -> ExperimentalHydrationReport
 
-pub fn hydrate_with_fallback(@dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], logger? : StringBuilder) -> @client.HydrationResult
+pub fn hydrate_with_fallback(@dom.Element, @core.Node[@js_core.Any, String], logger? : StringBuilder) -> @client.HydrationResult
 
 pub fn hydration_failed(String) -> ExperimentalHydrationResult
 
@@ -35,7 +37,7 @@ pub fn repair_type_text_mismatch() -> RepairType
 
 pub fn repair_type_text_missing() -> RepairType
 
-pub fn smart_hydrate(@dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], logger? : StringBuilder) -> SmartHydrateResult
+pub fn smart_hydrate(@dom.Element, @core.Node[@js_core.Any, String], logger? : StringBuilder) -> SmartHydrateResult
 
 // Errors
 

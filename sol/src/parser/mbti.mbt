@@ -60,7 +60,7 @@ pub fn parse_pub_funcs(
           Some(tn) => Some(tn.name)
           None => None
         }
-        funcs.push({ name, type_name })
+        funcs.push({ name, type_name, })
       }
       _ => ()
     }
@@ -123,7 +123,7 @@ pub fn parse_struct_defs(
       let name = extract_name_until_delimiter(after_struct)
       // Extract full struct definition
       let raw_def = extract_struct_raw(content, name, visibility)
-      structs.push({ name, visibility, raw_definition: raw_def })
+      structs.push({ name, visibility, raw_definition: raw_def, })
     }
     i += 1
   }

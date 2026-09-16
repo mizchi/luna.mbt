@@ -44,7 +44,7 @@ pub fn accordion_item(
   heading : String,
   content : Array[@luna.Node[@js.Any, String]],
 ) -> AccordionItemData {
-  { id, heading, content }
+  { id, heading, content, }
 }
 
 ///|

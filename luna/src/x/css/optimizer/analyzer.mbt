@@ -17,7 +17,7 @@ pub fn analyze(
 
   // Step 3: Generate merge suggestions
   let suggestions = generate_suggestions(patterns, class_declarations)
-  { usages, cooccurrences, patterns, suggestions }
+  { usages, cooccurrences, patterns, suggestions, }
 }
 
 ///|

@@ -47,7 +47,7 @@ pub fn radio_item(
   label : String,
   disabled? : Bool = false,
 ) -> RadioItem {
-  { value, label, disabled }
+  { value, label, disabled, }
 }
 
 // Convert RadioItem to headless RadioItemData

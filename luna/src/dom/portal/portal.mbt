@@ -40,19 +40,19 @@ pub struct PortalOptions {
 ///|
 /// Default portal options
 pub fn PortalOptions::default() -> PortalOptions {
-  { mount: None, use_shadow: false, is_svg: false }
+  { mount: None, use_shadow: false, is_svg: false, }
 }
 
 ///|
 /// Create portal options with mount target
 pub fn PortalOptions::with_mount(mount : @js_dom.Element) -> PortalOptions {
-  { mount: Some(mount), use_shadow: false, is_svg: false }
+  { mount: Some(mount), use_shadow: false, is_svg: false, }
 }
 
 ///|
 /// Create portal options with shadow DOM
 pub fn PortalOptions::with_shadow() -> PortalOptions {
-  { mount: None, use_shadow: true, is_svg: false }
+  { mount: None, use_shadow: true, is_svg: false, }
 }
 
 ///|

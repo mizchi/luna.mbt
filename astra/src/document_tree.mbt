@@ -80,7 +80,7 @@ pub fn SiteInfo::new(
   language? : String = "en",
   updated_at? : String = "",
 ) -> SiteInfo {
-  { title, description, base_url, language, updated_at }
+  { title, description, base_url, language, updated_at, }
 }
 
 ///|
@@ -114,7 +114,7 @@ pub fn PageInfo::new(
 
 ///|
 pub fn Heading::new(level~ : Int, text~ : String, id? : String = "") -> Heading {
-  { level, text, id }
+  { level, text, id, }
 }
 
 ///|
@@ -123,7 +123,7 @@ pub fn DocumentTree::new(
   pages? : Array[PageInfo] = [],
   root? : TreeNode = TreeNode::Section(name="", path="/", children=[]),
 ) -> DocumentTree {
-  { site, pages, root }
+  { site, pages, root, }
 }
 
 // =============================================================================

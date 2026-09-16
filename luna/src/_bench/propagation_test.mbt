@@ -22,7 +22,7 @@ fn count_is(label : String, actual : Int, expect : Int) -> Unit raise {
 ///|
 /// Drives `n` updates through `set`, flushing between each.
 fn drive(set : (Int) -> Unit) -> Unit {
-  for i in 1..=UPDATES {
+  for i in 1..<=UPDATES {
     set(i)
     @signals.flush()
   }
@@ -86,7 +86,9 @@ test "propagation: every level of a depth-8 memo chain recomputes" {
     })
   }
   let leaf = node
-  let _ = @resource.render_effect(() => { let _ = leaf(); })
+  let _ = @resource.render_effect(() => {
+    let _ = leaf()
+  })
   let base = bodies.val
   drive(i => src.set(i))
   count_is("memo bodies evaluated", bodies.val - base, UPDATES * 8)
@@ -101,8 +103,10 @@ test "propagation: batch coalesces many sets into one effect run" {
     runs.val += 1
   })
   let base = runs.val
-  @resource.batch(() => for i in 1..=UPDATES {
-    src.set(i)
+  @resource.batch(() => {
+    for i in 1..<=UPDATES {
+      src.set(i)
+    }
   })
   @signals.flush()
   count_is("effect re-runs for a batch of \{UPDATES}", runs.val - base, 1)
@@ -113,8 +117,13 @@ test "propagation: watch cuts off on structural equality" {
   let src = @resource.signal(0)
   let runs = Ref(0)
   // The observed value never changes, so an Eq-aware observer should stay quiet.
-  let _ = @signals.watch(() => { let _ = src.get(); 42 }, (_new, _old) => runs.val +=
-    1)
+  let _ = @signals.watch(
+    () => {
+      let _ = src.get()
+      42
+    },
+    (_new, _old) => runs.val += 1,
+  )
   drive(i => src.set(i))
   count_is("watch callbacks for an unchanging value", runs.val, 0)
 }

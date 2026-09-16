@@ -2,17 +2,19 @@
 package "mizchi/luna_components/styled/toolbar"
 
 import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
   "mizchi/signals",
 }
 
 // Values
-pub fn toolbar(String, Array[ToolbarGroup], aria_label? : String, class? : String, (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn toolbar(String, Array[ToolbarGroup], aria_label? : String, class? : String, (String) -> Unit) -> @core.Node[@js_core.Any, String]
 
 pub fn toolbar_css() -> String
 
 pub fn toolbar_item_config(String, String, pressed? : Bool, disabled? : Bool) -> ToolbarItemConfig
 
-pub fn toolbar_reactive(String, Array[ToolbarGroup], @signals.Signal[Map[String, Bool]], aria_label? : String, class? : String, (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn toolbar_reactive(String, Array[ToolbarGroup], @signals.Signal[Map[String, Bool]], aria_label? : String, class? : String, (String) -> Unit) -> @core.Node[@js_core.Any, String]
 
 pub fn toolbar_slots() -> ToolbarSlots
 
@@ -39,4 +41,3 @@ pub(all) struct ToolbarSlots {
 // Type aliases
 
 // Traits
-

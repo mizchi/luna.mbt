@@ -2,7 +2,7 @@ import {
   "mizchi/astra",
   "mizchi/astra/content/shiki",
   "mizchi/astra/internal/css_kit",
-  "mizchi/js/node/fs",
+  "mizchi/js_node/fs",
 }
 
 supported_targets = "js"

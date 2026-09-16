@@ -625,7 +625,7 @@ fn jsx_to_component_embed(
     jsx.children
   }
 
-  @markdown.ComponentEmbed::{ tag, attrs, content, trigger }
+  @markdown.ComponentEmbed::{ tag, attrs, content, trigger, }
 }
 
 ///|

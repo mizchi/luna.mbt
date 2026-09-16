@@ -29,7 +29,7 @@ pub fn[E] radio_option(
   label : Array[@luna.Node[E, String]],
   disabled? : Bool,
 ) -> RadioOption[E] {
-  { value, label, disabled: disabled.unwrap_or(false) }
+  { value, label, disabled: disabled.unwrap_or(false), }
 }
 
 ///|

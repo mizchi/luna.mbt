@@ -53,7 +53,7 @@ pub fn use_accordion_header(
       ),
     ),
   )
-  { attrs, toggle, is_expanded }
+  { attrs, toggle, is_expanded, }
 }
 
 ///|
@@ -203,7 +203,7 @@ pub fn use_accordion_header_nav(
       ),
     ),
   ]
-  { attrs, is_expanded }
+  { attrs, is_expanded, }
 }
 
 ///|
@@ -237,5 +237,5 @@ pub fn use_accordion_panel_nav(
       }),
     ),
   ]
-  { attrs, is_expanded }
+  { attrs, is_expanded, }
 }

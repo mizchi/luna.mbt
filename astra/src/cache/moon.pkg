@@ -3,9 +3,9 @@ import {
   "mizchi/astra",
   "mizchi/astra/env",
   "mizchi/astra/fs" @fs_adapter,
-  "mizchi/js/node/path",
-  "mizchi/js/node/fs",
-  "mizchi/js/core" @js,
+  "mizchi/js_node/path",
+  "mizchi/js_node/fs",
+  "mizchi/js_core" @js,
 }
 
 import {

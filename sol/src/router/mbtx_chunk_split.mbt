@@ -40,9 +40,9 @@ pub fn split_mbtx_chunks(
   if entries.length() <= 1 {
     // Single entry: no sharing possible, just transform to ESM
     let result_entries = entries.map(fn(e) {
-      MbtxChunkEntry::{ id: e.id, code: transform_mbtx_to_esm(e.code) }
+      MbtxChunkEntry::{ id: e.id, code: transform_mbtx_to_esm(e.code), }
     })
-    return { shared_code: "", entries: result_entries }
+    return { shared_code: "", entries: result_entries, }
   }
   ffi_split_mbtx_chunks(FixedArray::from_array(entries[:]), shared_path)
 }

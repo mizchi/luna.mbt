@@ -395,7 +395,7 @@ async fn handle_isr_page_request(
   }
   c.set_header("X-Sol-ISR-Status", isr_status_str)
   // ISR render props: mark as ISR to warn against ctx header access
-  let isr_props = { ..props, is_isr_render: true }
+  let isr_props = { ..props, is_isr_render: true, }
   match status {
     @isr.Fresh =>
       // Return cached HTML directly

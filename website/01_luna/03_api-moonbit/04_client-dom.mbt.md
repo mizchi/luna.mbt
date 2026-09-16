@@ -10,12 +10,13 @@ handlers, the portals, and the calls that put a tree into the page. Luna's own
 examples import it as `@element`, leaving the default `@dom` alias for the
 browser bindings in `mizchi/js_browser/dom`:
 
-```moonbit
+```moonbit nocheck
+///|
 import {
   "mizchi/luna/dom" @element,
   "mizchi/luna/js/resource",
   "mizchi/js_browser/dom",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 ```
 
@@ -35,7 +36,11 @@ whatever is already there. Both take a **built `DomNode`**:
 ///|
 test "render_to mounts a built node into an element" {
   fn hello() -> @element.DomNode {
-    @element.div() <| [@element.p() <| [@element.text("Hello, Luna")]]
+    @element.div() <| [
+      @element.p() <| [
+        @element.text("Hello, Luna"),
+      ],
+    ]
   }
 
   fn boot() -> Unit {
@@ -73,7 +78,7 @@ test "render takes Luna's DomElement wrapper" {
 
 ### Signatures
 
-```moonbit
+```moonbit nocheck
 fn render_to(@dom.Element, DomNode) -> Unit   // clear, then mount
 fn mount_to(@dom.Element, DomNode) -> Unit    // append
 fn render(DomElement, DomNode) -> Unit
@@ -99,15 +104,18 @@ argument of any element in the DSL:
 test "events() chains typed handlers onto an element" {
   fn counter() -> @element.DomNode {
     let count = @resource.signal(0)
-    @element.div()
-    <| [
-      @element.p() <| [@element.text_dyn(fn() { "Count: \{count.get()}" })],
+    @element.div() <| [
+      @element.p() <| [
+        @element.text_dyn(fn() { "Count: \{count.get()}" }),
+      ],
       @element.button(
         on=@element.events().click(fn(_e) { count.update(fn(n) { n + 1 }) }),
-      )
-      <| [@element.text("Increment")],
-      @element.button(on=@element.events().click(fn(_e) { count.set(0) }))
-      <| [@element.text("Reset")],
+      ) <| [
+        @element.text("Increment"),
+      ],
+      @element.button(on=@element.events().click(fn(_e) { count.set(0) })) <| [
+        @element.text("Reset"),
+      ],
     ]
   }
 
@@ -120,7 +128,7 @@ Each handler receives the event type that matches its name — `click`,
 `KeyboardEvent`; `input` an `InputEvent`; `change` a `ChangeEvent`; `submit` a
 `FormEvent`; `focus` and `blur` a `FocusEvent`.
 
-Reading the value off an input event goes through `mizchi/js/core`, because
+Reading the value off an input event goes through `mizchi/js_core`, because
 `@dom.Element` has no `value` accessor of its own — cast the target and read
 the property:
 
@@ -131,8 +139,7 @@ test "several handlers chain in one expression" {
     let query = @resource.signal("")
     @element.input(
       type_="text",
-      on=@element
-        .events()
+      on=@element.events()
         .input(fn(e) {
           let target : @js.Any = e.target() |> @js.identity
           query.set(target._get("value").cast())
@@ -156,13 +163,17 @@ callback to defer them with:
 test "portals take plain nodes, not a callback" {
   fn modal() -> @element.DomNode {
     @element.portal_to_body([
-      @element.div(class="modal") <| [@element.text("Modal content")],
+      @element.div(class="modal") <| [
+        @element.text("Modal content"),
+      ],
     ])
   }
 
   fn modal_in_selector() -> @element.DomNode {
     @element.portal_to("#modal-root", [
-      @element.div(class="modal") <| [@element.text("Modal content")],
+      @element.div(class="modal") <| [
+        @element.text("Modal content"),
+      ],
     ])
   }
 
@@ -171,7 +182,7 @@ test "portals take plain nodes, not a callback" {
 }
 ```
 
-```moonbit
+```moonbit nocheck
 fn portal_to_body(Array[DomNode]) -> DomNode
 fn portal_to(String, Array[DomNode]) -> DomNode
 fn portal(target~ : @dom.Element, children~ : Array[DomNode]) -> DomNode

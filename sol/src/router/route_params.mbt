@@ -24,7 +24,7 @@ pub struct RouteParams {
 ///|
 /// Create empty route params
 pub fn RouteParams::empty() -> RouteParams {
-  { params: [], query: [], path: "", is_fragment: false }
+  { params: [], query: [], path: "", is_fragment: false, }
 }
 
 ///|
@@ -130,7 +130,7 @@ pub fn PageProps::from_ctx_with_params(
   ctx : Ctx,
   params : RouteParams,
 ) -> PageProps {
-  { ctx, params, is_fragment: params.is_fragment, is_isr_render: false }
+  { ctx, params, is_fragment: params.is_fragment, is_isr_render: false, }
 }
 
 ///|
@@ -304,7 +304,7 @@ fn extract_route_params(
     None => (raw_path, [])
   }
 
-  { params, query, path, is_fragment }
+  { params, query, path, is_fragment, }
 }
 
 ///|

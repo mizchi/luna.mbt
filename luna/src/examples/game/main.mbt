@@ -64,7 +64,7 @@ priv struct Vec2 {
 
 ///|
 fn Vec2::new(x : Double, y : Double) -> Vec2 {
-  { x, y }
+  { x, y, }
 }
 
 ///|
@@ -195,8 +195,8 @@ fn spawn_enemy(state : GameState, now : Int) -> GameState {
     _ => Vec2::new(0.0, math_random() * GRID_SIZE.to_double())
   }
   let new_enemies = state.enemies.copy()
-  new_enemies.push({ pos, id: state.next_enemy_id, last_shot: now })
-  { ..state, enemies: new_enemies, next_enemy_id: state.next_enemy_id + 1 }
+  new_enemies.push({ pos, id: state.next_enemy_id, last_shot: now, })
+  { ..state, enemies: new_enemies, next_enemy_id: state.next_enemy_id + 1, }
 }
 
 ///|
@@ -245,7 +245,7 @@ fn spawn_enemy_bullet(
     bullets: new_bullets,
     next_bullet_id: state.next_bullet_id + 1,
   }
-  let new_enemy = { ..enemy, last_shot: now }
+  let new_enemy = { ..enemy, last_shot: now, }
   (new_state, new_enemy)
 }
 
@@ -258,10 +258,10 @@ fn update_bullets(state : GameState) -> GameState {
       new_pos.x < GRID_SIZE.to_double() &&
       new_pos.y >= 0.0 &&
       new_pos.y < GRID_SIZE.to_double() {
-      new_bullets.push({ ..b, pos: new_pos })
+      new_bullets.push({ ..b, pos: new_pos, })
     }
   }
-  { ..state, bullets: new_bullets }
+  { ..state, bullets: new_bullets, }
 }
 
 ///|
@@ -276,9 +276,9 @@ fn update_enemies(state : GameState) -> GameState {
       e.pos.x + dir.x * ENEMY_SPEED,
       e.pos.y + dir.y * ENEMY_SPEED,
     )
-    new_enemies.push({ ..e, pos: new_pos })
+    new_enemies.push({ ..e, pos: new_pos, })
   }
-  { ..state, enemies: new_enemies }
+  { ..state, enemies: new_enemies, }
 }
 
 ///|
@@ -296,7 +296,7 @@ fn clamp(v : Double, min : Double, max : Double) -> Double {
 fn move_player(state : GameState, dx : Double, dy : Double) -> GameState {
   let new_x = clamp(state.player_pos.x + dx, 0.0, GRID_SIZE.to_double() - 1.0)
   let new_y = clamp(state.player_pos.y + dy, 0.0, GRID_SIZE.to_double() - 1.0)
-  { ..state, player_pos: Vec2::new(new_x, new_y) }
+  { ..state, player_pos: Vec2::new(new_x, new_y), }
 }
 
 ///|
@@ -343,7 +343,7 @@ fn check_collisions(state : GameState) -> GameState {
       filtered_enemies.push(e)
     }
   }
-  { ..state, bullets: filtered_bullets, enemies: filtered_enemies, score }
+  { ..state, bullets: filtered_bullets, enemies: filtered_enemies, score, }
 }
 
 ///|
@@ -366,7 +366,7 @@ fn game_tick(state : GameState) -> GameState {
   s = apply_input(s)
   if now - s.last_enemy_spawn >= ENEMY_SPAWN_INTERVAL {
     s = spawn_enemy(s, now)
-    s = { ..s, last_enemy_spawn: now }
+    s = { ..s, last_enemy_spawn: now, }
   }
   if now - s.last_player_shot >= PLAYER_BULLET_INTERVAL {
     s = spawn_player_bullet(s, now)
@@ -381,7 +381,7 @@ fn game_tick(state : GameState) -> GameState {
       updated_enemies.push(e)
     }
   }
-  s = { ..s, enemies: updated_enemies }
+  s = { ..s, enemies: updated_enemies, }
   s = update_bullets(s)
   s = update_enemies(s)
   s = check_collisions(s)
@@ -520,7 +520,12 @@ priv struct KeyState {
 }
 
 ///|
-let key_state : KeyState = { up: false, down: false, left: false, right: false }
+let key_state : KeyState = {
+  up: false,
+  down: false,
+  left: false,
+  right: false,
+}
 
 ///|
 fn setup_keyboard(state_sig : @resource.Signal[GameState]) -> Unit {

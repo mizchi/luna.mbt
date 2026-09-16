@@ -23,7 +23,7 @@ pub(all) struct PoolConfig {
 ///|
 /// Default pool configuration
 pub fn PoolConfig::default(worker_script : String, cwd : String) -> PoolConfig {
-  PoolConfig::{ num_workers: 4, worker_script, cwd, timeout_ms: 60000 }
+  PoolConfig::{ num_workers: 4, worker_script, cwd, timeout_ms: 60000, }
 }
 
 // =============================================================================
@@ -155,7 +155,7 @@ pub fn WorkerMessage::from_json(message : IpcMessage) -> WorkerMessage? {
       } else {
         Some(obj["error"].cast())
       }
-      Some(Done(JobResult::{ job_id, output_path, success, error }))
+      Some(Done(JobResult::{ job_id, output_path, success, error, }))
     }
     "error" => {
       let message : String = obj["message"].cast()

@@ -8,7 +8,7 @@
 
 ///|
 fn create_manifest(pages : Map[String, ISRPageMeta]) -> ISRManifest {
-  ISRManifest::{ version: 1, pages }
+  ISRManifest::{ version: 1, pages, }
 }
 
 ///|
@@ -17,7 +17,7 @@ fn create_page_meta(
   renderer? : String = "markdown",
   source? : String = "",
 ) -> ISRPageMeta {
-  ISRPageMeta::{ revalidate, renderer, source }
+  ISRPageMeta::{ revalidate, renderer, source, }
 }
 
 ///|
@@ -26,7 +26,7 @@ fn create_handler(
   manifest : ISRManifest,
   dist_dir : String,
 ) -> ISRHandler[MemoryCache] {
-  ISRHandler::{ cache, manifest, dist_dir }
+  ISRHandler::{ cache, manifest, dist_dir, }
 }
 
 // =============================================================================

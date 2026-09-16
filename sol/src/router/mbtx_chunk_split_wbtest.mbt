@@ -22,8 +22,8 @@ test "split_mbtx_chunks: extracts shared declarations" {
   let code2 = shared_fn +
     "\nconst _M0unique2 = 2;\n(() => {\n  _M0shared(2);\n})();\n"
   let entries = [
-    MbtxEntry::{ id: "a", code: code1 },
-    MbtxEntry::{ id: "b", code: code2 },
+    MbtxEntry::{ id: "a", code: code1, },
+    MbtxEntry::{ id: "b", code: code2, },
   ]
   let result = split_mbtx_chunks(entries)
   // Shared code should contain the shared function
@@ -42,8 +42,8 @@ test "split_mbtx_chunks: extracts shared declarations" {
 ///|
 test "split_mbtx_chunks: no shared declarations" {
   let entries = [
-    MbtxEntry::{ id: "a", code: "const _M0a = 1;\n(() => {\n  _M0a;\n})();\n" },
-    MbtxEntry::{ id: "b", code: "const _M0b = 2;\n(() => {\n  _M0b;\n})();\n" },
+    MbtxEntry::{ id: "a", code: "const _M0a = 1;\n(() => {\n  _M0a;\n})();\n", },
+    MbtxEntry::{ id: "b", code: "const _M0b = 2;\n(() => {\n  _M0b;\n})();\n", },
   ]
   let result = split_mbtx_chunks(entries)
   assert_eq(result.shared_code, "")

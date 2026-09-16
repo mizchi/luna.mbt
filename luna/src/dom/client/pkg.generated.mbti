@@ -2,6 +2,8 @@
 package "mizchi/luna/dom/client"
 
 import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
   "mizchi/signals",
 }
 
@@ -10,19 +12,19 @@ pub fn bind_actions_from_dom(@mizchi/js_browser/dom.Element, (String) -> Unit) -
 
 pub fn get_shadow_root_for_hydrate(@mizchi/js_browser/dom.Element) -> @mizchi/js_browser/dom.Element?
 
-pub fn hydrate(@mizchi/js_browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> HydrationResult
+pub fn hydrate(@mizchi/js_browser/dom.Element, @core.Node[@js_core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> HydrationResult
 
-pub fn hydrate_auto(@mizchi/js_browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], is_rerender? : Bool) -> Unit
+pub fn hydrate_auto(@mizchi/js_browser/dom.Element, @core.Node[@js_core.Any, String], is_rerender? : Bool) -> Unit
 
 pub fn hydrate_auto_dom(@mizchi/js_browser/dom.Element, @mizchi/luna/dom.DomNode, is_rerender? : Bool) -> Unit
 
-pub fn hydrate_island(@mizchi/js/core.Any, @mizchi/js/core.Any, String, (IslandContext) -> Unit) -> Unit
+pub fn hydrate_island(@js_core.Any, @js_core.Any, String, (IslandContext) -> Unit) -> Unit
 
-pub fn hydrate_wc_island(@mizchi/js/core.Any, (WcIslandContext) -> Unit) -> Unit
+pub fn hydrate_wc_island(@js_core.Any, (WcIslandContext) -> Unit) -> Unit
 
-pub fn[State] hydrate_with_actions(@mizchi/js_browser/dom.Element, State, (State) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String], (State, String) -> State) -> Unit
+pub fn[State] hydrate_with_actions(@mizchi/js_browser/dom.Element, State, (State) -> @core.Node[@js_core.Any, String], (State, String) -> State) -> Unit
 
-pub fn hydrate_with_dispose(@mizchi/js_browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> (HydrationResult, () -> Unit)
+pub fn hydrate_with_dispose(@mizchi/js_browser/dom.Element, @core.Node[@js_core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> (HydrationResult, () -> Unit)
 
 pub fn hydration_result_mismatch(String) -> HydrationResult
 
@@ -30,23 +32,23 @@ pub fn hydration_result_recovered(String) -> HydrationResult
 
 pub fn hydration_result_success() -> HydrationResult
 
-pub fn inject_static(@mizchi/js_browser/dom.Element, @mizchi/luna/core.Node[Unit, String]) -> Unit
+pub fn inject_static(@mizchi/js_browser/dom.Element, @core.Node[Unit, String]) -> Unit
 
 pub fn inject_static_html(@mizchi/js_browser/dom.Element, String) -> Unit
 
 pub fn is_wc_element(@mizchi/js_browser/dom.Element) -> Bool
 
-pub fn render_vnode(@mizchi/js_browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> () -> Unit
+pub fn render_vnode(@mizchi/js_browser/dom.Element, @core.Node[@js_core.Any, String]) -> () -> Unit
 
-pub fn render_vnode_to_dom(@mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> @mizchi/js_browser/dom.Node
+pub fn render_vnode_to_dom(@core.Node[@js_core.Any, String]) -> @mizchi/js_browser/dom.Node
 
-pub fn render_vnode_to_dom_with_dispose(@mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> (@mizchi/js_browser/dom.Node, () -> Unit)
+pub fn render_vnode_to_dom_with_dispose(@core.Node[@js_core.Any, String]) -> (@mizchi/js_browser/dom.Node, () -> Unit)
 
-pub fn static_block(String, @mizchi/luna/core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
+pub fn static_block(String, @core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
-pub fn static_div(@mizchi/luna/core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
+pub fn static_div(@core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
-pub fn static_span(@mizchi/luna/core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
+pub fn static_span(@core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
 // Errors
 
@@ -76,14 +78,14 @@ pub fn IslandContext::signal_int(Self, String, Int) -> @signals.Signal[Int]
 
 pub struct WcIslandContext {
   element : @mizchi/js_browser/dom.Element
-  shadow_root : @mizchi/js/core.Any
-  parts : @mizchi/js/core.Any
+  shadow_root : @js_core.Any
+  parts : @js_core.Any
   // private fields
 }
 pub fn WcIslandContext::bind_actions(Self, (String) -> Unit) -> Unit
 pub fn[T : Show] WcIslandContext::bind_signal(Self, String, @signals.Signal[T]) -> Unit
 pub fn WcIslandContext::get_element(Self) -> @mizchi/js_browser/dom.Element
-pub fn WcIslandContext::get_shadow_root(Self) -> @mizchi/js/core.Any
+pub fn WcIslandContext::get_shadow_root(Self) -> @js_core.Any
 pub fn WcIslandContext::get_state_json(Self) -> String
 pub fn WcIslandContext::new(@mizchi/js_browser/dom.Element) -> Self?
 pub fn WcIslandContext::on(Self, String, String, () -> Unit) -> Unit

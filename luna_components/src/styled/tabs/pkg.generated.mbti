@@ -2,13 +2,15 @@
 package "mizchi/luna_components/styled/tabs"
 
 import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
   "mizchi/signals",
 }
 
 // Values
-pub fn tab_item(String, String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> TabItem
+pub fn tab_item(String, String, Array[@core.Node[@js_core.Any, String]]) -> TabItem
 
-pub fn tabs(Array[TabItem], @signals.Signal[Int], aria_label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn tabs(Array[TabItem], @signals.Signal[Int], aria_label? : String, class? : String) -> @core.Node[@js_core.Any, String]
 
 pub fn tabs_css() -> String
 
@@ -20,7 +22,7 @@ pub fn tabs_slots() -> TabsSlots
 pub(all) struct TabItem {
   id : String
   label : String
-  content : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]
+  content : Array[@core.Node[@js_core.Any, String]]
 }
 
 pub(all) struct TabsSlots {
@@ -33,4 +35,3 @@ pub(all) struct TabsSlots {
 // Type aliases
 
 // Traits
-

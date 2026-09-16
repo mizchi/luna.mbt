@@ -51,7 +51,7 @@ pub fn table_column(
   label : String,
   sortable? : Bool,
 ) -> TableColumn {
-  { id, label, sortable: sortable.unwrap_or(false), header_scope: "col" }
+  { id, label, sortable: sortable.unwrap_or(false), header_scope: "col", }
 }
 
 ///|
@@ -69,7 +69,7 @@ pub fn table_row(
   cells : Array[String],
   disabled? : Bool,
 ) -> TableRow {
-  { id, cells, disabled: disabled.unwrap_or(false) }
+  { id, cells, disabled: disabled.unwrap_or(false), }
 }
 
 ///|

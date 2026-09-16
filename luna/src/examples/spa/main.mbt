@@ -276,7 +276,7 @@ fn todo_example() -> DomNode {
       next_id.set(id + 1)
       todos.update(fn(items) {
         let new_items = items.copy()
-        new_items.push({ id, text: txt, completed: false })
+        new_items.push({ id, text: txt, completed: false, })
         new_items
       })
       input_text.set("")
@@ -287,7 +287,7 @@ fn todo_example() -> DomNode {
     todos.update(fn(items) {
       items.map(fn(item) {
         if item.id == id {
-          { ..item, completed: !item.completed }
+          { ..item, completed: !item.completed, }
         } else {
           item
         }

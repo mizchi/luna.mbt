@@ -75,7 +75,7 @@ fn ContractManifest::to_route_info(self : ContractManifest) -> RouteInfo {
   let route_queries : Array[RouteQueryContract] = []
   for route in self.routes {
     if !route.query.is_empty() {
-      route_queries.push({ path: route.path, query: route.query })
+      route_queries.push({ path: route.path, query: route.query, })
     }
   }
   let action_ids : Array[String] = []
@@ -245,7 +245,7 @@ fn parse_contract_routes(obj : Map[String, Json]) -> Array[ContractRoute]? {
       _ => return None
     }
     if !path.is_empty() {
-      result.push({ path, query })
+      result.push({ path, query, })
     } else {
       return None
     }
@@ -277,7 +277,7 @@ fn parse_contract_query_specs(
       _ => return None
     }
     if !name.is_empty() {
-      result.push({ name, optional })
+      result.push({ name, optional, })
     } else {
       return None
     }
@@ -321,7 +321,7 @@ fn parse_contract_components(
       None => get_dir_name(package_path)
     }
     if !name.is_empty() && !package_path.is_empty() && !props.name.is_empty() {
-      result.push({ name, props, package_path, import_alias })
+      result.push({ name, props, package_path, import_alias, })
     } else {
       return None
     }
@@ -345,7 +345,7 @@ fn parse_contract_props(
     Some(fields) => fields
     None => return None
   }
-  Some({ name, fields })
+  Some({ name, fields, })
 }
 
 ///|
@@ -370,7 +370,7 @@ fn parse_contract_props_fields(
       None => return None
     }
     if !name.is_empty() && !type_name.is_empty() {
-      result.push({ name, type_name })
+      result.push({ name, type_name, })
     } else {
       return None
     }
@@ -413,7 +413,7 @@ fn parse_contract_data_shape(obj : Map[String, Json]) -> ContractDataShape? {
   if name.is_empty() {
     None
   } else {
-    Some({ name, fields })
+    Some({ name, fields, })
   }
 }
 
@@ -428,7 +428,7 @@ fn parse_contract_data_shape_member(
         Some(shape) => Ok(Some(shape))
         None => Err(())
       }
-    Some(String(name)) => Ok(Some({ name, fields: [] }))
+    Some(String(name)) => Ok(Some({ name, fields: [], }))
     Some(_) => Err(())
     None => Ok(None)
   }
@@ -608,7 +608,7 @@ fn parse_contract_client_assets(
       None => return None
     }
     if !component.is_empty() && !url.is_empty() {
-      result.push({ component, url })
+      result.push({ component, url, })
     } else {
       return None
     }

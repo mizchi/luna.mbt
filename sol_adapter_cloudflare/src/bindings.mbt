@@ -74,7 +74,7 @@ pub fn binding(
   kind : BindingKind,
   optional? : Bool = false,
 ) -> BindingSpec {
-  { name, kind, optional }
+  { name, kind, optional, }
 }
 
 ///|
@@ -83,7 +83,7 @@ pub fn[T] binding_key(
   kind : BindingKind,
   optional? : Bool = false,
 ) -> BindingKey[T] {
-  { name, kind, optional, _type: None }
+  { name, kind, optional, _type: None, }
 }
 
 ///|
@@ -169,7 +169,7 @@ pub fn missing_required_bindings(
   let missing : Array[MissingBinding] = []
   for spec in specs {
     if !spec.optional && !ffi_env_has_binding(env, spec.name) {
-      missing.push({ name: spec.name, kind: spec.kind })
+      missing.push({ name: spec.name, kind: spec.kind, })
     }
   }
   missing

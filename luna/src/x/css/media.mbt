@@ -13,7 +13,7 @@ priv struct MediaRegistry {
 
 ///|
 /// Global media registry
-let media_registry : MediaRegistry = { media_to_class: Map([]), entries: [] }
+let media_registry : MediaRegistry = { media_to_class: Map([]), entries: [], }
 
 ///|
 /// Register a media query declaration

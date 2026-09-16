@@ -6,7 +6,7 @@ import {
   "mizchi/luna/dom/client",
   "mizchi/luna/dom/client/repair" @fixable,
   "mizchi/js_browser/dom" @js_dom,
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/npm_typed/global_jsdom",
   "moonbitlang/core/bench",
 }

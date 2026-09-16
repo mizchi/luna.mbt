@@ -26,7 +26,7 @@ pub fn CacheManager::new(
   let config_hash = compute_config_hash(config)
   let fs = @fs_adapter.NodeFsAdapter::new()
   let cache = DiskCache::new(fs, cache_dir~, config_hash~, enabled~)
-  CacheManager::{ cache, enabled }
+  CacheManager::{ cache, enabled, }
 }
 
 ///|

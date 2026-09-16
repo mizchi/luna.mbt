@@ -27,7 +27,7 @@ pub fn IslandContext::new(
   id : String,
   state_json : String,
 ) -> IslandContext {
-  { element, id, state_json }
+  { element, id, state_json, }
 }
 
 ///|

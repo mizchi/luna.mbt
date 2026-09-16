@@ -25,7 +25,7 @@ pub struct ComponentRegistry {
 ///|
 /// Create empty registry (all defaults)
 pub fn ComponentRegistry::new() -> ComponentRegistry {
-  { header: None, footer: None, toc: None, breadcrumb: None, prev_next: None }
+  { header: None, footer: None, toc: None, breadcrumb: None, prev_next: None, }
 }
 
 ///|
@@ -50,7 +50,7 @@ pub fn ComponentRegistry::with_header(
   self : ComponentRegistry,
   renderer : (@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
-  { ..self, header: Some(renderer) }
+  { ..self, header: Some(renderer), }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn ComponentRegistry::with_footer(
   self : ComponentRegistry,
   renderer : (@astra.BuildContext) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
-  { ..self, footer: Some(renderer) }
+  { ..self, footer: Some(renderer), }
 }
 
 ///|
@@ -68,7 +68,7 @@ pub fn ComponentRegistry::with_toc(
   self : ComponentRegistry,
   renderer : (Array[@md_render.TocItem]) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
-  { ..self, toc: Some(renderer) }
+  { ..self, toc: Some(renderer), }
 }
 
 ///|
@@ -77,7 +77,7 @@ pub fn ComponentRegistry::with_breadcrumb(
   self : ComponentRegistry,
   renderer : (@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
-  { ..self, breadcrumb: Some(renderer) }
+  { ..self, breadcrumb: Some(renderer), }
 }
 
 ///|
@@ -86,7 +86,7 @@ pub fn ComponentRegistry::with_prev_next(
   self : ComponentRegistry,
   renderer : (@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
-  { ..self, prev_next: Some(renderer) }
+  { ..self, prev_next: Some(renderer), }
 }
 
 // =============================================================================

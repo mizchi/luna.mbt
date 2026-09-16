@@ -72,7 +72,7 @@ pub struct AnalysisResult {
 ///|
 /// Create a declaration
 pub fn Declaration::new(property : String, value : String) -> Declaration {
-  { property, value }
+  { property, value, }
 }
 
 ///|
@@ -84,5 +84,5 @@ pub fn Declaration::key(self : Declaration) -> String {
 ///|
 /// Create a class usage
 pub fn ClassUsage::new(classes : Array[String], source : String) -> ClassUsage {
-  { classes, source }
+  { classes, source, }
 }

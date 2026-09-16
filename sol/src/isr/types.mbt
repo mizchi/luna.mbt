@@ -25,7 +25,7 @@ pub fn CacheEntry::new(
   generated_at : Int64,
   revalidate : Int,
 ) -> CacheEntry {
-  { html, generated_at, revalidate }
+  { html, generated_at, revalidate, }
 }
 
 // ============================================================================
@@ -82,7 +82,7 @@ pub struct ISRConfig {
 ///|
 /// Default ISR configuration
 pub fn ISRConfig::default() -> ISRConfig {
-  { enabled: true, default_revalidate: 60 }
+  { enabled: true, default_revalidate: 60, }
 }
 
 // ============================================================================

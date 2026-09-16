@@ -263,8 +263,8 @@ test "parse_page_config - handlers config" {
 
 ///|
 test "PageConfig::merge - child overrides base mode" {
-  let base = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
-  let child = PageConfig::{ ..PageConfig::default(), mode: Some("isr") }
+  let base = PageConfig::{ ..PageConfig::default(), mode: Some("ssr"), }
+  let child = PageConfig::{ ..PageConfig::default(), mode: Some("isr"), }
   let merged = PageConfig::merge(base, child)
   debug_inspect(
     merged.mode,
@@ -276,7 +276,7 @@ test "PageConfig::merge - child overrides base mode" {
 
 ///|
 test "PageConfig::merge - child inherits base mode when None" {
-  let base = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
+  let base = PageConfig::{ ..PageConfig::default(), mode: Some("ssr"), }
   let child = PageConfig::default()
   let merged = PageConfig::merge(base, child)
   debug_inspect(
@@ -320,7 +320,7 @@ test "PageConfig::merge - islands override when non-empty" {
     ..PageConfig::default(),
     islands: ["counter", "toggle"],
   }
-  let child = PageConfig::{ ..PageConfig::default(), islands: ["custom"] }
+  let child = PageConfig::{ ..PageConfig::default(), islands: ["custom"], }
   let merged = PageConfig::merge(base, child)
   inspect(merged.islands.length(), content="1")
   inspect(merged.islands[0], content="custom")
@@ -364,7 +364,7 @@ test "PageConfig::merge - handlers merge with child override" {
     ..FileHandlerConfig::default(),
     layout: Some("docs"),
   }
-  let base = PageConfig::{ ..PageConfig::default(), handlers: base_handlers }
+  let base = PageConfig::{ ..PageConfig::default(), handlers: base_handlers, }
   let child_handlers : Map[String, FileHandlerConfig] = Map([])
   child_handlers[".md"] = FileHandlerConfig::{
     ..FileHandlerConfig::default(),
@@ -374,7 +374,7 @@ test "PageConfig::merge - handlers merge with child override" {
     ..FileHandlerConfig::default(),
     layout: Some("mdx"),
   }
-  let child = PageConfig::{ ..PageConfig::default(), handlers: child_handlers }
+  let child = PageConfig::{ ..PageConfig::default(), handlers: child_handlers, }
   let merged = PageConfig::merge(base, child)
   inspect(merged.handlers.length(), content="2")
   guard merged.handlers.get(".md") is Some(md_handler) else {
@@ -394,7 +394,7 @@ test "PageConfig::merge - handlers merge with child override" {
 
 ///|
 test "PageConfig::to_render_mode - ssr" {
-  let config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
+  let config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr"), }
   debug_inspect(config.to_render_mode(), content="Ssr")
 }
 
@@ -412,7 +412,7 @@ test "PageConfig::to_render_mode - isr with revalidate" {
 
 ///|
 test "PageConfig::to_render_mode - isr default revalidate" {
-  let config = PageConfig::{ ..PageConfig::default(), mode: Some("isr") }
+  let config = PageConfig::{ ..PageConfig::default(), mode: Some("isr"), }
   let mode = config.to_render_mode()
   guard mode is RenderMode::Isr(revalidate~) else { fail("Expected ISR") }
   inspect(revalidate, content="3600") // default
@@ -420,13 +420,13 @@ test "PageConfig::to_render_mode - isr default revalidate" {
 
 ///|
 test "PageConfig::to_render_mode - spa" {
-  let config = PageConfig::{ ..PageConfig::default(), mode: Some("spa") }
+  let config = PageConfig::{ ..PageConfig::default(), mode: Some("spa"), }
   debug_inspect(config.to_render_mode(), content="Spa")
 }
 
 ///|
 test "PageConfig::to_render_mode - static defaults to ssr" {
-  let config = PageConfig::{ ..PageConfig::default(), mode: Some("static") }
+  let config = PageConfig::{ ..PageConfig::default(), mode: Some("static"), }
   debug_inspect(config.to_render_mode(), content="Ssr")
 }
 
@@ -442,7 +442,7 @@ test "PageConfig::to_render_mode - None defaults to ssr" {
 
 ///|
 test "PageConfig::is_static - static mode" {
-  let config = PageConfig::{ ..PageConfig::default(), mode: Some("static") }
+  let config = PageConfig::{ ..PageConfig::default(), mode: Some("static"), }
   inspect(config.is_static(), content="true")
 }
 
@@ -454,17 +454,17 @@ test "PageConfig::is_static - None mode (default is static)" {
 
 ///|
 test "PageConfig::is_static - other modes" {
-  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
+  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr"), }
   inspect(ssr_config.is_static(), content="false")
-  let isr_config = PageConfig::{ ..PageConfig::default(), mode: Some("isr") }
+  let isr_config = PageConfig::{ ..PageConfig::default(), mode: Some("isr"), }
   inspect(isr_config.is_static(), content="false")
 }
 
 ///|
 test "PageConfig::is_dynamic - ssr and isr" {
-  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
+  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr"), }
   inspect(ssr_config.is_dynamic(), content="true")
-  let isr_config = PageConfig::{ ..PageConfig::default(), mode: Some("isr") }
+  let isr_config = PageConfig::{ ..PageConfig::default(), mode: Some("isr"), }
   inspect(isr_config.is_dynamic(), content="true")
 }
 
@@ -475,31 +475,31 @@ test "PageConfig::is_dynamic - other modes" {
     mode: Some("static"),
   }
   inspect(static_config.is_dynamic(), content="false")
-  let spa_config = PageConfig::{ ..PageConfig::default(), mode: Some("spa") }
+  let spa_config = PageConfig::{ ..PageConfig::default(), mode: Some("spa"), }
   inspect(spa_config.is_dynamic(), content="false")
 }
 
 ///|
 test "PageConfig::is_spa - spa mode" {
-  let config = PageConfig::{ ..PageConfig::default(), mode: Some("spa") }
+  let config = PageConfig::{ ..PageConfig::default(), mode: Some("spa"), }
   inspect(config.is_spa(), content="true")
 }
 
 ///|
 test "PageConfig::is_spa - other modes" {
-  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
+  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr"), }
   inspect(ssr_config.is_spa(), content="false")
 }
 
 ///|
 test "PageConfig::is_isr - isr mode" {
-  let config = PageConfig::{ ..PageConfig::default(), mode: Some("isr") }
+  let config = PageConfig::{ ..PageConfig::default(), mode: Some("isr"), }
   inspect(config.is_isr(), content="true")
 }
 
 ///|
 test "PageConfig::is_isr - other modes" {
-  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
+  let ssr_config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr"), }
   inspect(ssr_config.is_isr(), content="false")
 }
 
@@ -507,7 +507,7 @@ test "PageConfig::is_isr - other modes" {
 test "PageConfig::has_static_params - with params" {
   let params : Map[String, String] = Map([])
   params["slug"] = "hello"
-  let config = PageConfig::{ ..PageConfig::default(), static_params: [params] }
+  let config = PageConfig::{ ..PageConfig::default(), static_params: [params], }
   inspect(config.has_static_params(), content="true")
 }
 

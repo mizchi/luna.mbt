@@ -20,7 +20,7 @@ pub(all) struct ISRManifest {
 ///|
 /// Create empty manifest
 pub fn ISRManifest::empty() -> ISRManifest {
-  { version: 1, pages: {} }
+  { version: 1, pages: {}, }
 }
 
 ///|

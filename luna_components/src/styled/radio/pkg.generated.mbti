@@ -2,13 +2,15 @@
 package "mizchi/luna_components/styled/radio"
 
 import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
   "mizchi/signals",
 }
 
 // Values
 pub fn radio_css() -> String
 
-pub fn radio_group(String, Array[RadioItem], @signals.Signal[String], aria_label? : String, orientation? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn radio_group(String, Array[RadioItem], @signals.Signal[String], aria_label? : String, orientation? : String, class? : String) -> @core.Node[@js_core.Any, String]
 
 pub fn radio_item(String, String, disabled? : Bool) -> RadioItem
 
@@ -34,4 +36,3 @@ pub(all) struct RadioSlots {
 // Type aliases
 
 // Traits
-

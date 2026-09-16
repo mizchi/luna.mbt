@@ -19,7 +19,7 @@ fn get_box_shorthand_def(shorthand : String) -> ShorthandDef {
     shorthand + "-bottom",
     shorthand + "-left",
   ]
-  { shorthand, longhands }
+  { shorthand, longhands, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
     let values = parse_box_shorthand_value(val)
     let result : Array[Declaration] = []
     for i in 0..<4 {
-      result.push({ property: def.longhands[i], value: values[i] })
+      result.push({ property: def.longhands[i], value: values[i], })
     }
     return result
   }
@@ -117,7 +117,7 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
     let values = parse_box_shorthand_value(val)
     let result : Array[Declaration] = []
     for i in 0..<4 {
-      result.push({ property: def.longhands[i], value: values[i] })
+      result.push({ property: def.longhands[i], value: values[i], })
     }
     return result
   }
@@ -128,7 +128,7 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
     let values = parse_box_shorthand_value(val)
     let result : Array[Declaration] = []
     for i in 0..<4 {
-      result.push({ property: def.longhands[i], value: values[i] })
+      result.push({ property: def.longhands[i], value: values[i], })
     }
     return result
   }
@@ -138,14 +138,14 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
     let parts = split_css_value(val)
     if parts.length() == 1 {
       return [
-        { property: "row-gap", value: parts[0] },
-        { property: "column-gap", value: parts[0] },
+        { property: "row-gap", value: parts[0], },
+        { property: "column-gap", value: parts[0], },
       ]
     }
     if parts.length() >= 2 {
       return [
-        { property: "row-gap", value: parts[0] },
-        { property: "column-gap", value: parts[1] },
+        { property: "row-gap", value: parts[0], },
+        { property: "column-gap", value: parts[1], },
       ]
     }
     return [decl]
@@ -155,10 +155,10 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
   if prop == "inset" {
     let values = parse_box_shorthand_value(val)
     return [
-      { property: "top", value: values[0] },
-      { property: "right", value: values[1] },
-      { property: "bottom", value: values[2] },
-      { property: "left", value: values[3] },
+      { property: "top", value: values[0], },
+      { property: "right", value: values[1], },
+      { property: "bottom", value: values[2], },
+      { property: "left", value: values[3], },
     ]
   }
 
@@ -274,9 +274,9 @@ pub fn compress_to_shorthands(
     let row = decl_map.get("row-gap").unwrap()
     let col = decl_map.get("column-gap").unwrap()
     if row == col {
-      result.push({ property: "gap", value: row })
+      result.push({ property: "gap", value: row, })
     } else {
-      result.push({ property: "gap", value: row + " " + col })
+      result.push({ property: "gap", value: row + " " + col, })
     }
     used["row-gap"] = true
     used["column-gap"] = true

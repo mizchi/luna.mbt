@@ -47,13 +47,13 @@ pub fn CsrfConfig::default() -> CsrfConfig {
 ///|
 /// Create config for single origin
 pub fn CsrfConfig::for_origin(origin : String) -> CsrfConfig {
-  { ..CsrfConfig::default(), allowed_origins: [origin] }
+  { ..CsrfConfig::default(), allowed_origins: [origin], }
 }
 
 ///|
 /// Create config for multiple origins
 pub fn CsrfConfig::for_origins(origins : Array[String]) -> CsrfConfig {
-  { ..CsrfConfig::default(), allowed_origins: origins }
+  { ..CsrfConfig::default(), allowed_origins: origins, }
 }
 
 ///|
@@ -62,7 +62,7 @@ pub fn CsrfConfig::with_origins(
   self : CsrfConfig,
   origins : Array[String],
 ) -> CsrfConfig {
-  { ..self, allowed_origins: origins }
+  { ..self, allowed_origins: origins, }
 }
 
 ///|
@@ -73,7 +73,7 @@ pub fn CsrfConfig::with_origin(
 ) -> CsrfConfig {
   let origins = self.allowed_origins.copy()
   origins.push(origin)
-  { ..self, allowed_origins: origins }
+  { ..self, allowed_origins: origins, }
 }
 
 ///|
@@ -82,7 +82,7 @@ pub fn CsrfConfig::with_fetch_metadata(
   self : CsrfConfig,
   enabled : Bool,
 ) -> CsrfConfig {
-  { ..self, check_fetch_metadata: enabled }
+  { ..self, check_fetch_metadata: enabled, }
 }
 
 ///|
@@ -91,7 +91,7 @@ pub fn CsrfConfig::with_content_type(
   self : CsrfConfig,
   content_type : String,
 ) -> CsrfConfig {
-  { ..self, expected_content_type: Some(content_type) }
+  { ..self, expected_content_type: Some(content_type), }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn CsrfConfig::with_error_message(
   self : CsrfConfig,
   message : String,
 ) -> CsrfConfig {
-  { ..self, error_message: message }
+  { ..self, error_message: message, }
 }
 
 // ============================================================================

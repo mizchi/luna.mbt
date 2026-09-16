@@ -2,7 +2,7 @@
 package "mizchi/sol/isr"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
   "mizchi/npm_typed/hono",
   "moonbitlang/core/ref",
 }
@@ -12,7 +12,7 @@ pub fn cache_key(String, Array[(String, String)]) -> String
 
 pub fn check_status(CacheEntry?, Int64) -> CacheStatus
 
-pub async fn create_isr_middleware(String) -> ((@hono.Context[Unit, Unit]) -> @core.Promise[Unit]?)
+pub async fn create_isr_middleware(String) -> ((@hono.Context[Unit, Unit]) -> @js_core.Promise[Unit]?)
 
 pub fn get_isr_handler() -> ISRHandler[MemoryCache]?
 

@@ -28,7 +28,7 @@ test "list_urls returns the document tree URLs" {
 /// file -- not just the page title -- so that T10's `build_to_disk`
 /// produces the same bytes as a hot HTTP fetch from the dev server.
 async test "handler renders real markdown content into HTML" {
-  let cfg = { ..@astra.SsgConfig::default(), docs_dir: "tests/fixture/docs" }
+  let cfg = { ..@astra.SsgConfig::default(), docs_dir: "tests/fixture/docs", }
   // The moon test runner runs this package from astra/, so cwd="." keeps
   // fixture resolution independent from workspace layout.
   let mw = @middleware.create(cfg, cwd=".")

@@ -21,7 +21,7 @@ pub struct ActionOptions {
 ///|
 /// Default action options
 pub fn ActionOptions::default() -> ActionOptions {
-  { headers: [], timeout: None, signal: None }
+  { headers: [], timeout: None, signal: None, }
 }
 
 ///|
@@ -100,19 +100,19 @@ pub struct ActionState {
 ///|
 /// Initial idle action state
 pub fn ActionState::idle() -> ActionState {
-  { phase: Idle, status: None, message: None, redirect: None }
+  { phase: Idle, status: None, message: None, redirect: None, }
 }
 
 ///|
 /// Pending action state
 pub fn ActionState::pending(message? : String = "Pending") -> ActionState {
-  { phase: Pending, status: None, message: Some(message), redirect: None }
+  { phase: Pending, status: None, message: Some(message), redirect: None, }
 }
 
 ///|
 /// Successful action state
 pub fn ActionState::success(message? : String = "Success") -> ActionState {
-  { phase: Succeeded, status: None, message: Some(message), redirect: None }
+  { phase: Succeeded, status: None, message: Some(message), redirect: None, }
 }
 
 ///|
@@ -259,7 +259,7 @@ pub fn[Res] ActionFormConfig::with_success(
   self : ActionFormConfig[Res],
   on_success : (Res) -> Unit,
 ) -> ActionFormConfig[Res] {
-  { ..self, on_success: Some(on_success) }
+  { ..self, on_success: Some(on_success), }
 }
 
 ///|
@@ -268,7 +268,7 @@ pub fn[Res] ActionFormConfig::with_error(
   self : ActionFormConfig[Res],
   on_error : (Int, String) -> Unit,
 ) -> ActionFormConfig[Res] {
-  { ..self, on_error: Some(on_error) }
+  { ..self, on_error: Some(on_error), }
 }
 
 ///|
@@ -277,7 +277,7 @@ pub fn[Res] ActionFormConfig::with_redirect(
   self : ActionFormConfig[Res],
   on_redirect : (String) -> Bool,
 ) -> ActionFormConfig[Res] {
-  { ..self, on_redirect: Some(on_redirect) }
+  { ..self, on_redirect: Some(on_redirect), }
 }
 
 ///|

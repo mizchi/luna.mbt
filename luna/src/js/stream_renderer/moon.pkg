@@ -2,7 +2,7 @@ import {
   "mizchi/luna/core",
   "mizchi/luna",
   "mizchi/luna/core/render",
-  "mizchi/js/web/streams",
+  "mizchi/js_web/streams",
 }
 
 import {

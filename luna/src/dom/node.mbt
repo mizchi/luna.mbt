@@ -10,7 +10,7 @@ pub struct Element {
 ///|
 /// Create Element from @js_dom.Element
 pub fn Element::from_dom(elem : @js_dom.Element) -> Element {
-  { inner: elem }
+  { inner: elem, }
 }
 
 ///|

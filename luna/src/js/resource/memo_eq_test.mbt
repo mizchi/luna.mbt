@@ -14,7 +14,7 @@ fn count_effect_runs_behind(wrap : (() -> String) -> () -> String) -> Int {
     runs.val += 1
   })
   let base = runs.val
-  for i in 1..=5 {
+  for i in 1..<=5 {
     src.set(i)
   }
   runs.val - base
@@ -62,7 +62,7 @@ test "memo_eq runs compute once per source change" {
   assert_eq(evals.val, 1)
   assert_eq(m(), 0)
   assert_eq(evals.val, 1)
-  for i in 1..=5 {
+  for i in 1..<=5 {
     src.set(i)
   }
   // One per change, even though every result compared equal.
@@ -78,10 +78,9 @@ test "memo_eq created inside an effect does not leak deps to it" {
     // The enclosing effect never reads `hidden` itself; creating a memo_eq
     // over it must not subscribe the effect to it.
     let _ = memo_eq(() => hidden.get() * 2)
-
   })
   let base = outer_runs.val
-  for i in 1..=3 {
+  for i in 1..<=3 {
     hidden.set(i)
   }
   assert_eq(outer_runs.val - base, 0)
@@ -91,15 +90,17 @@ test "memo_eq created inside an effect does not leak deps to it" {
 test "memo_eq stops recomputing when its owner is disposed" {
   let src = signal(0)
   let evals = Ref(0)
-  let (value, dispose) = create_root_with_dispose(() => memo_eq(() => {
-    evals.val += 1
-    src.get()
-  }))
+  let (value, dispose) = create_root_with_dispose(() => {
+    memo_eq(() => {
+      evals.val += 1
+      src.get()
+    })
+  })
   src.set(1)
   assert_eq(evals.val, 2)
   assert_eq(value(), 1)
   dispose()
-  for i in 2..=5 {
+  for i in 2..<=5 {
     src.set(i)
   }
   // No further recomputation, and the getter keeps the last published value.

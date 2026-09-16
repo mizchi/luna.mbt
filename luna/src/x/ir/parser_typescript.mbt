@@ -22,7 +22,7 @@ pub fn parse_typescript_with_options(
   let schema : Schema = {
     version: "1.0",
     definitions: {},
-    source: Some({ file, lang: TypeScript }),
+    source: Some({ file, lang: TypeScript, }),
   }
   let errors : Array[ParseError] = []
   let lines = source.split("\n").to_array()
@@ -59,7 +59,7 @@ pub fn parse_typescript_with_options(
             i = end_line
           }
           Err(err) => {
-            errors.push({ line: i + 1, message: err })
+            errors.push({ line: i + 1, message: err, })
             i = i + 1
           }
         }
@@ -76,7 +76,7 @@ pub fn parse_typescript_with_options(
       if pending_annotations.iter().any(fn(a) { a == "island" }) {
         match parse_ts_type_alias(line, pending_doc) {
           Ok(alias_def) => schema.definitions[alias_def.name] = Alias(alias_def)
-          Err(err) => errors.push({ line: i + 1, message: err })
+          Err(err) => errors.push({ line: i + 1, message: err, })
         }
       }
       pending_doc = None
@@ -92,7 +92,7 @@ pub fn parse_typescript_with_options(
     }
     i = i + 1
   }
-  { schema, errors }
+  { schema, errors, }
 }
 
 // =============================================================================
@@ -353,7 +353,7 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
             }
           }
         }
-        return Function({ params, return_: parse_ts_type_ref(return_part) })
+        return Function({ params, return_: parse_ts_type_ref(return_part), })
       }
       None => ()
     }
@@ -419,7 +419,7 @@ fn parse_ts_type_alias(
       let target_str = safe_substring(rest, idx + 1)
         .trim(chars=" \t;")
         .to_owned()
-      Ok({ name, doc, type_params: [], target: parse_ts_type_ref(target_str) })
+      Ok({ name, doc, type_params: [], target: parse_ts_type_ref(target_str), })
     }
   }
 }

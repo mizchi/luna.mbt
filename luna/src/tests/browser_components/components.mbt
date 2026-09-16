@@ -390,7 +390,7 @@ priv struct SortableItem {
 pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
   // Parse initial items from state
   let initial_items = js_get_string_list(state, "items")
-  let items = initial_items.mapi(fn(i, label) { { id: i, label } })
+  let items = initial_items.mapi(fn(i, label) { { id: i, label, } })
   let items_sig = @resource.signal(items)
 
   // Build UI using @dom functions for DOM reuse support

@@ -88,7 +88,7 @@ fn make_rule(
     condition,
     class_name: "",
   }
-  { ..declaration, class_name: hash_class_name(declaration.hash_key(value)) }
+  { ..declaration, class_name: hash_class_name(declaration.hash_key(value)), }
 }
 
 ///|
@@ -101,13 +101,13 @@ pub fn precompiled_rule(
   condition : String,
   class_name : String,
 ) -> StyleRule {
-  { property, value, pseudo, condition, class_name }
+  { property, value, pseudo, condition, class_name, }
 }
 
 ///|
 /// Compiler output only: rules must already have create's slot normalization.
 pub fn precompiled_style(rules : Array[StyleRule]) -> Style {
-  { rules: rules.copy(), variables: [] }
+  { rules: rules.copy(), variables: [], }
 }
 
 ///|
@@ -146,7 +146,7 @@ pub fn create(declarations : Array[StyleRule]) -> Style {
     let key = (declaration.property, declaration.pseudo, declaration.condition)
     slots.set(key, declaration)
   }
-  { rules: slots.values().collect(), variables: [] }
+  { rules: slots.values().collect(), variables: [], }
 }
 
 ///|
@@ -179,7 +179,7 @@ pub fn compose(styles : Array[Style]) -> Style {
       rules.push(declaration)
     }
   }
-  { rules, variables: variables.iter().collect() }
+  { rules, variables: variables.iter().collect(), }
 }
 
 ///|
@@ -236,7 +236,7 @@ pub fn Style::with_vars(
     validate_custom_property(name)
     values.set(name, value)
   }
-  { rules: self.rules, variables: values.iter().collect() }
+  { rules: self.rules, variables: values.iter().collect(), }
 }
 
 ///|

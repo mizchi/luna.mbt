@@ -64,7 +64,7 @@ fn[FS : @env.FileSystem] scan_mbtx_recursive(
       let source = mbtx_dir + "/" + entry_rel
       let route = mbtx_file_to_route(entry_rel, base_path)
       let id = mbtx_file_to_id(entry_rel)
-      entries.push({ route, source, id })
+      entries.push({ route, source, id, })
     }
   }
 }

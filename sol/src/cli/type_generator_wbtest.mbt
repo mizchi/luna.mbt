@@ -50,7 +50,7 @@ test "generate_types_mbt: external bundle manifest restores typed default factor
   let content = generate_types_mbt(
     [sample_counter_props()],
     external_client_bundle=true,
-    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js" }],
+    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js", }],
   )
   assert_true(content.contains("pub fn counter("))
   assert_true(
@@ -76,7 +76,7 @@ test "generate_types_pkg: external bundle manifest exports typed default factory
   let content = generate_types_pkg(
     [sample_counter_props()],
     external_client_bundle=true,
-    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js" }],
+    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js", }],
   )
   assert_true(content.contains("\"CounterProps\""))
   assert_true(content.contains("\"counter_at\""))
@@ -118,7 +118,7 @@ test "generate_typescript_contract_decl: emits TypeScript props interfaces" {
         import_alias: "client",
       },
     ],
-    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js" }],
+    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js", }],
   )
   assert_true(content.contains("export interface CounterProps {"))
   assert_true(content.contains("  initial: number;"))
@@ -196,8 +196,8 @@ test "generate_typescript_contract_decl: emits query action and api contracts" {
       {
         path: "/search",
         query: [
-          { name: "q", optional: false },
-          { name: "page", optional: true },
+          { name: "q", optional: false, },
+          { name: "page", optional: true, },
         ],
       },
     ],
@@ -220,17 +220,17 @@ test "generate_typescript_contract_decl: emits query action and api contracts" {
     contract_shapes: [
       {
         name: "SubmitContactRequest",
-        fields: [{ name: "email", type_name: "String" }],
+        fields: [{ name: "email", type_name: "String", }],
       },
       {
         name: "SubmitContactResponse",
-        fields: [{ name: "ok", type_name: "Bool" }],
+        fields: [{ name: "ok", type_name: "Bool", }],
       },
       {
         name: "CreateItemRequest",
-        fields: [{ name: "title", type_name: "String" }],
+        fields: [{ name: "title", type_name: "String", }],
       },
-      { name: "ItemResponse", fields: [{ name: "id", type_name: "String" }] },
+      { name: "ItemResponse", fields: [{ name: "id", type_name: "String", }], },
     ],
   })
   assert_true(content.contains("export interface SubmitContactRequest {"))

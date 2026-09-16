@@ -1,12 +1,13 @@
 name = "mizchi/luna_components"
 
-version = "0.23.2"
+version = "0.23.3"
 
 import {
-  "mizchi/luna@0.25.0",
+  "mizchi/js_core@0.13.0",
+  "mizchi/luna@0.25.1",
   "mizchi/signals@0.6.5",
-  "mizchi/js@0.12.2",
-  "mizchi/js_browser@0.12.2",
+  "mizchi/js@0.13.0",
+  "mizchi/js_browser@0.13.0",
 }
 
 readme = "README.md"

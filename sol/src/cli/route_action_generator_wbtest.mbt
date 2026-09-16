@@ -182,7 +182,10 @@ test "generate_route_query_accessors: required and optional query params" {
   let result = generate_route_query_accessors([
     {
       path: "/search",
-      query: [{ name: "q", optional: false }, { name: "page", optional: true }],
+      query: [
+        { name: "q", optional: false, },
+        { name: "page", optional: true, },
+      ],
     },
   ])
   assert_true(result.contains("pub(all) struct RouteSearchQuery"))

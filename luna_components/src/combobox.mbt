@@ -38,7 +38,7 @@ pub fn combobox_option(
   label : String,
   disabled? : Bool,
 ) -> ComboboxOption {
-  { id, label, disabled: disabled.unwrap_or(false) }
+  { id, label, disabled: disabled.unwrap_or(false), }
 }
 
 ///|

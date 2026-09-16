@@ -2,11 +2,13 @@
 package "mizchi/luna_components/styled/disclosure"
 
 import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
   "mizchi/signals",
 }
 
 // Values
-pub fn disclosure(String, @signals.Signal[Bool], String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]], class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn disclosure(String, @signals.Signal[Bool], String, Array[@core.Node[@js_core.Any, String]], class? : String) -> @core.Node[@js_core.Any, String]
 
 pub fn disclosure_css() -> String
 
@@ -26,4 +28,3 @@ pub(all) struct DisclosureSlots {
 // Type aliases
 
 // Traits
-

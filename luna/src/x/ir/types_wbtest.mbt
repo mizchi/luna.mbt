@@ -106,7 +106,7 @@ test "Full schema serialization" {
   let schema : Schema = {
     version: "1.0",
     definitions: defs,
-    source: Some({ file: "switch.mbt", lang: MoonBit }),
+    source: Some({ file: "switch.mbt", lang: MoonBit, }),
   }
   let json = ToJson::to_json(schema).stringify()
   assert_true(json.contains("SwitchProps"))
@@ -180,7 +180,7 @@ test "Schema::to_moonbit" {
   let schema : Schema = {
     version: "1.0",
     definitions: defs,
-    source: Some({ file: "switch.mbt", lang: MoonBit }),
+    source: Some({ file: "switch.mbt", lang: MoonBit, }),
   }
   let code = schema.to_moonbit()
   assert_true(code.contains("Generated from IR Schema v1.0"))
@@ -263,7 +263,7 @@ test "Schema::to_typescript" {
   let schema : Schema = {
     version: "1.0",
     definitions: defs,
-    source: Some({ file: "switch.tsx", lang: TypeScript }),
+    source: Some({ file: "switch.tsx", lang: TypeScript, }),
   }
   let code = schema.to_typescript()
   assert_true(code.contains("Generated from IR Schema v1.0"))

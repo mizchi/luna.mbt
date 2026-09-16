@@ -85,21 +85,21 @@ pub fn[T] resource(
 
   // Initial fetch
   do_fetch()
-  { state, refetch_: do_fetch }
+  { state, refetch_: do_fetch, }
 }
 
 ///|
 /// Create a Resource with initial value (already resolved)
 pub fn[T] resource_resolved(value : T) -> Resource[T] {
   let state : Signal[@ui.AsyncState[T]] = signal(@ui.Success(value))
-  { state, refetch_: fn() { () } } // No-op for pre-resolved
+  { state, refetch_: fn() { () }, } // No-op for pre-resolved
 }
 
 ///|
 /// Create a Resource with initial error (already rejected)
 pub fn[T] resource_rejected(error : String) -> Resource[T] {
   let state : Signal[@ui.AsyncState[T]] = signal(@ui.Failure(error))
-  { state, refetch_: fn() { () } } // No-op for pre-rejected
+  { state, refetch_: fn() { () }, } // No-op for pre-rejected
 }
 
 ///|
@@ -108,6 +108,6 @@ pub fn[T] deferred() -> (Resource[T], (T) -> Unit, (String) -> Unit) {
   let state : Signal[@ui.AsyncState[T]] = signal(@ui.Pending)
   let resolve = fn(value : T) { state.set(@ui.Success(value)) }
   let reject = fn(error : String) { state.set(@ui.Failure(error)) }
-  let res : Resource[T] = { state, refetch_: fn() { state.set(@ui.Pending) } }
+  let res : Resource[T] = { state, refetch_: fn() { state.set(@ui.Pending) }, }
   (res, resolve, reject)
 }

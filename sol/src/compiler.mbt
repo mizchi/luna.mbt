@@ -234,9 +234,9 @@ pub async fn bundle_islands_result(
     for chunk in chunks {
       files.push(chunk.file_name())
     }
-    { success: true, output: files, errors: [] }
+    { success: true, output: files, errors: [], }
   } catch {
-    e => { success: false, output: [], errors: [e.to_string()] }
+    e => { success: false, output: [], errors: [e.to_string()], }
   }
 }
 
@@ -281,11 +281,11 @@ pub fn parse_island_manifest(json_str : String) -> IslandManifest? {
             Some(String(s)) => s
             _ => continue
           }
-          islands.push({ name, entry_path })
+          islands.push({ name, entry_path, })
         }
       _ => ()
     }
-    Some({ islands, output_dir })
+    Some({ islands, output_dir, })
   } catch {
     _ => None
   }

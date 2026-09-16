@@ -40,7 +40,7 @@ pub fn merge_manifests(
     FallbackConfig::NotFound(path="/404.html") => file_based.fallback
     _ => explicit.fallback
   }
-  RouteManifest::{ routes: merged_routes, fallback }
+  RouteManifest::{ routes: merged_routes, fallback, }
 }
 
 ///|
@@ -91,7 +91,7 @@ pub fn filter_by_mode(
         }
     }
   }
-  RouteManifest::{ routes: filtered, fallback: manifest.fallback }
+  RouteManifest::{ routes: filtered, fallback: manifest.fallback, }
 }
 
 ///|

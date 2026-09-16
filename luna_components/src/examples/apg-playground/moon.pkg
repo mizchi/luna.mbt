@@ -18,7 +18,7 @@ import {
   "mizchi/luna_components/styled/treeview",
   "mizchi/js_browser/dom",
   "mizchi/luna/dom/client",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 
 supported_targets = "js"

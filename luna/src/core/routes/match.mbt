@@ -7,7 +7,7 @@ pub fn match_url(url : String, routes : Array[CompiledRoutes]) -> RoutesMatch? {
   let (path, query) = parse_url_parts(url)
   for route in routes {
     if try_match_pattern(path, route) is Some(params) {
-      return Some({ route, params, query, path })
+      return Some({ route, params, query, path, })
     }
   }
   None

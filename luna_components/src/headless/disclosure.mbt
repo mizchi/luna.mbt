@@ -43,7 +43,7 @@ pub fn use_disclosure_trigger(
     ("aria-controls", @luna.attr_static(panel_id)),
     ("click", @luna.attr_handler(@luna.handler(fn(_) { toggle() }))),
   ]
-  { attrs, toggle, is_expanded: expanded.get() }
+  { attrs, toggle, is_expanded: expanded.get(), }
 }
 
 ///|
@@ -66,7 +66,7 @@ pub fn use_disclosure_panel(
       @luna.attr_dynamic(fn() { if expanded.get() { "false" } else { "true" } }),
     ),
   ]
-  { attrs, is_expanded: expanded.get() }
+  { attrs, is_expanded: expanded.get(), }
 }
 
 ///|

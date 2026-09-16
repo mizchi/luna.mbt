@@ -56,12 +56,12 @@ pub fn lookup_asset(
     "/assets/markdown.css" | "/assets/github-markdown.css" => {
       let raw = get_github_markdown_css()
       let body = if minify { @css_kit.minify_css(raw) } else { raw }
-      Some({ body, content_type: css_content_type() })
+      Some({ body, content_type: css_content_type(), })
     }
     "/assets/shiki.css" => {
       let raw = @shiki.generate_shiki_css()
       let body = if minify { @css_kit.minify_css(raw) } else { raw }
-      Some({ body, content_type: css_content_type() })
+      Some({ body, content_type: css_content_type(), })
     }
     _ => None
   }

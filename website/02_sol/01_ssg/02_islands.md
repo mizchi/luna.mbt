@@ -54,7 +54,7 @@ Package configuration (`moon.pkg`):
 import {
   "mizchi/luna/dom" @luna_dom,
   "mizchi/js_browser/dom" @js_dom,
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 
 supported_targets = "js"

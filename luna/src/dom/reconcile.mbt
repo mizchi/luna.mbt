@@ -61,7 +61,7 @@ pub(all) struct ItemEntry[T] {
 /// Create a new ItemEntry
 pub fn[T] ItemEntry::new(item : T, dom : @js_dom.Node) -> ItemEntry[T] {
   // Default dispose is no-op for backwards compatibility
-  { item, dom, last: dom, nodes: [dom], dispose: fn() {  } }
+  { item, dom, last: dom, nodes: [dom], dispose: fn() {  }, }
 }
 
 ///|
@@ -71,7 +71,7 @@ pub fn[T] ItemEntry::new_with_dispose(
   dom : @js_dom.Node,
   dispose : () -> Unit,
 ) -> ItemEntry[T] {
-  { item, dom, last: dom, nodes: [dom], dispose }
+  { item, dom, last: dom, nodes: [dom], dispose, }
 }
 
 ///|
@@ -83,7 +83,7 @@ pub fn[T] ItemEntry::new_with_nodes_and_dispose(
 ) -> ItemEntry[T] {
   let first = nodes[0]
   let last = nodes[nodes.length() - 1]
-  { item, dom: first, last, nodes, dispose }
+  { item, dom: first, last, nodes, dispose, }
 }
 
 ///|

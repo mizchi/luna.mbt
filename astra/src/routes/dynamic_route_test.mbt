@@ -160,7 +160,7 @@ test "DynamicRouteEntry - catch-all route" {
     source: "docs/[...slug]/page.tsx",
     mode: RenderMode::Ssr,
     layout: None,
-    catch_all: Some(CatchAllInfo::{ name: "slug", optional: false }),
+    catch_all: Some(CatchAllInfo::{ name: "slug", optional: false, }),
     title: Some("Documentation"),
     islands: ["toc", "code-block"],
   }
@@ -178,7 +178,7 @@ test "DynamicRouteEntry - optional catch-all route" {
     source: "wiki/[[...path]]/page.tsx",
     mode: RenderMode::Spa,
     layout: None,
-    catch_all: Some(CatchAllInfo::{ name: "path", optional: true }),
+    catch_all: Some(CatchAllInfo::{ name: "path", optional: true, }),
     title: None,
     islands: [],
   }

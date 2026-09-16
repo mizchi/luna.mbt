@@ -260,7 +260,7 @@ test "manifest: path not found" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
+  let manifest = ISRManifest::{ version: 1, pages, }
   assert_true(manifest.is_isr_page("/exists/"))
   assert_false(manifest.is_isr_page("/not-exists/"))
 }
@@ -273,7 +273,7 @@ test "manifest: trailing slash matters" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
+  let manifest = ISRManifest::{ version: 1, pages, }
 
   // With trailing slash - found
   assert_true(manifest.is_isr_page("/blog/"))
@@ -290,7 +290,7 @@ test "manifest: case sensitive paths" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
+  let manifest = ISRManifest::{ version: 1, pages, }
   assert_true(manifest.is_isr_page("/Blog/"))
   assert_false(manifest.is_isr_page("/blog/"))
   assert_false(manifest.is_isr_page("/BLOG/"))
@@ -309,8 +309,8 @@ async test "handler: non-ISR page returns None" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/nonexistent" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/nonexistent", }
   let (html, needs_revalidation) = handler.handle("/static-page/")
   assert_true(html is None)
   assert_false(needs_revalidation)
@@ -325,8 +325,8 @@ test "handler: update_cache preserves TTL from manifest" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/nonexistent" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/nonexistent", }
 
   // Update cache
   handler.update_cache("/test/", "<html>content</html>")
@@ -343,7 +343,7 @@ test "handler: update_cache preserves TTL from manifest" {
 test "handler: update_cache for non-ISR page does nothing" {
   let cache = MemoryCache::new()
   let manifest = ISRManifest::empty()
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/nonexistent" }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/nonexistent", }
 
   // Try to update non-ISR page
   handler.update_cache("/not-isr/", "<html>content</html>")

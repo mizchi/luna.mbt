@@ -1,6 +1,9 @@
 ///| Routes for SQLite ISR Demo
+
 ///|
+
 ///| Demonstrates ISR (Incremental Static Regeneration) with SQLite database.
+
 ///| Uses node:sqlite (Node.js 22+) for database access.
 
 // =============================================================================
@@ -10,22 +13,29 @@
 ///|
 pub fn routes() -> Array[@sol.SolRoutes] {
   [
-    @sol.with_mw(
-      [@mw.logger()],
-      [
-        // Layout wrapping all pages
-        @sol.wrap("", root_layout, [
-          // Home page - navigation hub
-          @sol.route("/", home_page, title="SQLite ISR Demo"),
-          // Blog index with ISR - 60s TTL (warm tier)
-          @sol.route("/blog", blog_index, title="Blog", revalidate=Some(60)),
-          // Individual blog posts with ISR - 120s TTL
-          @sol.route("/blog/:slug", blog_post, title="Blog Post", revalidate=Some(120)),
-          // Stats page with ISR - 10s TTL (near real-time)
-          @sol.route("/stats", stats_page, title="Statistics", revalidate=Some(10)),
-        ]),
-      ],
-    ),
+    @sol.with_mw([@mw.logger()], [
+      // Layout wrapping all pages
+      @sol.wrap("", root_layout, [
+        // Home page - navigation hub
+        @sol.route("/", home_page, title="SQLite ISR Demo"),
+        // Blog index with ISR - 60s TTL (warm tier)
+        @sol.route("/blog", blog_index, title="Blog", revalidate=Some(60)),
+        // Individual blog posts with ISR - 120s TTL
+        @sol.route(
+          "/blog/:slug",
+          blog_post,
+          title="Blog Post",
+          revalidate=Some(120),
+        ),
+        // Stats page with ISR - 10s TTL (near real-time)
+        @sol.route(
+          "/stats",
+          stats_page,
+          title="Statistics",
+          revalidate=Some(10),
+        ),
+      ]),
+    ]),
   ]
 }
 
@@ -61,17 +71,26 @@ fn root_layout(
 // Page Handlers
 // =============================================================================
 
-///| Home page - explains the demo
+///|
+/// Home page - explains the demo
 async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content : Array[@luna.Node[Unit, String]] = [
     h1([text("SQLite ISR Demo")]),
-    p([text("This demo shows ISR (Incremental Static Regeneration) with SQLite database.")]),
+    p([
+      text(
+        "This demo shows ISR (Incremental Static Regeneration) with SQLite database.",
+      ),
+    ]),
     div([
       h2([text("How It Works")]),
       ul([
         li([text("Pages are pre-rendered and cached on first request")]),
         li([text("Cached pages are served instantly while within TTL")]),
-        li([text("After TTL expires, stale page is served while regenerating in background")]),
+        li([
+          text(
+            "After TTL expires, stale page is served while regenerating in background",
+          ),
+        ]),
         li([text("Next request gets the fresh page with updated database data")]),
       ]),
     ]),
@@ -95,14 +114,19 @@ async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
     div([
       h2([text("Setup")]),
       pre([
-        code([text("# Initialize database\nnpm run init-db\n\n# Start dev server\nnpm run dev")]),
+        code([
+          text(
+            "# Initialize database\nnpm run init-db\n\n# Start dev server\nnpm run dev",
+          ),
+        ]),
       ]),
     ]),
   ]
   @sol.nodes(content)
 }
 
-///| Blog index page - lists all posts from SQLite
+///|
+/// Blog index page - lists all posts from SQLite
 async fn blog_index(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let posts = db_get_all_posts()
   let generated_at = get_timestamp()
@@ -121,18 +145,19 @@ async fn blog_index(_props : @sol.PageProps) -> @server_dom.ServerNode {
       div([
         h3([a(href="/blog/" + slug, [text(title)])]),
         p([text(content_preview)]),
-        p([
-          em([text("By " + author)]),
-          text(" | Views: " + views.to_string()),
-        ]),
-      ])
+        p([em([text("By " + author)]), text(" | Views: " + views.to_string())]),
+      ]),
     )
   }
 
   let content : Array[@luna.Node[Unit, String]] = [
     div([
       p([strong([text("Generated at: " + generated_at)])]),
-      p([text("This page uses ISR with 60 second TTL. Refresh after 60s to see regeneration.")]),
+      p([
+        text(
+          "This page uses ISR with 60 second TTL. Refresh after 60s to see regeneration.",
+        ),
+      ]),
     ]),
     h1([text("Blog Posts")]),
     p([text("Total posts: " + len.to_string())]),
@@ -141,7 +166,8 @@ async fn blog_index(_props : @sol.PageProps) -> @server_dom.ServerNode {
   @sol.nodes(content)
 }
 
-///| Individual blog post page
+///|
+/// Individual blog post page
 async fn blog_post(props : @sol.PageProps) -> @server_dom.ServerNode {
   let slug = match @types.params_blog_slug(props) {
     Ok(p) => p.slug
@@ -184,7 +210,8 @@ async fn blog_post(props : @sol.PageProps) -> @server_dom.ServerNode {
   @sol.nodes(content)
 }
 
-///| Statistics page - shows aggregate data
+///|
+/// Statistics page - shows aggregate data
 async fn stats_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let stats = db_get_stats()
   let generated_at = get_timestamp()
@@ -253,8 +280,7 @@ const ROOT : String =
 
 ///|
 pub fn config() -> @sol.RouterConfig {
-  @sol.RouterConfig::default()
-  .with_root_template(ROOT)
+  @sol.RouterConfig::default().with_root_template(ROOT)
 }
 
 ///|

@@ -33,7 +33,7 @@ pub fn page_metas_to_manifest(
   let fallback = FallbackConfig::NotFound(
     path=@astra.url_to_output_path("/404/"),
   )
-  RouteManifest::{ routes, fallback } |> ignore
+  RouteManifest::{ routes, fallback, } |> ignore
   // Use config for potential SPA fallback
   if config.navigation.spa {
     RouteManifest::{
@@ -41,7 +41,7 @@ pub fn page_metas_to_manifest(
       fallback: FallbackConfig::Spa(entry="/index.html"),
     }
   } else {
-    RouteManifest::{ routes, fallback }
+    RouteManifest::{ routes, fallback, }
   }
 }
 

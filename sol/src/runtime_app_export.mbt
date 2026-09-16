@@ -3,7 +3,7 @@
 ///|
 /// Global app reference for non-Node runtimes (Cloudflare, Deno, Bun)
 /// This is set by run() and exported as __SOL_APP__
-let sol_app_ref : Ref[App?] = { val: None }
+let sol_app_ref : Ref[App?] = { val: None, }
 
 ///|
 extern "js" fn ffi_export_sol_app(fetch_handler : MarsFetchHandler) -> Unit =
@@ -15,7 +15,7 @@ priv struct MarsFetchHandler((@mars.JsRequest) -> @js.Promise[@mars.JsResponse])
 
 ///|
 /// Convert Mars Promise type to @js.Promise for FFI compatibility
-/// Mars uses moonbitlang/async/js_async.Promise, Sol uses mizchi/js/core.Promise
+/// Mars uses moonbitlang/async/js_async.Promise, Sol uses mizchi/js_core.Promise
 /// They are the same JS Promise object at runtime
 extern "js" fn ffi_convert_fetch_handler(handler : @js.Any) -> MarsFetchHandler =
   #| (handler) => handler

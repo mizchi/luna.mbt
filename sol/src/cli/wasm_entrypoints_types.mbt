@@ -106,7 +106,7 @@ pub fn WasmMountEntry::new(
   build? : WasmBuildKind = MoonBuild,
   env? : Map[String, String] = {},
 ) -> WasmMountEntry {
-  { id, route, methods, runtime, wasm, build, env }
+  { id, route, methods, runtime, wasm, build, env, }
 }
 
 ///|
@@ -183,7 +183,7 @@ pub fn parse_wasm_entrypoints(
     }
     let methods = parse_wasm_methods(entry_obj)
     let env = parse_env_map(entry_obj)
-    result.push({ id, route, source, runtime, methods, env })
+    result.push({ id, route, source, runtime, methods, env, })
   }
   result
 }

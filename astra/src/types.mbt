@@ -105,7 +105,7 @@ pub(all) struct I18nConfig {
 pub fn I18nConfig::default() -> I18nConfig {
   {
     default_locale: "en",
-    locales: [LocaleConfig::{ code: "en", label: "English", path: "" }],
+    locales: [LocaleConfig::{ code: "en", label: "English", path: "", }],
   }
 }
 
@@ -138,7 +138,7 @@ pub(all) struct NavigationConfig {
 ///|
 /// Default navigation configuration
 pub fn NavigationConfig::default() -> NavigationConfig {
-  { spa: false, view_transitions: true, keyboard: true }
+  { spa: false, view_transitions: true, keyboard: true, }
 }
 
 ///|
@@ -187,7 +187,7 @@ pub(all) struct NavItem {
 ///|
 /// Default empty NavItem
 pub fn NavItem::new(text : String, link : String) -> NavItem {
-  { text, link, icon: None, items: [] }
+  { text, link, icon: None, items: [], }
 }
 
 ///|
@@ -439,7 +439,7 @@ pub(all) struct OgpConfig {
 ///|
 /// Default OGP configuration
 pub fn OgpConfig::default() -> OgpConfig {
-  { site_url: None, image: None, twitter_handle: None, twitter_card: None }
+  { site_url: None, image: None, twitter_handle: None, twitter_card: None, }
 }
 
 ///|
@@ -462,7 +462,7 @@ pub(all) struct CssUtilitiesConfig {
 ///|
 /// Default CSS utilities configuration
 pub fn CssUtilitiesConfig::default() -> CssUtilitiesConfig {
-  { enabled: true, split: false, inline_threshold: 4096, source_dirs: ["src"] }
+  { enabled: true, split: false, inline_threshold: 4096, source_dirs: ["src"], }
 }
 
 ///|
@@ -481,7 +481,7 @@ pub(all) struct MetaFilesConfig {
 /// Default meta files configuration
 /// Only sitemap is enabled by default as it's most commonly needed
 pub fn MetaFilesConfig::default() -> MetaFilesConfig {
-  { sitemap: true, feed: false, llms_txt: false }
+  { sitemap: true, feed: false, llms_txt: false, }
 }
 
 ///|
@@ -496,7 +496,7 @@ pub(all) struct IslandsConfig {
 ///|
 /// Default Islands configuration (uses docs/components convention)
 pub fn IslandsConfig::default() -> IslandsConfig {
-  { dir: "docs/components", base_path: "/components/" }
+  { dir: "docs/components", base_path: "/components/", }
 }
 
 // =============================================================================
@@ -590,7 +590,7 @@ pub fn PageMeta::with_frontmatter(
   self : PageMeta,
   fm : Frontmatter,
 ) -> PageMeta {
-  { ..self, frontmatter: fm }
+  { ..self, frontmatter: fm, }
 }
 
 // =============================================================================
@@ -639,7 +639,7 @@ pub(all) struct BuildContext {
 ///|
 /// Create new build context
 pub fn BuildContext::new(config : SsgConfig, cwd : String) -> BuildContext {
-  { config, pages: [], sidebar: [], cwd, doc_tree: None, is_dev: false }
+  { config, pages: [], sidebar: [], cwd, doc_tree: None, is_dev: false, }
 }
 
 ///|

@@ -11,4 +11,3 @@ pub fn theme_variables() -> String
 // Type aliases
 
 // Traits
-

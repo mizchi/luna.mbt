@@ -7,7 +7,7 @@ import {
   "mizchi/sol/action",
   "mizchi/sol_adapter_cloudflare" @sol_cloudflare,
   "mizchi/luna/dom/static" @server_dom,
-  "mizchi/js/core",
+  "mizchi/js_core" @core,
   "example/sol-auth/layout",
   "example/sol-auth/__gen__/types",
   "example/sol-auth/client",

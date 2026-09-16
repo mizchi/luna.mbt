@@ -133,7 +133,7 @@ pub fn WcIslandContext::new(element : @js_dom.Element) -> WcIslandContext? {
 
   // Parse state from data-state attribute
   let state_json = parse_data_state(element)
-  Some({ element, shadow_root, parts, state_json })
+  Some({ element, shadow_root, parts, state_json, })
 }
 
 ///|

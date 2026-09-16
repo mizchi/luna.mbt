@@ -10,10 +10,10 @@ import {
   "mizchi/astra/middleware",
   "mizchi/astra/render",
   "mizchi/mars",
-  "mizchi/js/core",
-  "mizchi/js/node/fs",
-  "mizchi/js/node/path",
-  "mizchi/js/node/process",
+  "mizchi/js_core" @core,
+  "mizchi/js_node/fs",
+  "mizchi/js_node/path",
+  "mizchi/js_node/process",
   "moonbitlang/core/string",
 }
 

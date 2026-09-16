@@ -1,4 +1,5 @@
 import {
+  "mizchi/js_core",
   "mizchi/luna/js/resource",
   "mizchi/signals",
   "mizchi/luna/dom" @element,

@@ -56,15 +56,15 @@ pub fn generate_doc_templates(
   let sol_config = "{\n  \"islands\": [],\n  \"routes\": \"app/server\",\n  \"output\": \"app/__gen__\",\n  \"runtime\": \"node\",\n  \"staticDirs\": [\n    {\n      \"pathPrefix\": \"/docs\",\n      \"sourceDir\": \"docs\",\n      \"title\": \"\{project_name}\",\n      \"sidebar\": \"auto\",\n      \"trailingSlash\": true,\n      \"theme\": {\n        \"primaryColor\": \"#3b82f6\",\n        \"socialLinks\": [],\n        \"header\": {\n          \"left\": [\"logo\"],\n          \"right\": [\"navLinks\", \"themeToggle\"],\n          \"sticky\": true\n        },\n        \"footer\": {\n          \"message\": \"Built with Sol\",\n          \"copyright\": \"2025\"\n        }\n      }\n    }\n  ]\n}"
   let gitignore = template_gitignore() + "\ndist\n.sol-cache"
   [
-    { path: ".gitignore", content: gitignore },
-    { path: "moon.mod", content: template_moon_mod(package_name, None) },
-    { path: "package.json", content: template_package_json(project_name) },
-    { path: "sol.config.json", content: sol_config },
+    { path: ".gitignore", content: gitignore, },
+    { path: "moon.mod", content: template_moon_mod(package_name, None), },
+    { path: "package.json", content: template_package_json(project_name), },
+    { path: "sol.config.json", content: sol_config, },
     {
       path: "app/server/moon.pkg",
       content: "import {\n  \"mizchi/sol\" @sol,\n  \"moonbitlang/async\",\n}\n\nsupported_targets = \"js\"\nwarnings = \"-67-29\"\n\noptions(\n  \"is-main\": true,\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
     },
-    { path: "app/server/main.mbt", content: template_routes_main_mbt() },
+    { path: "app/server/main.mbt", content: template_routes_main_mbt(), },
     {
       path: "app/server/routes.mbt",
       content: "///| Route definitions\n\npub fn routes() -> Array[@sol.SolRoutes] {\n  [\n    @sol.api_get(\"/api/health\", api_health),\n  ]\n}\n\npub fn config() -> @sol.RouterConfig {\n  @sol.RouterConfig::default()\n}\n\npriv struct HealthResponse {\n  status : String\n} derive(ToJson)\n\nasync fn api_health(_props : @sol.PageProps) -> HealthResponse {\n  { status: \"ok\" }\n}",

@@ -8,9 +8,9 @@ fn test_i18n_config() -> I18nConfig {
   I18nConfig::{
     default_locale: "en",
     locales: [
-      LocaleConfig::{ code: "en", label: "English", path: "" },
-      LocaleConfig::{ code: "ja", label: "日本語", path: "ja" },
-      LocaleConfig::{ code: "fr", label: "Français", path: "fr" },
+      LocaleConfig::{ code: "en", label: "English", path: "", },
+      LocaleConfig::{ code: "ja", label: "日本語", path: "ja", },
+      LocaleConfig::{ code: "fr", label: "Français", path: "fr", },
     ],
   }
 }

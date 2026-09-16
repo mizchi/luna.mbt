@@ -34,7 +34,7 @@ pub fn[E] accordion_item(
   level? : Int,
   content : Array[@luna.Node[E, String]],
 ) -> AccordionItem[E] {
-  { id, heading, level: level.unwrap_or(3), content }
+  { id, heading, level: level.unwrap_or(3), content, }
 }
 
 ///|

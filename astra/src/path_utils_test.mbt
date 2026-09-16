@@ -269,10 +269,7 @@ test "is_index_source recognises a localised index" {
   inspect(is_index_source("guide/index.mdx"), content="true")
   inspect(is_index_source("guide/index.mbt.md"), content="true")
   inspect(is_index_source("guide/index.ja.md", locale="ja"), content="true")
-  inspect(
-    is_index_source("guide/index.ja.mbt.md", locale="ja"),
-    content="true",
-  )
+  inspect(is_index_source("guide/index.ja.mbt.md", locale="ja"), content="true")
   // the default locale has no suffix to strip
   inspect(is_index_source("guide/index.md", locale="en"), content="true")
 }

@@ -8,7 +8,7 @@
 /// Required imports for hydrate functions (runtime dependencies only)
 let hydrate_required_imports : Array[(String, String)] = [
   ("moonbitlang/core/json", "json"),
-  ("mizchi/js/core", "js"),
+  ("mizchi/js_core", "js"),
   ("mizchi/js_browser/dom", "js_dom"),
   ("mizchi/luna/dom/client", "wc"),
 ]

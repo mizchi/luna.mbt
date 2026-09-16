@@ -22,7 +22,7 @@ pub fn ActionContext::from_ctx(
   ctx : @mars.Context,
   body : String,
 ) -> ActionContext {
-  { ctx, body }
+  { ctx, body, }
 }
 
 ///|
@@ -204,56 +204,56 @@ pub struct ActionResult {
 ///|
 /// Create success result from a typed JSON-serializable payload.
 pub fn[T : ToJson] ActionResult::json(data : T) -> ActionResult {
-  { kind: JsonSuccess(data.to_json()) }
+  { kind: JsonSuccess(data.to_json()), }
 }
 
 ///|
 /// Create redirect result (returns JSON for JavaScript clients)
 pub fn ActionResult::redirect(url : String) -> ActionResult {
-  { kind: ClientRedirect(url) }
+  { kind: ClientRedirect(url), }
 }
 
 ///|
 /// Create HTTP redirect result (returns 302 with Location header)
 /// Use this for non-JavaScript form submissions (progressive enhancement)
 pub fn ActionResult::http_redirect(url : String) -> ActionResult {
-  { kind: HttpRedirectResult(url) }
+  { kind: HttpRedirectResult(url), }
 }
 
 ///|
 /// Create bad request error
 pub fn ActionResult::bad_request(message : String) -> ActionResult {
-  { kind: ClientFailure(400, message) }
+  { kind: ClientFailure(400, message), }
 }
 
 ///|
 /// Create validation error
 pub fn ActionResult::validation_error(message : String) -> ActionResult {
-  { kind: ClientFailure(422, message) }
+  { kind: ClientFailure(422, message), }
 }
 
 ///|
 /// Create unauthorized error
 pub fn ActionResult::unauthorized(message? : String) -> ActionResult {
-  { kind: ClientFailure(401, message.unwrap_or("Unauthorized")) }
+  { kind: ClientFailure(401, message.unwrap_or("Unauthorized")), }
 }
 
 ///|
 /// Create forbidden error
 pub fn ActionResult::forbidden(message? : String) -> ActionResult {
-  { kind: ClientFailure(403, message.unwrap_or("Forbidden")) }
+  { kind: ClientFailure(403, message.unwrap_or("Forbidden")), }
 }
 
 ///|
 /// Create not found error
 pub fn ActionResult::not_found(message? : String) -> ActionResult {
-  { kind: ClientFailure(404, message.unwrap_or("Not Found")) }
+  { kind: ClientFailure(404, message.unwrap_or("Not Found")), }
 }
 
 ///|
 /// Create server error
 pub fn ActionResult::server_error(message? : String) -> ActionResult {
-  { kind: ServerFailure(message.unwrap_or("Internal Server Error")) }
+  { kind: ServerFailure(message.unwrap_or("Internal Server Error")), }
 }
 
 // ============================================================================
@@ -292,7 +292,7 @@ fn[Req, Res] TypedActionKey::new(
   id : String,
   base_path? : String = "/_action",
 ) -> TypedActionKey[Req, Res] {
-  { id, base_path, _request: None, _response: None }
+  { id, base_path, _request: None, _response: None, }
 }
 
 ///|
@@ -366,7 +366,7 @@ pub fn[K : ActionKey] ActionDef::from_key(
   key : K,
   handler : ActionHandler,
 ) -> ActionDef {
-  { id: key.id(), handler, middlewares: [], require_json: true }
+  { id: key.id(), handler, middlewares: [], require_json: true, }
 }
 
 ///|
@@ -399,7 +399,7 @@ pub fn ActionDef::with_require_json(
   self : ActionDef,
   require : Bool,
 ) -> ActionDef {
-  { ..self, require_json: require }
+  { ..self, require_json: require, }
 }
 
 // ============================================================================

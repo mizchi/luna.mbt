@@ -2,6 +2,13 @@
 
 All notable changes to `mizchi/sol_adapter_node` are documented here.
 
+## [sol_adapter_node-v0.23.3] - 2026-09-16
+
+### Dependencies
+
+- Update JavaScript bindings to 0.13.0 and migrate imports to the split modules.
+- Align dependencies with the workspace patch releases.
+
 ## 0.22.1 (2026-05-15)
 
 - Align the adapter dependency with `mizchi/sol` 0.22.1.

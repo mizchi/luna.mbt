@@ -40,7 +40,7 @@ pub fn[E] tab_item(
   label : String,
   panel : Array[@luna.Node[E, String]],
 ) -> TabItem[E] {
-  { id, label, panel }
+  { id, label, panel, }
 }
 
 ///|

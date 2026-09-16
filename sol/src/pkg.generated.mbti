@@ -2,7 +2,7 @@
 package "mizchi/sol"
 
 import {
-  "mizchi/js/web/http",
+  "mizchi/js_web/http",
   "mizchi/luna/core",
   "mizchi/luna/core/render",
   "mizchi/luna/dom/static",

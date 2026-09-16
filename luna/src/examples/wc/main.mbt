@@ -433,7 +433,7 @@ fn register_wc_todo() -> Unit {
         next_id.set(id + 1)
         todos.update(fn(items) {
           let new_items = items.copy()
-          new_items.push({ id, text: t, completed: false })
+          new_items.push({ id, text: t, completed: false, })
           new_items
         })
         input_text.set("")
@@ -444,7 +444,7 @@ fn register_wc_todo() -> Unit {
       todos.update(fn(items) {
         items.map(fn(item) {
           if item.id == id {
-            { ..item, completed: !item.completed }
+            { ..item, completed: !item.completed, }
           } else {
             item
           }

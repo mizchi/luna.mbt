@@ -16,7 +16,7 @@ pub struct ResumableState {
 ///|
 /// Create a new empty resumable state
 pub fn ResumableState::new() -> ResumableState {
-  { values: [], next_id: 0 }
+  { values: [], next_id: 0, }
 }
 
 ///|
@@ -129,7 +129,7 @@ pub fn ResumableState::to_json(self : ResumableState) -> String {
 /// Parse JSON string to ResumableState
 pub fn ResumableState::from_json(json : String) -> ResumableState? {
   match state_values_from_json(json) {
-    Some(values) => Some({ values, next_id: values.length() })
+    Some(values) => Some({ values, next_id: values.length(), })
     None => None
   }
 }

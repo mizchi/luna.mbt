@@ -182,7 +182,7 @@ pub fn build_wasm_entrypoints_with_options(
     spin_fragment_path,
     mars_hints_path,
   }
-  Ok({ mounts, artifacts })
+  Ok({ mounts, artifacts, })
 }
 
 ///|

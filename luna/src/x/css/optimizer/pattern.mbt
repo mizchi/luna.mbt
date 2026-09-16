@@ -59,7 +59,7 @@ pub fn find_frequent_patterns(
       // Estimate savings: each class is ~20 bytes, merged saves (n-1)*usage bytes
       let class_count = classes.length()
       let potential_savings = (class_count - 1) * frequency * 8 // rough estimate
-      patterns.push({ classes, frequency, potential_savings })
+      patterns.push({ classes, frequency, potential_savings, })
     }
   })
 

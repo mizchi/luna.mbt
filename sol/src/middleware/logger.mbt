@@ -32,25 +32,25 @@ pub struct LoggerConfig {
 ///|
 /// Default logger configuration
 pub fn LoggerConfig::default() -> LoggerConfig {
-  { format: LogFormat::Dev, skip_paths: [], log_fn: None }
+  { format: LogFormat::Dev, skip_paths: [], log_fn: None, }
 }
 
 ///|
 /// Create dev format config
 pub fn LoggerConfig::dev() -> LoggerConfig {
-  { format: LogFormat::Dev, skip_paths: [], log_fn: None }
+  { format: LogFormat::Dev, skip_paths: [], log_fn: None, }
 }
 
 ///|
 /// Create combined format config
 pub fn LoggerConfig::combined() -> LoggerConfig {
-  { format: LogFormat::Combined, skip_paths: [], log_fn: None }
+  { format: LogFormat::Combined, skip_paths: [], log_fn: None, }
 }
 
 ///|
 /// Create JSON format config
 pub fn LoggerConfig::json() -> LoggerConfig {
-  { format: LogFormat::Json, skip_paths: [], log_fn: None }
+  { format: LogFormat::Json, skip_paths: [], log_fn: None, }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn LoggerConfig::with_skip_paths(
   self : LoggerConfig,
   paths : Array[String],
 ) -> LoggerConfig {
-  { ..self, skip_paths: paths }
+  { ..self, skip_paths: paths, }
 }
 
 ///|
@@ -68,7 +68,7 @@ pub fn LoggerConfig::with_log_fn(
   self : LoggerConfig,
   log_fn : (String) -> Unit,
 ) -> LoggerConfig {
-  { ..self, log_fn: Some(log_fn) }
+  { ..self, log_fn: Some(log_fn), }
 }
 
 // ============================================================================

@@ -32,7 +32,7 @@ pub fn[Cache] ISRHandler::new(
   manifest : ISRManifest,
   dist_dir : String,
 ) -> ISRHandler[Cache] {
-  { cache, manifest, dist_dir }
+  { cache, manifest, dist_dir, }
 }
 
 ///|
@@ -158,7 +158,7 @@ fn parse_manifest(content : String) -> ISRManifest {
       }
     _ => ()
   }
-  { version, pages }
+  { version, pages, }
 }
 
 ///|
@@ -179,5 +179,5 @@ fn parse_page_meta(json : Json) -> ISRPageMeta? {
     Some(String(s)) => s
     _ => ""
   }
-  Some({ revalidate, renderer, source })
+  Some({ revalidate, renderer, source, })
 }

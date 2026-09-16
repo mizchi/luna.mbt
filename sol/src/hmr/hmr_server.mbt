@@ -255,7 +255,7 @@ pub fn HmrServer::on_connection(
   self.inner._call("on", [
     @js.any("connection"),
     @js.any(fn(ws : @js.Any) {
-      let client : HmrClient = { inner: ws }
+      let client : HmrClient = { inner: ws, }
       client.send(connected_message)
       handler(client)
     }),

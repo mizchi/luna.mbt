@@ -24,7 +24,7 @@ pub fn radio_item_data(
   value : String,
   disabled? : Bool = false,
 ) -> RadioItemData {
-  { value, disabled }
+  { value, disabled, }
 }
 
 // Helper: Focus a radio element by ID
@@ -227,7 +227,7 @@ pub fn use_radio(
       ),
     )
   }
-  { attrs, is_selected, is_disabled }
+  { attrs, is_selected, is_disabled, }
 }
 
 ///|

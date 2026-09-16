@@ -166,7 +166,7 @@ pub fn use_toolbar_item_nav(
       ),
     )
   }
-  { attrs, is_pressed, is_disabled }
+  { attrs, is_pressed, is_disabled, }
 }
 
 ///|

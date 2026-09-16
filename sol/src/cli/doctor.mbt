@@ -50,7 +50,7 @@ fn doctor_info(
   detail : String,
   hint? : String = "",
 ) -> DoctorFinding {
-  { severity: DoctorInfo, title, detail, hint }
+  { severity: DoctorInfo, title, detail, hint, }
 }
 
 ///|
@@ -59,7 +59,7 @@ fn doctor_warning(
   detail : String,
   hint : String,
 ) -> DoctorFinding {
-  { severity: DoctorWarning, title, detail, hint }
+  { severity: DoctorWarning, title, detail, hint, }
 }
 
 ///|
@@ -68,7 +68,7 @@ fn doctor_error(
   detail : String,
   hint : String,
 ) -> DoctorFinding {
-  { severity: DoctorError, title, detail, hint }
+  { severity: DoctorError, title, detail, hint, }
 }
 
 ///|
@@ -232,7 +232,7 @@ fn[FS : @env.FileSystem] collect_mooncake_versions(
   ]
   let out : Array[MooncakeEntry] = []
   for name in names {
-    out.push({ name, version: read_mooncake_version(fs, cwd, name) })
+    out.push({ name, version: read_mooncake_version(fs, cwd, name), })
   }
   out
 }
@@ -242,11 +242,11 @@ fn[FS : @env.FileSystem] collect_mooncake_versions(
 /// `sol --version`. Returns `None` if the binary is not on PATH or the
 /// output is unexpected (e.g. recursion guard prints something else).
 fn detect_launcher_version() -> String? {
-  let raw = try @child_process.execSync(
-      "sol --version",
-      encoding="utf8",
-      timeout=2000,
-    ) catch {
+  let raw = @child_process.execSync(
+    "sol --version",
+    encoding="utf8",
+    timeout=2000,
+  ) catch {
     _ => return None
   }
   let trimmed = raw.trim().to_owned()

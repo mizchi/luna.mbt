@@ -63,7 +63,7 @@ pub(all) struct IslandEmbed {
 ///|
 /// Default Island embed
 pub fn IslandEmbed::new(name : String) -> IslandEmbed {
-  { name, props: "{}", trigger: @luna.TriggerType::Load, ssr: false }
+  { name, props: "{}", trigger: @luna.TriggerType::Load, ssr: false, }
 }
 
 ///|
@@ -83,7 +83,7 @@ pub(all) struct ComponentEmbed {
 ///|
 /// Default Component embed
 pub fn ComponentEmbed::new(tag : String) -> ComponentEmbed {
-  { tag, attrs: [], content: "", trigger: @luna.TriggerType::Load }
+  { tag, attrs: [], content: "", trigger: @luna.TriggerType::Load, }
 }
 
 // =============================================================================
@@ -109,7 +109,7 @@ pub(all) struct JsxComponentEmbed {
 ///|
 /// Default JSX component embed
 pub fn JsxComponentEmbed::new(tag : String) -> JsxComponentEmbed {
-  { tag, attrs: [], children: "", self_closing: false, cls_hints: None }
+  { tag, attrs: [], children: "", self_closing: false, cls_hints: None, }
 }
 
 ///|
@@ -136,5 +136,5 @@ pub(all) struct ClsHints {
 ///|
 /// Default CLS hints (no hints)
 pub fn ClsHints::new() -> ClsHints {
-  { width: None, height: None }
+  { width: None, height: None, }
 }

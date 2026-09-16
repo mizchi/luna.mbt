@@ -3,7 +3,7 @@ import {
   "mizchi/signals",
   "mizchi/luna/js/resource",
   "mizchi/luna_components/headless",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 
 supported_targets = "js"

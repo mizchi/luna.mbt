@@ -171,8 +171,8 @@ async test "bench: handler.handle() full path" {
       source: "",
     }
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
 
   // Pre-populate cache
   let base_time = now_ms() + 100000000L // Far future to ensure Fresh
@@ -231,8 +231,8 @@ test "bench: cache update (revalidation) throughput" {
       source: "",
     }
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
 
   // Pre-populate
   for i = 0; i < num_pages; i = i + 1 {
@@ -269,8 +269,8 @@ async test "bench: mixed workload (80% read, 20% write)" {
       source: "",
     }
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
 
   // Pre-populate
   let base_time = now_ms() + 100000000L

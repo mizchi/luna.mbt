@@ -206,20 +206,20 @@ pub(all) struct Todo {
 
 ///|
 /// Global todo store
-let todo_store : Ref[Array[Todo]] = { val: [] }
+let todo_store : Ref[Array[Todo]] = { val: [], }
 
 ///|
 /// Next ID counter
-let next_id : Ref[Int] = { val: 1 }
+let next_id : Ref[Int] = { val: 1, }
 
 ///|
 /// Initialize with sample data
 fn ensure_initialized() -> Unit {
   if todo_store.val.is_empty() {
     todo_store.val = [
-      { id: 1, text: "Learn MoonBit", completed: true },
-      { id: 2, text: "Build a Sol app", completed: false },
-      { id: 3, text: "Write tests", completed: false },
+      { id: 1, text: "Learn MoonBit", completed: true, },
+      { id: 2, text: "Build a Sol app", completed: false, },
+      { id: 3, text: "Write tests", completed: false, },
     ]
     next_id.val = 4
   }
@@ -236,7 +236,7 @@ fn get_todos() -> Array[Todo] {
 /// Add a new todo
 fn add_todo(text : String) -> Todo {
   ensure_initialized()
-  let todo : Todo = { id: next_id.val, text, completed: false }
+  let todo : Todo = { id: next_id.val, text, completed: false, }
   next_id.val = next_id.val + 1
   todo_store.val.push(todo)
   todo
@@ -248,7 +248,7 @@ fn toggle_todo(id : Int) -> Bool {
   ensure_initialized()
   for i, todo in todo_store.val {
     if todo.id == id {
-      todo_store.val[i] = { ..todo, completed: !todo.completed }
+      todo_store.val[i] = { ..todo, completed: !todo.completed, }
       return true
     }
   }
@@ -399,7 +399,7 @@ let toggle_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::json(ToggleTodoResponse::{ toggled: true })
+    @action.ActionResult::json(ToggleTodoResponse::{ toggled: true, })
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }
@@ -432,7 +432,7 @@ let delete_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::json(DeleteTodoResponse::{ deleted: true })
+    @action.ActionResult::json(DeleteTodoResponse::{ deleted: true, })
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }

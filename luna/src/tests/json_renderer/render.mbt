@@ -27,7 +27,7 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
       for child in elem.children {
         children.push(render_to_json(child))
       }
-      Element({ tag: elem.tag, attrs, children })
+      Element({ tag: elem.tag, attrs, children, })
     }
     @core.Show(condition~, child~) =>
       if condition() {
@@ -53,7 +53,7 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
       for child in wc_island.children {
         children.push(render_to_json(child))
       }
-      Element({ tag: wc_island.name, attrs, children })
+      Element({ tag: wc_island.name, attrs, children, })
     }
     @core.InternalRef(iref) => {
       // Render InternalRef as a WC island element
@@ -65,7 +65,7 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
       for child in iref.children {
         children.push(render_to_json(child))
       }
-      Element({ tag: "wc-internal-ref", attrs, children })
+      Element({ tag: "wc-internal-ref", attrs, children, })
     }
     @core.Async(async_node) =>
       // Render fallback content for async nodes

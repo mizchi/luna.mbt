@@ -218,8 +218,10 @@ pub impl ToJson for PrimitiveType with fn to_json(self) {
 ///|
 pub impl ToJson for LiteralType with fn to_json(self) {
   match self {
-    BoolLit(b) => { "type": "bool".to_json(), "value": ToJson::to_json(b) }.to_json()
-    IntLit(i) => { "type": "int".to_json(), "value": ToJson::to_json(i) }.to_json()
+    BoolLit(b) =>
+      { "type": "bool".to_json(), "value": ToJson::to_json(b) }.to_json()
+    IntLit(i) =>
+      { "type": "int".to_json(), "value": ToJson::to_json(i) }.to_json()
     StringLit(s) =>
       { "type": "string".to_json(), "value": ToJson::to_json(s) }.to_json()
   }

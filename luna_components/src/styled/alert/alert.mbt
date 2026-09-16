@@ -45,7 +45,7 @@ pub(all) struct AlertSlots {
 ///|
 /// Default BEM class names for alert
 pub fn alert_slots() -> AlertSlots {
-  { root: "alert", title: "alert__title", description: "alert__description" }
+  { root: "alert", title: "alert__title", description: "alert__description", }
 }
 
 ///|

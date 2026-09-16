@@ -25,7 +25,7 @@ pub fn[T : Eq] track_signal(sig : @resource.Signal[T]) -> SignalTracker[T] {
       values.push(v)
     }
   })
-  { values, cleanup }
+  { values, cleanup, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn count_effect(effect_fn : () -> Unit) -> EffectCounter {
     effect_fn()
     counter.val = counter.val + 1
   })
-  { count: counter.val, cleanup }
+  { count: counter.val, cleanup, }
 }
 
 ///|

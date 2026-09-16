@@ -25,14 +25,14 @@ test "CacheStrategy - equality" {
 
 ///|
 test "CatchAllInfo - required catch-all" {
-  let info = @router.CatchAllInfo::{ name: "slug", optional: false }
+  let info = @router.CatchAllInfo::{ name: "slug", optional: false, }
   inspect(info.name, content="slug")
   inspect(info.optional, content="false")
 }
 
 ///|
 test "CatchAllInfo - optional catch-all" {
-  let info = @router.CatchAllInfo::{ name: "path", optional: true }
+  let info = @router.CatchAllInfo::{ name: "path", optional: true, }
   inspect(info.name, content="path")
   inspect(info.optional, content="true")
 }

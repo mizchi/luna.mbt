@@ -13,58 +13,62 @@
 pub fn routes() -> Array[@sol.SolRoutes] {
   [
     // Apply security headers and logger middleware to all routes
-    @sol.with_mw(
-      [@mw.security_headers_relaxed(), @mw.logger()],
-      [
-        // Root layout - wraps all pages with navigation
-        @sol.wrap("", @layout.root_layout, [
-          // Home page with counter island
-          @sol.route("/", home, title="Home"),
-          // About page (static, no hydration)
-          @sol.route("/about", about, title="About"),
-          // Contact form page with contact_form island
-          @sol.route("/form", form_page, title="Contact Form"),
-          // WC Counter page - Web Components based island
-          @sol.route("/wc-counter", wc_counter, title="WC Counter"),
-          // WC Multiple page - multiple instances of same component
-          @sol.route("/wc-multiple", wc_multiple, title="WC Multiple"),
-          // Docs page - catch-all route [...slug]
-          @sol.route("/docs/[...slug]", docs_page, title="Documentation"),
-          // Blog page - optional catch-all route [[...path]]
-          @sol.route("/blog/[[...path]]", blog_page, title="Blog"),
-          // Middleware test page
-          @sol.route("/middleware-test", middleware_test, title="Middleware Test"),
-          // Admin section - nested layout example
-          @sol.wrap("/admin", admin_layout, [
-            @sol.route("/", admin_home, title="Admin Dashboard"),
-            @sol.route("/settings", admin_settings, title="Admin Settings"),
-            @sol.route("/users", admin_users, title="Admin Users"),
-          ]),
-          // ================================================================
-          // Authentication pages (requires dev-auth.ts server)
-          // ================================================================
-          @sol.route("/login", login_page, title="Login"),
-          @sol.route("/profile", profile_page, title="Profile"),
-          // ================================================================
-          // User Namespace (/@user_id/page_id) - ISR enabled
-          // ================================================================
-          @sol.route("/@[user_id]", user_profile, title="User Profile", revalidate=Some(60)),
-          @sol.route("/@[user_id]/[page_id]", user_page, title="User Page", revalidate=Some(60)),
+    @sol.with_mw([@mw.security_headers_relaxed(), @mw.logger()], [
+      // Root layout - wraps all pages with navigation
+      @sol.wrap("", @layout.root_layout, [
+        // Home page with counter island
+        @sol.route("/", home, title="Home"),
+        // About page (static, no hydration)
+        @sol.route("/about", about, title="About"),
+        // Contact form page with contact_form island
+        @sol.route("/form", form_page, title="Contact Form"),
+        // WC Counter page - Web Components based island
+        @sol.route("/wc-counter", wc_counter, title="WC Counter"),
+        // WC Multiple page - multiple instances of same component
+        @sol.route("/wc-multiple", wc_multiple, title="WC Multiple"),
+        // Docs page - catch-all route [...slug]
+        @sol.route("/docs/[...slug]", docs_page, title="Documentation"),
+        // Blog page - optional catch-all route [[...path]]
+        @sol.route("/blog/[[...path]]", blog_page, title="Blog"),
+        // Middleware test page
+        @sol.route("/middleware-test", middleware_test, title="Middleware Test"),
+        // Admin section - nested layout example
+        @sol.wrap("/admin", admin_layout, [
+          @sol.route("/", admin_home, title="Admin Dashboard"),
+          @sol.route("/settings", admin_settings, title="Admin Settings"),
+          @sol.route("/users", admin_users, title="Admin Users"),
         ]),
-        // API endpoints with CORS middleware
-        // Using method-style composition: logger().then(cors())
-        @sol.with_mw(
-          [@mw.logger().then(@mw.cors())],
-          [
-            @sol.api_get("/api/health", api_health),
-            // Middleware test API - returns info about current request
-            @sol.api_get("/api/middleware-test", api_middleware_test),
-            // Debug API - test catch-all params
-            @sol.api_get("/api/test/[...path]", api_test_catch_all),
-          ],
+        // ================================================================
+        // Authentication pages (requires dev-auth.ts server)
+        // ================================================================
+        @sol.route("/login", login_page, title="Login"),
+        @sol.route("/profile", profile_page, title="Profile"),
+        // ================================================================
+        // User Namespace (/@user_id/page_id) - ISR enabled
+        // ================================================================
+        @sol.route(
+          "/@[user_id]",
+          user_profile,
+          title="User Profile",
+          revalidate=Some(60),
         ),
-      ],
-    ),
+        @sol.route(
+          "/@[user_id]/[page_id]",
+          user_page,
+          title="User Page",
+          revalidate=Some(60),
+        ),
+      ]),
+      // API endpoints with CORS middleware
+      // Using method-style composition: logger().then(cors())
+      @sol.with_mw([@mw.logger().then(@mw.cors())], [
+        @sol.api_get("/api/health", api_health),
+        // Middleware test API - returns info about current request
+        @sol.api_get("/api/middleware-test", api_middleware_test),
+        // Debug API - test catch-all params
+        @sol.api_get("/api/test/[...path]", api_test_catch_all),
+      ]),
+    ]),
   ]
 }
 
@@ -113,7 +117,7 @@ async fn home(_props : @sol.PageProps) -> @server_dom.ServerNode {
     let server_random = generate_random_int(1, 1000)
 
     // Create props using generated types
-    let counter_props : @types.CounterProps = { initial_count: server_random }
+    let counter_props : @types.CounterProps = { initial_count: server_random, }
     let content = [
       h1([text("Welcome to Sol")]),
       p([text("A SSR-first web framework for MoonBit")]),
@@ -215,7 +219,9 @@ async fn form_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
             span([text(">")]),
           ]),
           div(class="form-actions", [
-            button(attrs=[("type", @luna.attr_static("submit"))], [text("Submit")]),
+            button(attrs=[("type", @luna.attr_static("submit"))], [
+              text("Submit"),
+            ]),
           ]),
           div(
             class="form-result",
@@ -238,7 +244,7 @@ async fn form_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
 /// CSS is defined in app/client/wc_counter.mbt and shared between SSR and hydration.
 async fn wc_counter(_props : @sol.PageProps) -> @server_dom.ServerNode {
   // Create props using WcCounterProps from client module
-  let counter_props : @client.WcCounterProps = { initial_count: 0 }
+  let counter_props : @client.WcCounterProps = { initial_count: 0, }
   let state_json = counter_props.to_json().stringify()
 
   // CSS is imported from client module - shared between SSR and hydration
@@ -322,8 +328,16 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
         div(class="counter", [
           span(class="count-display", [text("0")]),
           div(class="buttons", [
-            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
-            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+            button(
+              class="dec",
+              attrs=[("data-on-click", @luna.attr_static("decrement"))],
+              [text("-")],
+            ),
+            button(
+              class="inc",
+              attrs=[("data-on-click", @luna.attr_static("increment"))],
+              [text("+")],
+            ),
           ]),
         ]),
       ],
@@ -338,8 +352,16 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
         div(class="counter", [
           span(class="count-display", [text("10")]),
           div(class="buttons", [
-            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
-            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+            button(
+              class="dec",
+              attrs=[("data-on-click", @luna.attr_static("decrement"))],
+              [text("-")],
+            ),
+            button(
+              class="inc",
+              attrs=[("data-on-click", @luna.attr_static("increment"))],
+              [text("+")],
+            ),
           ]),
         ]),
       ],
@@ -354,8 +376,16 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
         div(class="counter", [
           span(class="count-display", [text("100")]),
           div(class="buttons", [
-            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
-            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+            button(
+              class="dec",
+              attrs=[("data-on-click", @luna.attr_static("decrement"))],
+              [text("-")],
+            ),
+            button(
+              class="inc",
+              attrs=[("data-on-click", @luna.attr_static("increment"))],
+              [text("+")],
+            ),
           ]),
         ]),
       ],
@@ -399,7 +429,9 @@ async fn blog_page(props : @sol.PageProps) -> @server_dom.ServerNode {
   let title = if path == "" { "Blog Home" } else { "Blog: " + path }
   let content = [
     h1([text(title)]),
-    p([text(if path == "" { "Welcome to the blog!" } else { "Viewing: " + path })]),
+    p([
+      text(if path == "" { "Welcome to the blog!" } else { "Viewing: " + path }),
+    ]),
     div([
       h2([text("Recent Posts")]),
       ul([
@@ -694,11 +726,7 @@ async fn login_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
               text("Create Account"),
             ]),
             div(id="signup-error", style="color: red; margin-top: 0.5rem", []),
-            div(
-              id="signup-success",
-              style="color: green; margin-top: 0.5rem",
-              [],
-            ),
+            div(id="signup-success", style="color: green; margin-top: 0.5rem", []),
           ]),
         ]),
         // Client-side auth script
@@ -897,10 +925,7 @@ async fn api_test_catch_all(props : @sol.PageProps) -> Json {
     Err(_) => "(none)"
   }
   let all_params = props.params.params.map(fn(p) { p.0 + "=" + p.1 }).join(",")
-  @sol.ok([
-    ("path", path.to_json()),
-    ("all_params", all_params.to_json()),
-  ]).to_json()
+  @sol.ok([("path", path.to_json()), ("all_params", all_params.to_json())]).to_json()
 }
 
 ///|
@@ -981,7 +1006,7 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
   if email == "" {
     return @action.ActionResult::bad_request("Email is required")
   }
-  if !(email.contains("@")) {
+  if !email.contains("@") {
     return @action.ActionResult::bad_request("Invalid email format")
   }
 
@@ -997,7 +1022,7 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     @action.ActionResult::json(ContactSubmitResponse::{
       success: true,
       message: "Form submitted successfully!",
-      data: ContactSubmitData::{ name, email },
+      data: ContactSubmitData::{ name, email, },
     })
   }
 })

@@ -21,12 +21,12 @@ fn push_param_spec(
   for i, spec in specs {
     if spec.name == name {
       if spec.optional && !optional {
-        specs[i] = { name, optional }
+        specs[i] = { name, optional, }
       }
       return
     }
   }
-  specs.push({ name, optional })
+  specs.push({ name, optional, })
 }
 
 ///|

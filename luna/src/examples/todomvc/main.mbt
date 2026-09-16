@@ -178,7 +178,7 @@ fn app() -> DomNode {
       next_id.set(id + 1)
       todos.update(items => {
         let new_items = items.copy()
-        new_items.push({ id, title: txt, completed: false })
+        new_items.push({ id, title: txt, completed: false, })
         new_items
       })
       new_todo_text.set("")
@@ -189,7 +189,7 @@ fn app() -> DomNode {
     todos.update(items => {
       items.map(t => {
         if t.id == id {
-          { ..t, completed: !t.completed }
+          { ..t, completed: !t.completed, }
         } else {
           t
         }
@@ -207,14 +207,14 @@ fn app() -> DomNode {
       remove_todo(id)
     } else {
       todos.update(items => {
-        items.map(t => if t.id == id { { ..t, title: trimmed } } else { t })
+        items.map(t => if t.id == id { { ..t, title: trimmed, } } else { t })
       })
     }
   }
 
   fn toggle_all() {
     let all_done = all_completed()
-    todos.update(items => items.map(t => { ..t, completed: !all_done }))
+    todos.update(items => items.map(t => { ..t, completed: !all_done, }))
   }
 
   fn clear_completed() {

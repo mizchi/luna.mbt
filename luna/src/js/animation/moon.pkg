@@ -1,7 +1,7 @@
 import {
   "mizchi/luna/easing",
   "mizchi/luna/x/css",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/js_browser/dom",
 }
 

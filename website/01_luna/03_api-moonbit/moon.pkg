@@ -9,7 +9,7 @@ import {
   "mizchi/luna/dom" @element,
   "mizchi/luna/js/resource",
   "mizchi/js_browser/dom",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/signals",
 } for "test"
 

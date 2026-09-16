@@ -1,13 +1,16 @@
 name = "mizchi/luna"
 
-version = "0.25.0"
+version = "0.25.1"
 
 import {
+  "mizchi/js_builtin@0.13.0",
+  "mizchi/js_core@0.13.0",
+  "mizchi/js_web@0.13.0",
   "moonbitlang/async@0.21.3",
   "moonbitlang/x@0.5.4",
-  "mizchi/js@0.12.2",
-  "mizchi/js_browser@0.12.2",
-  "mizchi/npm_typed@0.1.15",
+  "mizchi/js@0.13.0",
+  "mizchi/js_browser@0.13.0",
+  "mizchi/npm_typed@0.1.16",
   "moonbitlang/parser@0.3.19",
   "mizchi/signals@0.6.5",
   "mizchi/x@0.6.1",

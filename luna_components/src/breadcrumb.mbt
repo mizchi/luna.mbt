@@ -23,7 +23,7 @@ pub fn breadcrumb_item(
   label : String,
   current? : Bool,
 ) -> BreadcrumbItem {
-  { href, label, current: current.unwrap_or(false) }
+  { href, label, current: current.unwrap_or(false), }
 }
 
 ///|

@@ -4,9 +4,9 @@ import {
   "mizchi/luna/core/routes",
   "mizchi/luna/dom/router",
   "mizchi/luna/dom" @element,
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/js_browser/dom",
-  "mizchi/js/builtins/global",
+  "mizchi/js_builtin/global",
 }
 
 supported_targets = "js"

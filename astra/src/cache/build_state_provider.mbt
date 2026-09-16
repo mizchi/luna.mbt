@@ -94,7 +94,7 @@ pub fn BuildManifest::new(
   content_state~ : String,
   built_at~ : String,
 ) -> BuildManifest {
-  { tool_version, config_hash, content_state, built_at }
+  { tool_version, config_hash, content_state, built_at, }
 }
 
 ///|
@@ -138,7 +138,7 @@ pub fn BuildManifest::from_json(json : String) -> BuildManifest? {
   let built_at = extract_json_value(json, "built_at")
   match (tool_version, config_hash, content_state, built_at) {
     (Some(v), Some(c), Some(s), Some(b)) =>
-      Some({ tool_version: v, config_hash: c, content_state: s, built_at: b })
+      Some({ tool_version: v, config_hash: c, content_state: s, built_at: b, })
     _ => None
   }
 }

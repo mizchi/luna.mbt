@@ -94,7 +94,7 @@ fn create_docs_manifest() -> ISRManifest {
       source: "",
     }
   }
-  ISRManifest::{ version: 1, pages }
+  ISRManifest::{ version: 1, pages, }
 }
 
 ///|
@@ -280,7 +280,7 @@ test "docs: after 10 minutes - all pages stale" {
 test "docs: popular pages revalidation simulation" {
   let manifest = create_docs_manifest()
   let cache = MemoryCache::new()
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
   let base_time = 1000000000L
   populate_docs_cache(cache, manifest, base_time)
 

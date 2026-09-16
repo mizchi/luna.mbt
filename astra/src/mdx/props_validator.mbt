@@ -63,7 +63,7 @@ fn build_props_schema(input : PropsStructInput) -> Array[PropsField] {
     let name = pair.0
     let type_str = pair.1
     let optional = type_str.has_suffix("?") || type_str.contains("?") // e.g., Int?, String?
-    { name, type_str, optional }
+    { name, type_str, optional, }
   })
 }
 

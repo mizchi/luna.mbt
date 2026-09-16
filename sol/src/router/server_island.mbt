@@ -29,7 +29,7 @@ pub(all) struct ServerIslandRegistry {
 ///|
 /// Create an empty server island registry
 pub fn ServerIslandRegistry::new() -> ServerIslandRegistry {
-  { islands: {} }
+  { islands: {}, }
 }
 
 ///|

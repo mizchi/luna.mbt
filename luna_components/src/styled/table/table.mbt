@@ -71,7 +71,7 @@ pub fn table_column(
   label : String,
   sortable? : Bool,
 ) -> TableColumn {
-  { id, label, sortable: sortable.unwrap_or(false) }
+  { id, label, sortable: sortable.unwrap_or(false), }
 }
 
 ///|
@@ -84,7 +84,7 @@ pub(all) struct TableRow {
 ///|
 /// Create a row definition
 pub fn table_row(id : String, cells : Array[String]) -> TableRow {
-  { id, cells }
+  { id, cells, }
 }
 
 ///|

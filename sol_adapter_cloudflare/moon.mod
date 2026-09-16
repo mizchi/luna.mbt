@@ -1,11 +1,12 @@
 name = "mizchi/sol_adapter_cloudflare"
 
-version = "0.23.2"
+version = "0.23.3"
 
 import {
-  "mizchi/sol@0.23.3",
+  "mizchi/js_core@0.13.0",
+  "mizchi/sol@0.23.4",
   "mizchi/mars@0.3.12",
-  "mizchi/js@0.12.2",
+  "mizchi/js@0.13.0",
   "moonbitlang/async@0.21.3",
 }
 

@@ -22,13 +22,13 @@ pub(all) struct ChunkManifest {
 ///|
 /// Create an empty chunk manifest
 pub fn ChunkManifest::empty() -> ChunkManifest {
-  { routes: {}, chunks: {}, base: "/_luna/" }
+  { routes: {}, chunks: {}, base: "/_luna/", }
 }
 
 ///|
 /// Create a new chunk manifest with the given base path
 pub fn ChunkManifest::new(base? : String = "/_luna/") -> ChunkManifest {
-  { routes: {}, chunks: {}, base }
+  { routes: {}, chunks: {}, base, }
 }
 
 // =============================================================================
@@ -62,7 +62,7 @@ pub fn route_manifest_to_chunk_manifest(
   if !routes.contains("*") {
     routes["*"] = ["boot"]
   }
-  ChunkManifest::{ routes, chunks, base: "/_luna/" }
+  ChunkManifest::{ routes, chunks, base: "/_luna/", }
 }
 
 ///|

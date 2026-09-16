@@ -512,7 +512,7 @@ fn parse_nav_items(arr : Array[Json]) -> Array[@astra.NavItem] {
         Some(Array(arr)) => parse_nav_items(arr)
         _ => []
       }
-      result.push(@astra.NavItem::{ text, link, icon, items })
+      result.push(@astra.NavItem::{ text, link, icon, items, })
     }
   }
   result
@@ -536,7 +536,7 @@ fn parse_sidebar_group_from_obj(obj : Map[String, Json]) -> @astra.SidebarGroup 
     Some(Array(arr)) => parse_sidebar_items(arr)
     _ => []
   }
-  @astra.SidebarGroup::{ text, link, collapsed, items }
+  @astra.SidebarGroup::{ text, link, collapsed, items, }
 }
 
 ///|
@@ -595,7 +595,7 @@ fn parse_islands_config(obj : Map[String, Json]) -> @astra.IslandsConfig? {
     Some(String(s)) => s
     _ => "/components/"
   }
-  Some(@astra.IslandsConfig::{ dir, base_path })
+  Some(@astra.IslandsConfig::{ dir, base_path, })
 }
 
 ///|
@@ -700,7 +700,7 @@ fn parse_header_config(obj : Map[String, Json]) -> @astra.HeaderConfig {
     Some(True) => true
     _ => false
   }
-  @astra.HeaderConfig::{ left, center, right, sticky }
+  @astra.HeaderConfig::{ left, center, right, sticky, }
 }
 
 ///|
@@ -747,7 +747,7 @@ fn parse_footer_config(obj : Map[String, Json]) -> @astra.FooterConfig? {
     Some(Array(arr)) => parse_footer_elements(arr)
     _ => []
   }
-  Some(@astra.FooterConfig::{ message, copyright, links, top, bottom })
+  Some(@astra.FooterConfig::{ message, copyright, links, top, bottom, })
 }
 
 ///|
@@ -785,7 +785,7 @@ fn parse_footer_columns(arr : Array[Json]) -> Array[@astra.FooterColumn] {
         Some(Array(links_arr)) => parse_footer_links(links_arr)
         _ => []
       }
-      result.push(@astra.FooterColumn::{ title, items })
+      result.push(@astra.FooterColumn::{ title, items, })
     }
   }
   result
@@ -804,7 +804,7 @@ fn parse_footer_links(arr : Array[Json]) -> Array[@astra.FooterLink] {
         Some(String(s)) => s
         _ => ""
       }
-      result.push(@astra.FooterLink::{ label, href })
+      result.push(@astra.FooterLink::{ label, href, })
     }
   }
   result
@@ -823,7 +823,7 @@ fn parse_social_links(arr : Array[Json]) -> Array[@astra.SocialLink] {
         Some(String(s)) => s
         _ => ""
       }
-      result.push(@astra.SocialLink::{ icon, link })
+      result.push(@astra.SocialLink::{ icon, link, })
     }
   }
   result
@@ -843,7 +843,7 @@ fn parse_navigation_config(obj : Map[String, Json]) -> @astra.NavigationConfig {
     Some(False) => false
     _ => true
   }
-  @astra.NavigationConfig::{ spa, view_transitions, keyboard }
+  @astra.NavigationConfig::{ spa, view_transitions, keyboard, }
 }
 
 ///|
@@ -854,9 +854,9 @@ fn parse_i18n_config(obj : Map[String, Json]) -> @astra.I18nConfig {
   }
   let locales = match obj.get("locales") {
     Some(Array(arr)) => parse_locales(arr)
-    _ => [@astra.LocaleConfig::{ code: "en", label: "English", path: "" }]
+    _ => [@astra.LocaleConfig::{ code: "en", label: "English", path: "", }]
   }
-  @astra.I18nConfig::{ default_locale, locales }
+  @astra.I18nConfig::{ default_locale, locales, }
 }
 
 ///|
@@ -876,7 +876,7 @@ fn parse_locales(arr : Array[Json]) -> Array[@astra.LocaleConfig] {
         Some(String(s)) => s
         _ => ""
       }
-      result.push(@astra.LocaleConfig::{ code, label, path })
+      result.push(@astra.LocaleConfig::{ code, label, path, })
     }
   }
   result
@@ -900,7 +900,7 @@ fn parse_ogp_config(obj : Map[String, Json]) -> @astra.OgpConfig {
     Some(String(s)) => Some(s)
     _ => None
   }
-  @astra.OgpConfig::{ site_url, image, twitter_handle, twitter_card }
+  @astra.OgpConfig::{ site_url, image, twitter_handle, twitter_card, }
 }
 
 // =============================================================================

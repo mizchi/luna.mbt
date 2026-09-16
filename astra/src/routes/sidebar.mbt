@@ -283,7 +283,7 @@ fn tree_node_to_sidebar_group(
   let text = group_title.unwrap_or(
     capitalize(name.replace(old="-", new=" ").replace(old="_", new=" ")),
   )
-  @astra.SidebarGroup::{ text, link: group_link, collapsed: true, items }
+  @astra.SidebarGroup::{ text, link: group_link, collapsed: true, items, }
 }
 
 ///|
@@ -581,7 +581,7 @@ fn is_group_active(group : @astra.SidebarGroup, current_path : String) -> Bool {
 // Counter for generating unique IDs for sidebar groups
 
 ///|
-let sidebar_group_counter : Ref[Int] = { val: 0 }
+let sidebar_group_counter : Ref[Int] = { val: 0, }
 
 ///|
 /// Reset sidebar group counter (call at start of page render)

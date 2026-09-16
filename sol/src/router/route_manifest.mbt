@@ -329,7 +329,7 @@ fn push_manifest_entry(
   match_kind : RouteManifestMatchKind,
   param_names : Array[String],
 ) -> Unit {
-  entries.push({ pattern, http_method, owner, match_kind, param_names })
+  entries.push({ pattern, http_method, owner, match_kind, param_names, })
 }
 
 ///|

@@ -23,7 +23,7 @@ pub fn create(
   )
   let (pages, _unresolved) = @routes.resolve_duplicate_pages(scanned)
   let doc_tree = @tree.build_document_tree(config, pages, cwd)
-  { config, cwd, pages, doc_tree, minify_css, highlighter }
+  { config, cwd, pages, doc_tree, minify_css, highlighter, }
 }
 
 ///|
@@ -49,13 +49,13 @@ pub fn Middleware::render_url(
 ) -> RenderedResponse {
   match @assets.lookup_asset(url, self.config, minify=self.minify_css) {
     Some(asset) =>
-      { status: 200, body: asset.body, content_type: asset.content_type }
+      { status: 200, body: asset.body, content_type: asset.content_type, }
     None => {
       let path = normalize_path(url, self.config.trailing_slash)
       match find_page_meta(self.pages, path) {
         Some(page) => {
           let html = render_page(self, page)
-          { status: 200, body: html, content_type: "text/html; charset=utf-8" }
+          { status: 200, body: html, content_type: "text/html; charset=utf-8", }
         }
         None =>
           {

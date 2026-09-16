@@ -18,7 +18,7 @@ pub struct DomElement {
 ///|
 /// Create DomElement from @js_dom.Element
 pub fn DomElement::from_dom(elem : @js_dom.Element) -> DomElement {
-  { inner: elem }
+  { inner: elem, }
 }
 
 ///|

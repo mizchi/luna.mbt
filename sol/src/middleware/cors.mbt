@@ -77,7 +77,7 @@ pub fn CorsConfig::with_origin_single(
   self : CorsConfig,
   origin : String,
 ) -> CorsConfig {
-  { ..self, origin: CorsOrigin::Single(origin) }
+  { ..self, origin: CorsOrigin::Single(origin), }
 }
 
 ///|
@@ -95,7 +95,7 @@ pub fn CorsConfig::with_allowed_headers(
   self : CorsConfig,
   headers : Array[String],
 ) -> CorsConfig {
-  { ..self, allowed_headers: headers }
+  { ..self, allowed_headers: headers, }
 }
 
 ///|
@@ -104,19 +104,19 @@ pub fn CorsConfig::with_exposed_headers(
   self : CorsConfig,
   headers : Array[String],
 ) -> CorsConfig {
-  { ..self, exposed_headers: headers }
+  { ..self, exposed_headers: headers, }
 }
 
 ///|
 /// Enable credentials
 pub fn CorsConfig::with_credentials(self : CorsConfig) -> CorsConfig {
-  { ..self, credentials: true }
+  { ..self, credentials: true, }
 }
 
 ///|
 /// Set max age
 pub fn CorsConfig::with_max_age(self : CorsConfig, max_age : Int) -> CorsConfig {
-  { ..self, max_age: Some(max_age) }
+  { ..self, max_age: Some(max_age), }
 }
 
 // ============================================================================

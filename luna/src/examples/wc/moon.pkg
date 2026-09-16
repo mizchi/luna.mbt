@@ -3,9 +3,9 @@ import {
   "mizchi/signals",
   "mizchi/luna",
   "mizchi/luna/js/api" @luna_api,
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
-  "mizchi/js/builtins/global",
+  "mizchi/js_builtin/global",
 }
 
 supported_targets = "js"

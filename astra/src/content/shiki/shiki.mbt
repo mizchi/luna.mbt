@@ -14,7 +14,7 @@ pub struct Highlighter {
 ///|
 /// Create a highlighter with default theme
 pub fn create_default_highlighter() -> Highlighter {
-  { theme: @highlight.github_dark() }
+  { theme: @highlight.github_dark(), }
 }
 
 ///|

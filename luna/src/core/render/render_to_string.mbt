@@ -23,11 +23,11 @@ pub fn[E, A : Show] render_to_string(
     let seen : Map[String, Bool] = Map([])
     let island_ids = new_island_id_allocator()
     render_and_collect_urls(sb, node, urls, seen, island_ids)
-    { html: sb.to_string(), preload_urls: urls }
+    { html: sb.to_string(), preload_urls: urls, }
   } else {
     let island_ids = new_island_id_allocator()
     render_to_sb(sb, node, island_ids)
-    { html: sb.to_string(), preload_urls: [] }
+    { html: sb.to_string(), preload_urls: [], }
   }
 }
 
@@ -248,7 +248,7 @@ priv struct IslandIdAllocator {}
 
 ///|
 fn new_island_id_allocator() -> IslandIdAllocator {
-  IslandIdAllocator::{  }
+  IslandIdAllocator::{ }
 }
 
 ///|

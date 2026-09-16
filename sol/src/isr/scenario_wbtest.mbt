@@ -28,8 +28,8 @@ test "Large blog scenario: hot pages stay fresh, cold pages go stale" {
       source: "",
     }
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
 
   // Base time for simulation
   let base_time = 1000000000L // ~Jan 1970 + 11 days
@@ -85,8 +85,8 @@ test "Stale page serves content while signaling revalidation need" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
 
   // Cache an entry that's definitely stale (generated long ago)
   let very_old_time = 1000L // Very old
@@ -152,8 +152,8 @@ test "Revalidation updates stale entry to fresh" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
 
   // Initial stale entry
   let old_time = 1000000L
@@ -194,8 +194,8 @@ test "Hot page access pattern keeps cache fresh" {
     renderer: "markdown",
     source: "",
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
   let base_time = 1000000000L
 
   // Initial cache population

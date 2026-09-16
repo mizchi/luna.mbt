@@ -105,7 +105,7 @@ pub struct ParallelCssConfig {
 
 ///|
 pub fn ParallelCssConfig::default() -> ParallelCssConfig {
-  { max_workers: 4, timeout_ms: 30000 }
+  { max_workers: 4, timeout_ms: 30000, }
 }
 
 ///|

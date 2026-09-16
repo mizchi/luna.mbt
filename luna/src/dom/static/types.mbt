@@ -23,7 +23,7 @@ pub struct ServerAssets {
 ///|
 /// Create an empty ServerAssets value.
 pub fn ServerAssets::empty() -> ServerAssets {
-  { styles: [], scripts: [] }
+  { styles: [], scripts: [], }
 }
 
 ///|
@@ -32,7 +32,7 @@ pub fn ServerAssets::new(
   styles? : Array[String] = [],
   scripts? : Array[String] = [],
 ) -> ServerAssets {
-  { styles, scripts }
+  { styles, scripts, }
 }
 
 ///|
@@ -56,7 +56,7 @@ pub fn ServerAssets::merge(
   for script in other.scripts {
     push_unique_path(scripts, script)
   }
-  { styles, scripts }
+  { styles, scripts, }
 }
 
 // =============================================================================

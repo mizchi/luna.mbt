@@ -1,8 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna_components/styled/table"
 
+import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
+}
+
 // Values
-pub fn table(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, class? : String, on_row_select? : (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn table(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, class? : String, on_row_select? : (String) -> Unit) -> @core.Node[@js_core.Any, String]
 
 pub fn table_column(String, String, sortable? : Bool) -> TableColumn
 
@@ -47,4 +52,3 @@ pub(all) struct TableSlots {
 // Type aliases
 
 // Traits
-

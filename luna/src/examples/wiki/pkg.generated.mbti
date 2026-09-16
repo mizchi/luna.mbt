@@ -2,12 +2,12 @@
 package "mizchi/luna/examples/wiki"
 
 import {
-  "mizchi/js/core",
   "mizchi/js_browser/dom",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn hydrate(@dom.Element, @core.Any) -> Unit
+pub fn hydrate(@dom.Element, @js_core.Any) -> Unit
 
 // Errors
 

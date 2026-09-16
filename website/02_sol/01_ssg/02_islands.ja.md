@@ -54,7 +54,7 @@ pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
 import {
   "mizchi/luna/dom" @luna_dom,
   "mizchi/js_browser/dom" @js_dom,
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 
 supported_targets = "js"

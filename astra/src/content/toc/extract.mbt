@@ -25,7 +25,7 @@ fn extract_toc_recursive(
         // Only include h2-h4 in TOC
         if level >= 2 && level <= 4 {
           let text = extract_text_from_nodes(children)
-          toc.push(TocItem::{ level, text, id })
+          toc.push(TocItem::{ level, text, id, })
         }
       @markdown.MdNode::Blockquote(children~) =>
         extract_toc_recursive(children, toc)

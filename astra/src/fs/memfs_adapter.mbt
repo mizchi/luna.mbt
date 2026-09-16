@@ -10,7 +10,7 @@ pub struct MemFSAdapter {
 /// Create a new in-memory filesystem
 pub fn MemFSAdapter::new() -> MemFSAdapter {
   let (vol, fs) = @memfs.memfs()
-  MemFSAdapter::{ fs, vol }
+  MemFSAdapter::{ fs, vol, }
 }
 
 ///|
@@ -19,7 +19,7 @@ pub fn MemFSAdapter::from_memfs(
   vol : @memfs.Volume,
   fs : @memfs.MemFS,
 ) -> MemFSAdapter {
-  MemFSAdapter::{ fs, vol }
+  MemFSAdapter::{ fs, vol, }
 }
 
 ///|

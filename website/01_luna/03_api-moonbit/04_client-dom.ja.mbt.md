@@ -10,12 +10,13 @@ description: MoonBit からのマウント・イベント・ポータル・conte
 これを `@element` として import し、デフォルトの `@dom` は `mizchi/js_browser/dom`
 のブラウザバインディングに残しています:
 
-```moonbit
+```moonbit nocheck
+///|
 import {
   "mizchi/luna/dom" @element,
   "mizchi/luna/js/resource",
   "mizchi/js_browser/dom",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 ```
 
@@ -34,7 +35,11 @@ import {
 ///|
 test "render_to は構築済みノードを要素にマウントする" {
   fn hello() -> @element.DomNode {
-    @element.div() <| [@element.p() <| [@element.text("Hello, Luna")]]
+    @element.div() <| [
+      @element.p() <| [
+        @element.text("Hello, Luna"),
+      ],
+    ]
   }
 
   fn boot() -> Unit {
@@ -72,7 +77,7 @@ test "render は Luna の DomElement ラッパーを取る" {
 
 ### シグネチャ
 
-```moonbit
+```moonbit nocheck
 fn render_to(@dom.Element, DomNode) -> Unit   // 空にしてからマウント
 fn mount_to(@dom.Element, DomNode) -> Unit    // 追加
 fn render(DomElement, DomNode) -> Unit
@@ -96,15 +101,18 @@ API が両方の形を受け付けざるを得ないのは `LunaNode` が `unkno
 test "events() は型付きハンドラを要素にチェーンする" {
   fn counter() -> @element.DomNode {
     let count = @resource.signal(0)
-    @element.div()
-    <| [
-      @element.p() <| [@element.text_dyn(fn() { "Count: \{count.get()}" })],
+    @element.div() <| [
+      @element.p() <| [
+        @element.text_dyn(fn() { "Count: \{count.get()}" }),
+      ],
       @element.button(
         on=@element.events().click(fn(_e) { count.update(fn(n) { n + 1 }) }),
-      )
-      <| [@element.text("Increment")],
-      @element.button(on=@element.events().click(fn(_e) { count.set(0) }))
-      <| [@element.text("Reset")],
+      ) <| [
+        @element.text("Increment"),
+      ],
+      @element.button(on=@element.events().click(fn(_e) { count.set(0) })) <| [
+        @element.text("Reset"),
+      ],
     ]
   }
 
@@ -117,7 +125,7 @@ test "events() は型付きハンドラを要素にチェーンする" {
 `input` は `InputEvent`、`change` は `ChangeEvent`、`submit` は `FormEvent`、
 `focus` / `blur` は `FocusEvent` です。
 
-input イベントから値を読むには `mizchi/js/core` を経由します。`@dom.Element` 自体には
+input イベントから値を読むには `mizchi/js_core` を経由します。`@dom.Element` 自体には
 `value` アクセサがないので、target をキャストしてプロパティを読みます:
 
 ```mbt check
@@ -127,8 +135,7 @@ test "複数のハンドラを 1 つの式でチェーンする" {
     let query = @resource.signal("")
     @element.input(
       type_="text",
-      on=@element
-        .events()
+      on=@element.events()
         .input(fn(e) {
           let target : @js.Any = e.target() |> @js.identity
           query.set(target._get("value").cast())
@@ -151,13 +158,17 @@ children は素の `Array[DomNode]` で、遅延させるためのコールバ�
 test "ポータルはコールバックではなく素のノードを取る" {
   fn modal() -> @element.DomNode {
     @element.portal_to_body([
-      @element.div(class="modal") <| [@element.text("Modal content")],
+      @element.div(class="modal") <| [
+        @element.text("Modal content"),
+      ],
     ])
   }
 
   fn modal_in_selector() -> @element.DomNode {
     @element.portal_to("#modal-root", [
-      @element.div(class="modal") <| [@element.text("Modal content")],
+      @element.div(class="modal") <| [
+        @element.text("Modal content"),
+      ],
     ])
   }
 
@@ -166,7 +177,7 @@ test "ポータルはコールバックではなく素のノードを取る" {
 }
 ```
 
-```moonbit
+```moonbit nocheck
 fn portal_to_body(Array[DomNode]) -> DomNode
 fn portal_to(String, Array[DomNode]) -> DomNode
 fn portal(target~ : @dom.Element, children~ : Array[DomNode]) -> DomNode

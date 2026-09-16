@@ -48,7 +48,7 @@ pub fn WorkerInitData::from_json(json : Json) -> WorkerInitData? {
     return None
   }
   guard obj.get("cwd") is Some(String(cwd)) else { return None }
-  Some(WorkerInitData::{ config_json, pages_json, sidebar_json, cwd })
+  Some(WorkerInitData::{ config_json, pages_json, sidebar_json, cwd, })
 }
 
 // =============================================================================

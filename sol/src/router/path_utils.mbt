@@ -100,12 +100,12 @@ fn extract_catch_all(path : String) -> CatchAllInfo? {
       // Optional catch-all: [[...name]]
       if last.has_prefix("[[...") && last.has_suffix("]]") && last.length() > 7 {
         let name = last[5:last.length() - 2].to_owned()
-        return Some({ name, optional: true })
+        return Some({ name, optional: true, })
       }
       // Required catch-all: [...name]
       if last.has_prefix("[...") && last.has_suffix("]") && last.length() > 5 {
         let name = last[4:last.length() - 1].to_owned()
-        return Some({ name, optional: false })
+        return Some({ name, optional: false, })
       }
       None
     }

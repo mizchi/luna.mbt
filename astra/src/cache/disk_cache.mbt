@@ -33,7 +33,7 @@ pub fn[F : @env.FileSystem] DiskCache::new(
   } else {
     CacheMeta::new(config_hash~)
   }
-  { fs, cache_dir, meta, enabled }
+  { fs, cache_dir, meta, enabled, }
 }
 
 ///|
@@ -118,7 +118,7 @@ pub fn[F : @env.FileSystem] DiskCache::set(
 
   // Update metadata
   let now = "" // TODO: get current timestamp
-  self.meta.entries[key] = EntryMeta::{ content_hash, cached_at: now, ttl }
+  self.meta.entries[key] = EntryMeta::{ content_hash, cached_at: now, ttl, }
 }
 
 ///|
@@ -271,7 +271,7 @@ fn parse_entry_meta(json : Json) -> EntryMeta? {
     Some(Number(n, ..)) => n.to_int()
     _ => 0
   }
-  Some(EntryMeta::{ content_hash, cached_at, ttl })
+  Some(EntryMeta::{ content_hash, cached_at, ttl, })
 }
 
 ///|

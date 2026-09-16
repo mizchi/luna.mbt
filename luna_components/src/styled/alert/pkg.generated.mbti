@@ -31,4 +31,3 @@ pub(all) enum AlertVariant {
 // Type aliases
 
 // Traits
-

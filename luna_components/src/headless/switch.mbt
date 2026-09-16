@@ -83,7 +83,7 @@ pub fn use_switch(
       ),
     ),
   )
-  { attrs, toggle, is_on }
+  { attrs, toggle, is_on, }
 }
 
 ///|
@@ -138,7 +138,7 @@ pub fn use_switch_computed(
       ),
     ),
   )
-  { attrs, toggle, is_on }
+  { attrs, toggle, is_on, }
 }
 
 ///|

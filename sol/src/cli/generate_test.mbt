@@ -56,11 +56,11 @@ test "parse_mbti_imports: basic imports" {
     #|
     #|import(
     #|  "mizchi/luna/core"
-    #|  "mizchi/js/node"
+    #|  "mizchi/js_node"
     #|)
   let imports = parse_mbti_imports(content)
   assert_eq(imports.get("core"), Some("mizchi/luna/core"))
-  assert_eq(imports.get("node"), Some("mizchi/js/node"))
+  assert_eq(imports.get("js_node"), Some("mizchi/js_node"))
 }
 
 ///|
@@ -1227,12 +1227,13 @@ test "template_moon_mod: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "moon.mod").unwrap_or("")
   assert_true(content.contains("\"mizchi/sol@\{@version.VERSION}\""))
-  assert_true(content.contains("\"mizchi/sol_adapter_node@0.23.2\""))
-  assert_true(content.contains("\"mizchi/luna@0.25.0\""))
+  assert_true(content.contains("\"mizchi/sol_adapter_node@0.23.3\""))
+  assert_true(content.contains("\"mizchi/luna@0.25.1\""))
   assert_true(content.contains("\"mizchi/signals@0.6.5\""))
-  assert_true(content.contains("\"mizchi/js@0.12.2\""))
-  assert_true(content.contains("\"mizchi/js_browser@0.12.2\""))
-  assert_true(content.contains("\"mizchi/npm_typed@0.1.15\""))
+  assert_true(content.contains("\"mizchi/js@0.13.0\""))
+  assert_true(content.contains("\"mizchi/js_core@0.13.0\""))
+  assert_true(content.contains("\"mizchi/js_browser@0.13.0\""))
+  assert_true(content.contains("\"mizchi/npm_typed@0.1.16\""))
   assert_true(content.contains("\"moonbitlang/async@0.21.3\""))
 }
 

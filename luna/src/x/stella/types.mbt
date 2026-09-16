@@ -78,7 +78,7 @@ pub fn ShardConfig::with_state(
   self : ShardConfig,
   json : String,
 ) -> ShardConfig {
-  { ..self, state: Inline(json) }
+  { ..self, state: Inline(json), }
 }
 
 ///|
@@ -87,7 +87,7 @@ pub fn ShardConfig::with_state_ref(
   self : ShardConfig,
   script_id : String,
 ) -> ShardConfig {
-  { ..self, state: ScriptRef(script_id) }
+  { ..self, state: ScriptRef(script_id), }
 }
 
 ///|
@@ -96,7 +96,7 @@ pub fn ShardConfig::with_state_url(
   self : ShardConfig,
   url : String,
 ) -> ShardConfig {
-  { ..self, state: Url(url) }
+  { ..self, state: Url(url), }
 }
 
 ///|
@@ -105,7 +105,7 @@ pub fn ShardConfig::with_ssr_content(
   self : ShardConfig,
   content : String,
 ) -> ShardConfig {
-  { ..self, ssr_content: Some(content) }
+  { ..self, ssr_content: Some(content), }
 }
 
 ///|
@@ -114,11 +114,11 @@ pub fn ShardConfig::with_loader(
   self : ShardConfig,
   url : String,
 ) -> ShardConfig {
-  { ..self, include_loader: true, loader_url: url }
+  { ..self, include_loader: true, loader_url: url, }
 }
 
 ///|
 /// Builder pattern: include loader script with default URL
 pub fn ShardConfig::with_default_loader(self : ShardConfig) -> ShardConfig {
-  { ..self, include_loader: true }
+  { ..self, include_loader: true, }
 }

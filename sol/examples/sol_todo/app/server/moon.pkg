@@ -6,7 +6,7 @@ import {
   "mizchi/sol/middleware" @mw,
   "mizchi/sol/action",
   "mizchi/luna/dom/static" @server_dom,
-  "mizchi/js/core",
+  "mizchi/js_core" @core,
   "example/sol-todo/layout",
   "example/sol-todo/__gen__/types",
   "moonbitlang/core/json",

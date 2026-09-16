@@ -54,7 +54,7 @@ pub fn toolbar_item_config(
   pressed? : Bool = false,
   disabled? : Bool = false,
 ) -> ToolbarItemConfig {
-  { id, label, pressed, disabled }
+  { id, label, pressed, disabled, }
 }
 
 ///|

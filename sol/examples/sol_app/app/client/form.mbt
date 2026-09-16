@@ -38,9 +38,9 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     result_msg.set("Submitting...")
 
     // Create response handler callback
-    let handle_response : (
-      @action.TypedActionResponse[ContactSubmitResponse]
-    ) -> Unit = fn(response) {
+    let handle_response : (@action.TypedActionResponse[ContactSubmitResponse]) -> Unit = fn(
+      response,
+    ) {
       match response {
         @action.TypedActionResponse::Success(data) => {
           is_submitting.set(false)
@@ -71,15 +71,15 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     }
 
     // Call Server Action with callback
-    let key : @action.TypedActionKey[ContactSubmitRequest, ContactSubmitResponse] = @action.TypedActionKey::from_key(
-      @types.action_submit_contact(),
-    )
-    let payload = ContactSubmitRequest::{ name: name.get(), email: email.get() }
-    @action.invoke_typed_action_key(
-      key,
-      payload,
-      handle_response,
-    )
+    let key : @action.TypedActionKey[
+      ContactSubmitRequest,
+      ContactSubmitResponse,
+    ] = @action.TypedActionKey::from_key(@types.action_submit_contact())
+    let payload = ContactSubmitRequest::{
+      name: name.get(),
+      email: email.get(),
+    }
+    @action.invoke_typed_action_key(key, payload, handle_response)
   }
 
   // Input handlers for two-way binding
@@ -97,9 +97,7 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     attrs=[
       (
         "action",
-        @element.AttrString(
-          @action.action_url(@types.action_submit_contact()),
-        ),
+        @element.AttrString(@action.action_url(@types.action_submit_contact())),
       ),
       ("method", @element.AttrString("POST")),
     ],

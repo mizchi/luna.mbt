@@ -68,7 +68,7 @@ pub fn parse_code_block_info(info : String) -> @md.CodeBlockInfo {
     Some(idx) => {
       let head = @md.parse_code_block_info(trimmed[0:idx].to_owned())
       let rest = trimmed[idx + 1:].trim(chars=" \t\n\r").to_owned()
-      { lang: head.lang, filename: head.filename, meta: rest }
+      { lang: head.lang, filename: head.filename, meta: rest, }
     }
   }
 }

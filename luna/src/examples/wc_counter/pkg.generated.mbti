@@ -2,13 +2,13 @@
 package "mizchi/luna/examples/wc_counter"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn setup(@core.Any) -> @core.Any
+pub fn setup(@js_core.Any) -> @js_core.Any
 
-pub fn template(@core.Any) -> String
+pub fn template(@js_core.Any) -> String
 
 // Errors
 

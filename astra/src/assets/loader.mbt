@@ -10,22 +10,22 @@ extern "js" fn ffi_get_sol_assets_dir() -> String? =
 // Cache for loaded assets
 
 ///|
-let main_css_cache : Ref[String?] = { val: None }
+let main_css_cache : Ref[String?] = { val: None, }
 
 ///|
-let markdown_css_cache : Ref[String?] = { val: None }
+let markdown_css_cache : Ref[String?] = { val: None, }
 
 ///|
-let theme_js_cache : Ref[String?] = { val: None }
+let theme_js_cache : Ref[String?] = { val: None, }
 
 ///|
-let sidebar_js_cache : Ref[String?] = { val: None }
+let sidebar_js_cache : Ref[String?] = { val: None, }
 
 ///|
-let toc_js_cache : Ref[String?] = { val: None }
+let toc_js_cache : Ref[String?] = { val: None, }
 
 ///|
-let wc_loader_js_cache : Ref[String?] = { val: None }
+let wc_loader_js_cache : Ref[String?] = { val: None, }
 
 ///|
 /// Load a file from the assets directory

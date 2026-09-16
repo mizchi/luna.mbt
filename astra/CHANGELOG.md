@@ -2,6 +2,14 @@
 
 All notable changes to `mizchi/astra` are documented here.
 
+## [astra-v0.23.3] - 2026-09-16
+
+### Dependencies
+
+- Update JavaScript bindings to 0.13.0 and migrate imports to the split modules.
+- Update `mizchi/npm_typed` to 0.1.16 for compatibility with the new JavaScript modules.
+- Align dependencies with the workspace patch releases.
+
 ## 0.22.1 (2026-05-15)
 
 - Coordinated bump with `mizchi/luna` 0.22.1 and `mizchi/sol` 0.22.2. No

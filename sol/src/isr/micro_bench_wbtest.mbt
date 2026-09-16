@@ -81,8 +81,8 @@ async test "micro-bench: handler.handle() latency" {
       source: "",
     }
   }
-  let manifest = ISRManifest::{ version: 1, pages }
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let manifest = ISRManifest::{ version: 1, pages, }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
 
   // Pre-populate cache with far future timestamps
   let far_future = now_ms() + 100000000L

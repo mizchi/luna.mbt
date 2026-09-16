@@ -122,7 +122,7 @@ async fn home(_props : @sol.PageProps) -> @server_dom.ServerNode {
     let server_random = generate_random_int(1, 1000)
 
     // Create props using generated types
-    let counter_props : @types.CounterProps = { initial_count: server_random }
+    let counter_props : @types.CounterProps = { initial_count: server_random, }
     let content = [
       h1([text("Welcome to Sol")]),
       p([text("A SSR-first web framework for MoonBit")]),
@@ -258,7 +258,7 @@ async fn form_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
 /// CSS is defined in app/client/wc_counter.mbt and shared between SSR and hydration.
 async fn wc_counter(_props : @sol.PageProps) -> @server_dom.ServerNode {
   // Create props using WcCounterProps from client module
-  let counter_props : @client.WcCounterProps = { initial_count: 0 }
+  let counter_props : @client.WcCounterProps = { initial_count: 0, }
   let state_json = counter_props.to_json().stringify()
 
   // CSS is imported from client module - shared between SSR and hydration
@@ -731,7 +731,7 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     @action.ActionResult::json(ContactSubmitResponse::{
       success: true,
       message: "Form submitted successfully!",
-      data: ContactSubmitData::{ name, email },
+      data: ContactSubmitData::{ name, email, },
     })
   }
 })

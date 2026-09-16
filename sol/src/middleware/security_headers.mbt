@@ -75,7 +75,7 @@ pub fn SecurityHeadersConfig::with_frame_options(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, frame_options: value }
+  { ..self, frame_options: value, }
 }
 
 ///|
@@ -84,7 +84,7 @@ pub fn SecurityHeadersConfig::with_referrer_policy(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, referrer_policy: value }
+  { ..self, referrer_policy: value, }
 }
 
 ///|
@@ -93,7 +93,7 @@ pub fn SecurityHeadersConfig::with_coop(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, coop: value }
+  { ..self, coop: value, }
 }
 
 ///|
@@ -102,7 +102,7 @@ pub fn SecurityHeadersConfig::with_coep(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, coep: value }
+  { ..self, coep: value, }
 }
 
 ///|
@@ -111,7 +111,7 @@ pub fn SecurityHeadersConfig::with_permissions_policy(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, permissions_policy: value }
+  { ..self, permissions_policy: value, }
 }
 
 ///|
@@ -120,7 +120,7 @@ pub fn SecurityHeadersConfig::with_csp(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, csp: value }
+  { ..self, csp: value, }
 }
 
 ///|
@@ -129,7 +129,7 @@ pub fn SecurityHeadersConfig::with_cache_control_html(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, cache_control_html: value }
+  { ..self, cache_control_html: value, }
 }
 
 ///|
@@ -138,7 +138,7 @@ pub fn SecurityHeadersConfig::with_cache_control_static(
   self : SecurityHeadersConfig,
   value : String,
 ) -> SecurityHeadersConfig {
-  { ..self, cache_control_static: value }
+  { ..self, cache_control_static: value, }
 }
 
 // ============================================================================
@@ -243,28 +243,28 @@ fn is_static_asset(path : String) -> Bool {
 ///|
 /// Add X-Content-Type-Options: nosniff header
 pub fn nosniff() -> Middleware {
-  let options = { ..minimal_secure_headers_options(), no_sniff: true }
+  let options = { ..minimal_secure_headers_options(), no_sniff: true, }
   Middleware(@mars_mw.secure_headers(options~))
 }
 
 ///|
 /// Add X-Frame-Options header
 pub fn frame_options(value : String) -> Middleware {
-  let options = { ..minimal_secure_headers_options(), frame_options: value }
+  let options = { ..minimal_secure_headers_options(), frame_options: value, }
   Middleware(@mars_mw.secure_headers(options~))
 }
 
 ///|
 /// Add Content-Security-Policy header
 pub fn csp(policy : String) -> Middleware {
-  let options = { ..minimal_secure_headers_options(), csp: policy }
+  let options = { ..minimal_secure_headers_options(), csp: policy, }
   Middleware(@mars_mw.secure_headers(options~))
 }
 
 ///|
 /// Add Referrer-Policy header
 pub fn referrer_policy(value : String) -> Middleware {
-  let options = { ..minimal_secure_headers_options(), referrer_policy: value }
+  let options = { ..minimal_secure_headers_options(), referrer_policy: value, }
   Middleware(@mars_mw.secure_headers(options~))
 }
 

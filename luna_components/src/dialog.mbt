@@ -463,7 +463,7 @@ pub fn dialog_interactive(
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
   // Store trigger element when showing
-  let trigger_ref : Ref[@js.Any] = { val: @js.null() }
+  let trigger_ref : Ref[@js.Any] = { val: @js.null(), }
   let close_and_restore = fn() {
     open.set(false)
     on_close()

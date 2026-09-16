@@ -1,8 +1,8 @@
 import {
-  "mizchi/js/core" @js,
-  "mizchi/js/web/console",
+  "mizchi/js_core" @js,
+  "mizchi/js_web/console",
   "mizchi/astra/env",
-  "mizchi/js/node/path",
+  "mizchi/js_node/path",
 }
 
 supported_targets = "js"

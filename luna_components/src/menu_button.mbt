@@ -36,7 +36,7 @@ pub(all) struct MenuItem {
 ///|
 /// Create a menu item
 pub fn menu_item(id : String, label : String, disabled? : Bool) -> MenuItem {
-  { id, label, disabled: disabled.unwrap_or(false) }
+  { id, label, disabled: disabled.unwrap_or(false), }
 }
 
 ///|

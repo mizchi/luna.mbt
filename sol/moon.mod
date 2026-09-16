@@ -1,18 +1,21 @@
 name = "mizchi/sol"
 
-version = "0.23.3"
+version = "0.23.4"
 
 import {
+  "mizchi/js_core@0.13.0",
+  "mizchi/js_node@0.13.0",
+  "mizchi/js_web@0.13.0",
   "moonbitlang/yacc@0.7.19",
-  "mizchi/astra@0.23.2",
-  "mizchi/luna@0.25.0",
+  "mizchi/astra@0.23.3",
+  "mizchi/luna@0.25.1",
   "moonbitlang/async@0.21.3",
   "moonbitlang/x@0.5.5",
   "moonbitlang/parser@0.3.19",
   "moonbitlang/moon_config@0.3.15",
-  "mizchi/npm_typed@0.1.15",
-  "mizchi/js@0.12.2",
-  "mizchi/js_browser@0.12.2",
+  "mizchi/npm_typed@0.1.16",
+  "mizchi/js@0.13.0",
+  "mizchi/js_browser@0.13.0",
   "mizchi/mars@0.3.12",
   "mizchi/ts@0.5.2",
   "mizchi/wite@0.11.3",

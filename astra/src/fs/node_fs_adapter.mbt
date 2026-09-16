@@ -6,7 +6,7 @@ pub struct NodeFsAdapter {}
 ///|
 /// Create a new Node.js filesystem adapter
 pub fn NodeFsAdapter::new() -> NodeFsAdapter {
-  NodeFsAdapter::{  }
+  NodeFsAdapter::{ }
 }
 
 ///|

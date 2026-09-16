@@ -37,7 +37,7 @@ pub fn parse_island_directive(html : String) -> @markdown.IslandEmbed? {
     Some("media") => @luna.TriggerType::Media("")
     _ => @luna.TriggerType::Load
   }
-  Some(@markdown.IslandEmbed::{ name, props, trigger, ssr: false })
+  Some(@markdown.IslandEmbed::{ name, props, trigger, ssr: false, })
 }
 
 // =============================================================================
@@ -91,7 +91,7 @@ pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
 
   // Extract inner content (if not self-closing)
   let content = extract_inner_content(trimmed, tag)
-  Some(@markdown.ComponentEmbed::{ tag, attrs, content, trigger })
+  Some(@markdown.ComponentEmbed::{ tag, attrs, content, trigger, })
 }
 
 ///|

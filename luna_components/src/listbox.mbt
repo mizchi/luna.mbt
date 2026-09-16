@@ -31,7 +31,7 @@ pub fn listbox_option(
   label : String,
   disabled? : Bool,
 ) -> ListboxOption {
-  { value, label, disabled: disabled.unwrap_or(false) }
+  { value, label, disabled: disabled.unwrap_or(false), }
 }
 
 ///|

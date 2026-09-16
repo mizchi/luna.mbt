@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
 }
 
 import {

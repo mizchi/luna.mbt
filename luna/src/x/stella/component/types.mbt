@@ -56,31 +56,31 @@ pub struct ComponentMeta {
 ///|
 /// Create a string attribute definition
 pub fn attr_string(name : String, default? : String = "") -> AttrDef {
-  { name, attr_type: String(default~), reflect: false }
+  { name, attr_type: String(default~), reflect: false, }
 }
 
 ///|
 /// Create an integer attribute definition
 pub fn attr_int(name : String, default? : Int = 0) -> AttrDef {
-  { name, attr_type: Int(default~), reflect: false }
+  { name, attr_type: Int(default~), reflect: false, }
 }
 
 ///|
 /// Create a float attribute definition
 pub fn attr_float(name : String, default? : Double = 0.0) -> AttrDef {
-  { name, attr_type: Float(default~), reflect: false }
+  { name, attr_type: Float(default~), reflect: false, }
 }
 
 ///|
 /// Create a boolean attribute definition
 pub fn attr_bool(name : String, default? : Bool = false) -> AttrDef {
-  { name, attr_type: Bool(default~), reflect: false }
+  { name, attr_type: Bool(default~), reflect: false, }
 }
 
 ///|
 /// Set reflect option on attribute
 pub fn AttrDef::with_reflect(self : AttrDef) -> AttrDef {
-  { ..self, reflect: true }
+  { ..self, reflect: true, }
 }
 
 // =============================================================================
@@ -90,7 +90,7 @@ pub fn AttrDef::with_reflect(self : AttrDef) -> AttrDef {
 ///|
 /// Create a new component metadata
 pub fn ComponentMeta::new(tag : String) -> ComponentMeta {
-  { tag, attributes: [], shadow: Open, styles: "" }
+  { tag, attributes: [], shadow: Open, styles: "", }
 }
 
 ///|
@@ -101,7 +101,7 @@ pub fn ComponentMeta::with_attr(
 ) -> ComponentMeta {
   let attrs = self.attributes.copy()
   attrs.push(attr)
-  { ..self, attributes: attrs }
+  { ..self, attributes: attrs, }
 }
 
 ///|
@@ -110,14 +110,14 @@ pub fn ComponentMeta::with_shadow(
   self : ComponentMeta,
   mode : ShadowMode,
 ) -> ComponentMeta {
-  { ..self, shadow: mode }
+  { ..self, shadow: mode, }
 }
 
 ///|
 /// Set closed shadow DOM mode
 /// Closed shadow root cannot be accessed from outside the component
 pub fn ComponentMeta::with_closed_shadow(self : ComponentMeta) -> ComponentMeta {
-  { ..self, shadow: Closed }
+  { ..self, shadow: Closed, }
 }
 
 ///|
@@ -126,5 +126,5 @@ pub fn ComponentMeta::with_styles(
   self : ComponentMeta,
   css : String,
 ) -> ComponentMeta {
-  { ..self, styles: css }
+  { ..self, styles: css, }
 }

@@ -27,7 +27,7 @@ fn create_todo_app() -> (
   fn add_todo() {
     let text = input_text.peek()
     if text.length() > 0 {
-      let new_todo : Todo = { id: next_id.val, text, completed: false }
+      let new_todo : Todo = { id: next_id.val, text, completed: false, }
       next_id.val = next_id.val + 1
       todos.update(fn(arr) {
         let new_arr = arr.copy()
@@ -43,7 +43,7 @@ fn create_todo_app() -> (
     todos.update(fn(arr) {
       arr.map(fn(todo) {
         if todo.id == id {
-          { id: todo.id, text: todo.text, completed: !todo.completed }
+          { id: todo.id, text: todo.text, completed: !todo.completed, }
         } else {
           todo
         }
@@ -184,7 +184,7 @@ test "Todo app adds new todo" {
   assert_eq(input_text.get(), "Buy groceries")
 
   // Simulate add (direct state manipulation for testing)
-  let new_todo : Todo = { id: 1, text: "Buy groceries", completed: false }
+  let new_todo : Todo = { id: 1, text: "Buy groceries", completed: false, }
   todos.set([new_todo])
 
   // Verify state
@@ -202,15 +202,15 @@ test "Todo app toggles todo completion" {
 
   // Add initial todos
   todos.set([
-    { id: 1, text: "Task 1", completed: false },
-    { id: 2, text: "Task 2", completed: false },
+    { id: 1, text: "Task 1", completed: false, },
+    { id: 2, text: "Task 2", completed: false, },
   ])
 
   // Toggle first todo
   todos.update(fn(arr) {
     arr.map(fn(todo) {
       if todo.id == 1 {
-        { id: todo.id, text: todo.text, completed: true }
+        { id: todo.id, text: todo.text, completed: true, }
       } else {
         todo
       }
@@ -232,9 +232,9 @@ test "Todo app deletes todo" {
 
   // Add initial todos
   todos.set([
-    { id: 1, text: "Task 1", completed: false },
-    { id: 2, text: "Task 2", completed: false },
-    { id: 3, text: "Task 3", completed: false },
+    { id: 1, text: "Task 1", completed: false, },
+    { id: 2, text: "Task 2", completed: false, },
+    { id: 3, text: "Task 3", completed: false, },
   ])
   assert_eq(todos.get().length(), 3)
 
@@ -320,15 +320,15 @@ test "Todo app batch updates" {
 
   // Batch multiple updates
   @resource.batch(fn() {
-    todos.set([{ id: 1, text: "A", completed: false }])
+    todos.set([{ id: 1, text: "A", completed: false, }])
     todos.set([
-      { id: 1, text: "A", completed: false },
-      { id: 2, text: "B", completed: false },
+      { id: 1, text: "A", completed: false, },
+      { id: 2, text: "B", completed: false, },
     ])
     todos.set([
-      { id: 1, text: "A", completed: false },
-      { id: 2, text: "B", completed: false },
-      { id: 3, text: "C", completed: false },
+      { id: 1, text: "A", completed: false, },
+      { id: 2, text: "B", completed: false, },
+      { id: 3, text: "C", completed: false, },
     ])
   })
 
@@ -340,9 +340,9 @@ test "Todo app batch updates" {
 test "Todo app with memo for derived state" {
   @global_jsdom.register()
   let todos : @resource.Signal[Array[Todo]] = @resource.signal([
-    { id: 1, text: "Task 1", completed: true },
-    { id: 2, text: "Task 2", completed: false },
-    { id: 3, text: "Task 3", completed: true },
+    { id: 1, text: "Task 1", completed: true, },
+    { id: 2, text: "Task 2", completed: false, },
+    { id: 3, text: "Task 3", completed: true, },
   ])
 
   // Memoized computed value
@@ -360,7 +360,7 @@ test "Todo app with memo for derived state" {
   // Add a new completed todo
   todos.update(fn(arr) {
     let new_arr = arr.copy()
-    new_arr.push({ id: 4, text: "Task 4", completed: true })
+    new_arr.push({ id: 4, text: "Task 4", completed: true, })
     new_arr
   })
   assert_eq(completed_count(), 3)
@@ -371,9 +371,9 @@ test "Todo app with memo for derived state" {
 test "Todo app filter with combinator" {
   @global_jsdom.register()
   let todos : @resource.Signal[Array[Todo]] = @resource.signal([
-    { id: 1, text: "Task 1", completed: true },
-    { id: 2, text: "Task 2", completed: false },
-    { id: 3, text: "Task 3", completed: true },
+    { id: 1, text: "Task 1", completed: true, },
+    { id: 2, text: "Task 2", completed: false, },
+    { id: 3, text: "Task 3", completed: true, },
   ])
   let filter_mode : @resource.Signal[String] = @resource.signal("all") // "all", "active", "completed"
 

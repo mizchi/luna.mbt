@@ -196,7 +196,7 @@ test "ChunkManifest::to_json - empty manifest" {
 
 ///|
 test "ChunkManifest::to_json - with routes" {
-  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/" }
+  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/", }
   manifest.routes["/about"] = ["boot", "hydrate"]
   let json = manifest.to_json()
   inspect(json.contains("\"/about\""), content="true")
@@ -206,7 +206,7 @@ test "ChunkManifest::to_json - with routes" {
 
 ///|
 test "ChunkManifest::to_json - escapes special characters" {
-  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/" }
+  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/", }
   manifest.routes["/path/with\"quote"] = ["boot"]
   let json = manifest.to_json()
   // Should escape the quote

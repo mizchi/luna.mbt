@@ -226,31 +226,31 @@ pub struct Annotation {
 ///|
 /// Create an empty schema
 pub fn Schema::empty() -> Schema {
-  { version: "1.0", definitions: {}, source: None }
+  { version: "1.0", definitions: {}, source: None, }
 }
 
 ///|
 /// Create a new schema
 pub fn Schema::new(version : String) -> Schema {
-  { version, definitions: {}, source: None }
+  { version, definitions: {}, source: None, }
 }
 
 ///|
 /// Create a struct definition
 pub fn StructDef::new(name : String) -> StructDef {
-  { name, doc: None, type_params: [], fields: [], derives: [] }
+  { name, doc: None, type_params: [], fields: [], derives: [], }
 }
 
 ///|
 /// Create a field
 pub fn Field::new(name : String, type_ : TypeRef) -> Field {
-  { name, doc: None, type_, optional: false, default: None, attrs: {} }
+  { name, doc: None, type_, optional: false, default: None, attrs: {}, }
 }
 
 ///|
 /// Create an optional field
 pub fn Field::optional(name : String, type_ : TypeRef) -> Field {
-  { name, doc: None, type_, optional: true, default: None, attrs: {} }
+  { name, doc: None, type_, optional: true, default: None, attrs: {}, }
 }
 
 // =============================================================================

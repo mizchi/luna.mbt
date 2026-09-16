@@ -1,9 +1,9 @@
 import {
   "mizchi/luna/js/resource",
   "mizchi/signals",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
-  "mizchi/js/builtins/global",
+  "mizchi/js_builtin/global",
 }
 
 import {

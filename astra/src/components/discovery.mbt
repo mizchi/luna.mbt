@@ -47,7 +47,7 @@ pub(all) struct DiscoveryResult {
 ///|
 /// Create empty discovery result
 pub fn DiscoveryResult::new(dir : String) -> DiscoveryResult {
-  { scanned_dir: dir, found: [], missing: [] }
+  { scanned_dir: dir, found: [], missing: [], }
 }
 
 // =============================================================================

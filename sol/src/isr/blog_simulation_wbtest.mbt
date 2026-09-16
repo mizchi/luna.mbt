@@ -30,7 +30,7 @@ fn create_blog_manifest(num_posts : Int) -> ISRManifest {
       source: "",
     }
   }
-  ISRManifest::{ version: 1, pages }
+  ISRManifest::{ version: 1, pages, }
 }
 
 ///|
@@ -168,7 +168,7 @@ test "50k blog: hot page revalidation keeps it fresh" {
   let num_posts = 100
   let cache = MemoryCache::new()
   let manifest = create_blog_manifest(num_posts)
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist" }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist", }
   let base_time = 1000000000L
   populate_blog_cache(cache, num_posts, base_time)
 

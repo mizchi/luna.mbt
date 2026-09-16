@@ -16,7 +16,7 @@ pub fn ChunkManifestEntry::new(
   file : String,
   imports : Array[String],
 ) -> ChunkManifestEntry {
-  { file, imports }
+  { file, imports, }
 }
 
 ///|
@@ -32,13 +32,13 @@ pub struct ChunkManifest {
 ///|
 /// Create empty chunk manifest
 pub fn ChunkManifest::empty() -> ChunkManifest {
-  { entries: {}, base_url: "/static/" }
+  { entries: {}, base_url: "/static/", }
 }
 
 ///|
 /// Create chunk manifest with base URL
 pub fn ChunkManifest::new(base_url : String) -> ChunkManifest {
-  { entries: {}, base_url }
+  { entries: {}, base_url, }
 }
 
 ///|
@@ -205,7 +205,7 @@ pub fn ChunkManifest::parse(
       }
       _ => []
     }
-    manifest.add(name, { file, imports })
+    manifest.add(name, { file, imports, })
   }
   Some(manifest)
 }
@@ -290,7 +290,7 @@ pub fn RouterConfig::with_isr_cache(
   self : RouterConfig,
   cache : @isr.MemoryCache,
 ) -> RouterConfig {
-  { ..self, isr_cache: Some(cache) }
+  { ..self, isr_cache: Some(cache), }
 }
 
 ///|
@@ -299,7 +299,7 @@ pub fn RouterConfig::with_chunk_manifest(
   self : RouterConfig,
   manifest : ChunkManifest,
 ) -> RouterConfig {
-  { ..self, chunk_manifest: Some(manifest) }
+  { ..self, chunk_manifest: Some(manifest), }
 }
 
 ///|
@@ -323,7 +323,7 @@ pub fn RouterConfig::with_preload_libs(
   self : RouterConfig,
   libs : Array[String],
 ) -> RouterConfig {
-  { ..self, preload_libs: libs }
+  { ..self, preload_libs: libs, }
 }
 
 ///|
@@ -332,7 +332,7 @@ pub fn RouterConfig::with_streaming_ssr(
   self : RouterConfig,
   enabled? : Bool = true,
 ) -> RouterConfig {
-  { ..self, enable_streaming: enabled }
+  { ..self, enable_streaming: enabled, }
 }
 
 ///|
@@ -341,7 +341,7 @@ pub fn RouterConfig::with_default_head(
   self : RouterConfig,
   head : String,
 ) -> RouterConfig {
-  { ..self, default_head: head }
+  { ..self, default_head: head, }
 }
 
 ///|
@@ -359,7 +359,7 @@ pub fn RouterConfig::with_styles(
   self : RouterConfig,
   styles : Array[String],
 ) -> RouterConfig {
-  { ..self, styles: merge_asset_paths(self.styles, styles) }
+  { ..self, styles: merge_asset_paths(self.styles, styles), }
 }
 
 ///|
@@ -377,7 +377,7 @@ pub fn RouterConfig::with_client_scripts(
   self : RouterConfig,
   scripts : Array[String],
 ) -> RouterConfig {
-  { ..self, client_scripts: merge_asset_paths(self.client_scripts, scripts) }
+  { ..self, client_scripts: merge_asset_paths(self.client_scripts, scripts), }
 }
 
 ///|
@@ -386,7 +386,7 @@ pub fn RouterConfig::with_loader_url(
   self : RouterConfig,
   url : String,
 ) -> RouterConfig {
-  { ..self, loader_url: url }
+  { ..self, loader_url: url, }
 }
 
 ///|
@@ -395,7 +395,7 @@ pub fn RouterConfig::with_wc_loader_url(
   self : RouterConfig,
   url : String,
 ) -> RouterConfig {
-  { ..self, wc_loader_url: url }
+  { ..self, wc_loader_url: url, }
 }
 
 ///|
@@ -404,7 +404,7 @@ pub fn RouterConfig::with_title_prefix(
   self : RouterConfig,
   prefix : String,
 ) -> RouterConfig {
-  { ..self, title_prefix: prefix }
+  { ..self, title_prefix: prefix, }
 }
 
 ///|
@@ -413,7 +413,7 @@ pub fn RouterConfig::with_default_title(
   self : RouterConfig,
   title : String,
 ) -> RouterConfig {
-  { ..self, default_title: title }
+  { ..self, default_title: title, }
 }
 
 ///|
@@ -422,7 +422,7 @@ pub fn RouterConfig::with_cache_strategy(
   self : RouterConfig,
   strategy : @isr.CDNCacheStrategy,
 ) -> RouterConfig {
-  { ..self, cache_strategy: Some(strategy) }
+  { ..self, cache_strategy: Some(strategy), }
 }
 
 ///|
@@ -431,7 +431,7 @@ pub fn RouterConfig::with_server_islands(
   self : RouterConfig,
   registry : ServerIslandRegistry,
 ) -> RouterConfig {
-  { ..self, server_islands: Some(registry) }
+  { ..self, server_islands: Some(registry), }
 }
 
 ///|
@@ -445,7 +445,7 @@ pub fn RouterConfig::with_root_template(
   self : RouterConfig,
   template : String,
 ) -> RouterConfig {
-  { ..self, root_template: template }
+  { ..self, root_template: template, }
 }
 
 ///|

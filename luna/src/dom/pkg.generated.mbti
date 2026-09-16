@@ -2,7 +2,7 @@
 package "mizchi/luna/dom"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
   "mizchi/signals",
   "moonbitlang/core/ref",
 }
@@ -18,7 +18,7 @@ pub fn attr_dynamic(() -> String) -> AttrValue
 
 pub fn attr_dynamic_style(() -> String) -> AttrValue
 
-pub fn attr_handler((@core.Any) -> Unit) -> AttrValue
+pub fn attr_handler((@js_core.Any) -> Unit) -> AttrValue
 
 pub fn attr_static(String) -> AttrValue
 
@@ -237,7 +237,7 @@ pub fn Attr::to_attr_value(Self) -> AttrValue
 pub(all) enum AttrValue {
   Static(String)
   Dynamic(() -> String)
-  Handler((@core.Any) -> Unit)
+  Handler((@js_core.Any) -> Unit)
 }
 
 pub struct DomElement {
@@ -269,8 +269,8 @@ pub type HandlerMap
 pub fn HandlerMap::blur(Self, (@mizchi/js_browser/dom.FocusEvent) -> Unit) -> Self
 pub fn HandlerMap::change(Self, (@mizchi/js_browser/dom.ChangeEvent) -> Unit) -> Self
 pub fn HandlerMap::click(Self, (@mizchi/js_browser/dom.MouseEvent) -> Unit) -> Self
-pub fn HandlerMap::compositionend(Self, (@core.Any) -> Unit) -> Self
-pub fn HandlerMap::compositionstart(Self, (@core.Any) -> Unit) -> Self
+pub fn HandlerMap::compositionend(Self, (@js_core.Any) -> Unit) -> Self
+pub fn HandlerMap::compositionstart(Self, (@js_core.Any) -> Unit) -> Self
 pub fn HandlerMap::contextmenu(Self, (@mizchi/js_browser/dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::dblclick(Self, (@mizchi/js_browser/dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::drag(Self, (@mizchi/js_browser/dom.DragEvent) -> Unit) -> Self
@@ -298,8 +298,8 @@ pub fn HandlerMap::pointerenter(Self, (@mizchi/js_browser/dom.PointerEvent) -> U
 pub fn HandlerMap::pointerleave(Self, (@mizchi/js_browser/dom.PointerEvent) -> Unit) -> Self
 pub fn HandlerMap::pointermove(Self, (@mizchi/js_browser/dom.PointerEvent) -> Unit) -> Self
 pub fn HandlerMap::pointerup(Self, (@mizchi/js_browser/dom.PointerEvent) -> Unit) -> Self
-pub fn HandlerMap::resize(Self, (@core.Any) -> Unit) -> Self
-pub fn HandlerMap::scroll(Self, (@core.Any) -> Unit) -> Self
+pub fn HandlerMap::resize(Self, (@js_core.Any) -> Unit) -> Self
+pub fn HandlerMap::scroll(Self, (@js_core.Any) -> Unit) -> Self
 pub fn HandlerMap::submit(Self, (@mizchi/js_browser/dom.FormEvent) -> Unit) -> Self
 pub fn HandlerMap::touchcancel(Self, (@mizchi/js_browser/dom.TouchEvent) -> Unit) -> Self
 pub fn HandlerMap::touchend(Self, (@mizchi/js_browser/dom.TouchEvent) -> Unit) -> Self
@@ -351,7 +351,7 @@ pub type FormHandler = (@mizchi/js_browser/dom.FormEvent) -> Unit
 
 pub type GenericEventHandler = (@mizchi/js_browser/dom.Event) -> Unit
 
-pub type Handler = (@core.Any) -> Unit
+pub type Handler = (@js_core.Any) -> Unit
 
 pub type InputEventHandler = (@mizchi/js_browser/dom.InputEvent) -> Unit
 

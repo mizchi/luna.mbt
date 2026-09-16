@@ -392,7 +392,7 @@ pub fn render_page_html(
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
         match @md_render.extract_description(nodes) {
-          Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
+          Some(desc) => { ..parsed_frontmatter, description: Some(desc), }
           None => parsed_frontmatter
         }
       } else {
@@ -407,7 +407,10 @@ pub fn render_page_html(
 
       // Convert to VNode with link resolution
       // Index pages use standard browser behavior, content pages use sibling behavior
-      let is_index = @astra.is_index_source(page.source_path, locale=page.locale)
+      let is_index = @astra.is_index_source(
+        page.source_path,
+        locale=page.locale,
+      )
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,
@@ -505,7 +508,7 @@ pub fn render_page_html(
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
         match @md_render.extract_description(nodes) {
-          Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
+          Some(desc) => { ..parsed_frontmatter, description: Some(desc), }
           None => parsed_frontmatter
         }
       } else {
@@ -519,7 +522,10 @@ pub fn render_page_html(
       }
 
       // Convert to VNode (JsxComponent nodes are handled in transformer)
-      let is_index = @astra.is_index_source(page.source_path, locale=page.locale)
+      let is_index = @astra.is_index_source(
+        page.source_path,
+        locale=page.locale,
+      )
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,
@@ -618,7 +624,7 @@ async fn generate_page_with_highlight_async(
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
         match @md_render.extract_description(nodes) {
-          Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
+          Some(desc) => { ..parsed_frontmatter, description: Some(desc), }
           None => parsed_frontmatter
         }
       } else {
@@ -632,7 +638,10 @@ async fn generate_page_with_highlight_async(
       }
 
       // Convert to VNode with link resolution
-      let is_index = @astra.is_index_source(page.source_path, locale=page.locale)
+      let is_index = @astra.is_index_source(
+        page.source_path,
+        locale=page.locale,
+      )
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,
@@ -750,7 +759,7 @@ async fn generate_page_with_highlight_async(
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
         match @md_render.extract_description(nodes) {
-          Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
+          Some(desc) => { ..parsed_frontmatter, description: Some(desc), }
           None => parsed_frontmatter
         }
       } else {
@@ -764,7 +773,10 @@ async fn generate_page_with_highlight_async(
       }
 
       // Convert to VNode (JsxComponent nodes are handled in transformer)
-      let is_index = @astra.is_index_source(page.source_path, locale=page.locale)
+      let is_index = @astra.is_index_source(
+        page.source_path,
+        locale=page.locale,
+      )
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna_components-v0.23.3] - 2026-09-16
+
+### Dependencies
+
+- Update JavaScript bindings to 0.13.0 and migrate imports to the split modules.
+- Align dependencies with the workspace patch releases.
+
 ## [luna_components-v0.22.0] - 2026-05-15
 
 ### Changed

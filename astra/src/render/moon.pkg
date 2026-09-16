@@ -15,10 +15,10 @@ import {
   "mizchi/astra/routes",
   "mizchi/astra/internal/css_kit",
   "mizchi/astra/internal/utils",
-  "mizchi/js/core" @js,
-  "mizchi/js/node/fs",
-  "mizchi/js/node/path",
-  "mizchi/js/node/child_process",
+  "mizchi/js_core" @js,
+  "mizchi/js_node/fs",
+  "mizchi/js_node/path",
+  "mizchi/js_node/child_process",
   "mizchi/process_pool",
 }
 

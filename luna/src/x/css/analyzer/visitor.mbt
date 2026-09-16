@@ -17,7 +17,7 @@ priv struct AnalyzerContext {
 
 ///|
 fn AnalyzerContext::new(file : String) -> AnalyzerContext {
-  { bindings: {}, file, cooccurrences: [], warnings: [] }
+  { bindings: {}, file, cooccurrences: [], warnings: [], }
 }
 
 ///|
@@ -329,7 +329,7 @@ pub fn analyze_source(source : String, file : String) -> FileAnalysisResult {
   for impl_ in impls {
     visit_impl(ctx, impl_)
   }
-  { cooccurrences: ctx.cooccurrences, warnings: ctx.warnings }
+  { cooccurrences: ctx.cooccurrences, warnings: ctx.warnings, }
 }
 
 ///|

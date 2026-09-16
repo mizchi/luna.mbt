@@ -4,7 +4,7 @@ import {
   "mizchi/luna/core/render",
   "mizchi/luna/dom/client",
   "mizchi/signals",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
 }
 

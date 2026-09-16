@@ -361,7 +361,7 @@ fn generate_typescript_contract_decl(
         buf,
         s.name,
         extract_struct_fields(s.raw_definition).map(fn(field) {
-          { name: field.0, type_name: field.1 }
+          { name: field.0, type_name: field.1, }
         }),
       )
     }

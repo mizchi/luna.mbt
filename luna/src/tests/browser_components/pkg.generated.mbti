@@ -2,26 +2,26 @@
 package "mizchi/luna/tests/browser_components"
 
 import {
-  "mizchi/js/core",
   "mizchi/js_browser/dom",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn hydrate_dynamic_attrs(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_dynamic_attrs(@dom.Element, @js_core.Any) -> Unit
 
-pub fn hydrate_element_ref(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_element_ref(@dom.Element, @js_core.Any) -> Unit
 
-pub fn hydrate_events(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_events(@dom.Element, @js_core.Any) -> Unit
 
-pub fn hydrate_for_each(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_for_each(@dom.Element, @js_core.Any) -> Unit
 
-pub fn hydrate_input_binding(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_input_binding(@dom.Element, @js_core.Any) -> Unit
 
-pub fn hydrate_show_toggle(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_show_toggle(@dom.Element, @js_core.Any) -> Unit
 
-pub fn hydrate_signal_effect(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_signal_effect(@dom.Element, @js_core.Any) -> Unit
 
-pub fn hydrate_sortable_list(@dom.Element, @core.Any) -> Unit
+pub fn hydrate_sortable_list(@dom.Element, @js_core.Any) -> Unit
 
 // Errors
 

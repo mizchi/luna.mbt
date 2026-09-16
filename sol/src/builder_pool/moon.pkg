@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/js/core",
+  "mizchi/js_core" @core,
   "mizchi/sol/builder",
   "mizchi/astra",
   "mizchi/astra/render" @generator,

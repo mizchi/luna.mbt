@@ -41,6 +41,9 @@ test "transform_url_path skips external URLs" {
     transform_url_path("https://example.com/00_x#y", true),
     "https://example.com/00_x#y",
   )
-  assert_eq(transform_url_path("//cdn.example.com/x", true), "//cdn.example.com/x")
+  assert_eq(
+    transform_url_path("//cdn.example.com/x", true),
+    "//cdn.example.com/x",
+  )
   assert_eq(transform_url_path("#anchor-only", true), "#anchor-only")
 }

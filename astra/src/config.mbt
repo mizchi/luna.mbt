@@ -189,7 +189,7 @@ fn parse_css_utilities_config(obj : Map[String, Json]) -> CssUtilitiesConfig? {
     css_obj, "inlineThreshold", 4096,
   )
   let source_dirs = @json_utils.extract_string_array(css_obj, "sourceDirs")
-  Some(CssUtilitiesConfig::{ enabled, split, inline_threshold, source_dirs })
+  Some(CssUtilitiesConfig::{ enabled, split, inline_threshold, source_dirs, })
 }
 
 ///|
@@ -203,7 +203,7 @@ fn parse_meta_files_config(obj : Map[String, Json]) -> MetaFilesConfig {
   let llms_txt = extract_bool_with_fallback(
     meta_obj, "llmsTxt", "llms_txt", false,
   )
-  MetaFilesConfig::{ sitemap, feed, llms_txt }
+  MetaFilesConfig::{ sitemap, feed, llms_txt, }
 }
 
 ///|
@@ -244,7 +244,7 @@ fn parse_nav_item(json : Json) -> NavItem? {
     }
     _ => []
   }
-  Some(NavItem::{ text, link, icon, items })
+  Some(NavItem::{ text, link, icon, items, })
 }
 
 ///|
@@ -295,7 +295,7 @@ fn parse_sidebar_group_from_array(
       items.push(sidebar_item)
     }
   }
-  Some(SidebarGroup::{ text: path, link: None, collapsed: false, items })
+  Some(SidebarGroup::{ text: path, link: None, collapsed: false, items, })
 }
 
 ///|
@@ -316,7 +316,7 @@ fn parse_sidebar_group(json : Json) -> SidebarGroup? {
     }
     _ => []
   }
-  Some(SidebarGroup::{ text, link: None, collapsed, items })
+  Some(SidebarGroup::{ text, link: None, collapsed, items, })
 }
 
 ///|
@@ -437,7 +437,7 @@ fn parse_theme_config(obj : Map[String, Json]) -> ThemeConfig {
         Some(Array(arr)) => parse_footer_elements(arr)
         _ => []
       }
-      Some(FooterConfig::{ message, copyright, links, top, bottom })
+      Some(FooterConfig::{ message, copyright, links, top, bottom, })
     }
     None => None
   }
@@ -496,7 +496,7 @@ fn parse_header_config(obj : Map[String, Json]) -> HeaderConfig {
     Some(True) => true
     _ => false
   }
-  HeaderConfig::{ left, center, right, sticky }
+  HeaderConfig::{ left, center, right, sticky, }
 }
 
 ///|
@@ -562,7 +562,7 @@ fn parse_social_links(arr : Array[Json]) -> Array[SocialLink] {
     guard @json_utils.extract_string_opt(obj, "link") is Some(link) else {
       continue
     }
-    result.push(SocialLink::{ icon, link })
+    result.push(SocialLink::{ icon, link, })
   }
   result
 }
@@ -580,7 +580,7 @@ fn parse_footer_columns(arr : Array[Json]) -> Array[FooterColumn] {
       Some(Array(links_arr)) => parse_footer_links(links_arr)
       _ => []
     }
-    result.push(FooterColumn::{ title, items })
+    result.push(FooterColumn::{ title, items, })
   }
   result
 }
@@ -597,7 +597,7 @@ fn parse_footer_links(arr : Array[Json]) -> Array[FooterLink] {
     guard @json_utils.extract_string_opt(obj, "href") is Some(href) else {
       continue
     }
-    result.push(FooterLink::{ label, href })
+    result.push(FooterLink::{ label, href, })
   }
   result
 }
@@ -613,9 +613,9 @@ fn parse_i18n_config(obj : Map[String, Json]) -> I18nConfig {
   )
   let locales = match i18n_obj.get("locales") {
     Some(Array(arr)) => parse_locale_configs(arr)
-    _ => [LocaleConfig::{ code: "en", label: "English", path: "" }]
+    _ => [LocaleConfig::{ code: "en", label: "English", path: "", }]
   }
-  I18nConfig::{ default_locale, locales }
+  I18nConfig::{ default_locale, locales, }
 }
 
 ///|
@@ -642,7 +642,7 @@ fn parse_locale_config(json : Json) -> LocaleConfig? {
     Some(p) => p
     None => if code == "en" { "" } else { code }
   }
-  Some(LocaleConfig::{ code, label, path })
+  Some(LocaleConfig::{ code, label, path, })
 }
 
 ///|
@@ -656,7 +656,7 @@ fn parse_navigation_config(obj : Map[String, Json]) -> NavigationConfig {
     nav_obj, "viewTransitions", true,
   )
   let keyboard = @json_utils.extract_bool(nav_obj, "keyboard", true)
-  NavigationConfig::{ spa, view_transitions, keyboard }
+  NavigationConfig::{ spa, view_transitions, keyboard, }
 }
 
 ///|
@@ -669,7 +669,7 @@ fn parse_ogp_config(obj : Map[String, Json]) -> OgpConfig {
   let image = @json_utils.extract_string_opt(ogp_obj, "image")
   let twitter_handle = @json_utils.extract_string_opt(ogp_obj, "twitterHandle")
   let twitter_card = @json_utils.extract_string_opt(ogp_obj, "twitterCard")
-  OgpConfig::{ site_url, image, twitter_handle, twitter_card }
+  OgpConfig::{ site_url, image, twitter_handle, twitter_card, }
 }
 
 ///|
@@ -682,5 +682,5 @@ fn parse_islands_config(obj : Map[String, Json]) -> IslandsConfig? {
   let base_path = @json_utils.extract_string(
     islands_obj, "basePath", "/islands/",
   )
-  Some(IslandsConfig::{ dir, base_path })
+  Some(IslandsConfig::{ dir, base_path, })
 }

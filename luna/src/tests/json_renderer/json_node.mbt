@@ -50,7 +50,7 @@ pub fn json_element(
   attrs : Map[String, JsonAttrValue],
   children : Array[JsonNode],
 ) -> JsonNode {
-  Element({ tag, attrs, children })
+  Element({ tag, attrs, children, })
 }
 
 ///|

@@ -25,7 +25,7 @@
 ///     let _ = label()
 ///     runs.val += 1
 ///   })
-///   for i in 1..=5 {
+///   for i in 1..<=5 {
 ///     n.set(i)
 ///   }
 ///   // Five source changes, one effect run: the label never moved.

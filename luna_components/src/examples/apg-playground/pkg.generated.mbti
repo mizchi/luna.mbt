@@ -45,4 +45,3 @@ pub(all) enum ThemeMode {
 // Type aliases
 
 // Traits
-

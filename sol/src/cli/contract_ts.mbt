@@ -36,7 +36,7 @@ fn contract_manifest_from_ts_source(
       Err(error) => return Err(error)
     }
     match spec.client_url {
-      Some(url) => client_assets.push({ component: component.name, url })
+      Some(url) => client_assets.push({ component: component.name, url, })
       None => ()
     }
     components.push(component)
@@ -260,7 +260,7 @@ fn contract_component_from_ts_interface(
     Some(import_name) => import_name
     None => get_dir_name(spec.package_path)
   }
-  Ok({ name, props, package_path: spec.package_path, import_alias })
+  Ok({ name, props, package_path: spec.package_path, import_alias, })
 }
 
 ///|
@@ -305,9 +305,9 @@ fn contract_props_from_ts_interface(
         return Err(UnsupportedFieldType(iface.name, field_name, type_repr))
     }
     seen.push(field_name)
-    fields.push({ name: field_name, type_name })
+    fields.push({ name: field_name, type_name, })
   }
-  Ok({ name: iface.name, fields })
+  Ok({ name: iface.name, fields, })
 }
 
 ///|

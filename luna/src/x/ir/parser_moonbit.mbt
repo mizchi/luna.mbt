@@ -44,7 +44,7 @@ pub fn parse_moonbit_with_options(
   let schema : Schema = {
     version: "1.0",
     definitions: {},
-    source: Some({ file, lang: MoonBit }),
+    source: Some({ file, lang: MoonBit, }),
   }
   let errors : Array[ParseError] = []
   let lines = source.split("\n").to_array()
@@ -83,7 +83,7 @@ pub fn parse_moonbit_with_options(
             i = end_line
           }
           Err(err) => {
-            errors.push({ line: i + 1, message: err })
+            errors.push({ line: i + 1, message: err, })
             i = i + 1
           }
         }
@@ -104,7 +104,7 @@ pub fn parse_moonbit_with_options(
             i = end_line
           }
           Err(err) => {
-            errors.push({ line: i + 1, message: err })
+            errors.push({ line: i + 1, message: err, })
             i = i + 1
           }
         }
@@ -121,7 +121,7 @@ pub fn parse_moonbit_with_options(
       if pending_annotations.iter().any(fn(a) { a == "island" }) {
         match parse_alias_def(line, pending_doc) {
           Ok(alias_def) => schema.definitions[alias_def.name] = Alias(alias_def)
-          Err(err) => errors.push({ line: i + 1, message: err })
+          Err(err) => errors.push({ line: i + 1, message: err, })
         }
       }
       pending_doc = None
@@ -137,7 +137,7 @@ pub fn parse_moonbit_with_options(
     }
     i = i + 1
   }
-  { schema, errors }
+  { schema, errors, }
 }
 
 // =============================================================================
@@ -238,7 +238,7 @@ fn parse_struct_def(
       }
     }
   }
-  let struct_def : StructDef = { name, doc, type_params: [], fields, derives }
+  let struct_def : StructDef = { name, doc, type_params: [], fields, derives, }
   Ok((struct_def, i))
 }
 
@@ -337,7 +337,7 @@ pub fn parse_type_ref(type_str : String) -> TypeRef {
             }
           }
         }
-        return Function({ params, return_: parse_type_ref(return_part) })
+        return Function({ params, return_: parse_type_ref(return_part), })
       }
       None => ()
     }
@@ -404,7 +404,13 @@ fn parse_enum_def(
   if !found_close {
     return Err("Unclosed enum definition")
   }
-  let enum_def : EnumDef = { name, doc, type_params: [], variants, derives: [] }
+  let enum_def : EnumDef = {
+    name,
+    doc,
+    type_params: [],
+    variants,
+    derives: [],
+  }
   Ok((enum_def, i))
 }
 
@@ -424,7 +430,7 @@ fn parse_variant(line : String) -> Result[EnumVariant, String] {
             .to_owned()
             .trim(chars=" \t")
             .to_owned()
-          Ok({ name, doc: None, payload: Some(parse_type_ref(payload_type)) })
+          Ok({ name, doc: None, payload: Some(parse_type_ref(payload_type)), })
         }
         None => Err("Unclosed variant payload")
       }
@@ -436,7 +442,7 @@ fn parse_variant(line : String) -> Result[EnumVariant, String] {
       } else {
         line
       }
-      Ok({ name: name.trim(chars=" \t").to_owned(), doc: None, payload: None })
+      Ok({ name: name.trim(chars=" \t").to_owned(), doc: None, payload: None, })
     }
   }
 }
@@ -459,7 +465,7 @@ fn parse_alias_def(line : String, doc : String?) -> Result[AliasDef, String] {
       let target_str = safe_substring(rest, idx + 1)
         .trim(chars=" \t")
         .to_owned()
-      Ok({ name, doc, type_params: [], target: parse_type_ref(target_str) })
+      Ok({ name, doc, type_params: [], target: parse_type_ref(target_str), })
     }
   }
 }

@@ -3,8 +3,8 @@ import {
   "mizchi/astra",
   "mizchi/astra/routes",
   "mizchi/astra/content/md_render",
-  "mizchi/js/node/fs",
-  "mizchi/js/node/path",
+  "mizchi/js_node/fs",
+  "mizchi/js_node/path",
 }
 
 supported_targets = "js"

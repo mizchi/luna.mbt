@@ -5,7 +5,7 @@ import {
   "mizchi/signals" @signal,
   "mizchi/sol/action",
   "example/sol-app/__gen__/types",
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
   "moonbitlang/core/json",
 }

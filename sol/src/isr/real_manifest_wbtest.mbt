@@ -33,7 +33,7 @@ fn create_real_manifest() -> ISRManifest {
     renderer: "markdown",
     source: "04_sol/isr-demo/cold.md",
   }
-  ISRManifest::{ version: 1, pages }
+  ISRManifest::{ version: 1, pages, }
 }
 
 // =============================================================================
@@ -83,7 +83,7 @@ test "real manifest: verify TTL tiers" {
 test "real manifest: handler cache lifecycle" {
   let cache = MemoryCache::new()
   let manifest = create_real_manifest()
-  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist-docs" }
+  let _handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist-docs", }
   let base_time = 1000000000L
 
   // Simulate initial cache population (as if CDN warmed)
@@ -161,7 +161,7 @@ test "real manifest: handler cache lifecycle" {
 test "real manifest: revalidation updates cache" {
   let cache = MemoryCache::new()
   let manifest = create_real_manifest()
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist-docs" }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist-docs", }
   let base_time = 1000000000L
 
   // Initial cache
@@ -280,7 +280,7 @@ test "real manifest: stale entry detected by check_status" {
 async test "real manifest: non-ISR page returns None" {
   let cache = MemoryCache::new()
   let manifest = create_real_manifest()
-  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist-docs" }
+  let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist-docs", }
 
   // Request a page that's not in ISR manifest
   let (html, needs_revalidation) = handler.handle("/luna/")

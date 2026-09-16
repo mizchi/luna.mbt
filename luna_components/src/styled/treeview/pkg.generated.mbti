@@ -1,10 +1,15 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna_components/styled/treeview"
 
+import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
+}
+
 // Values
 pub fn tree_node(String, String, children? : Array[TreeNode], disabled? : Bool) -> TreeNode
 
-pub fn treeview(String, Array[TreeNode], aria_label? : String, (String) -> Unit, class? : String, initial_expanded? : Array[String]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn treeview(String, Array[TreeNode], aria_label? : String, (String) -> Unit, class? : String, initial_expanded? : Array[String]) -> @core.Node[@js_core.Any, String]
 
 pub fn treeview_css() -> String
 
@@ -32,4 +37,3 @@ pub(all) struct TreeViewSlots {
 // Type aliases
 
 // Traits
-

@@ -28,7 +28,7 @@ pub fn CacheEntry::new(
   cached_at? : String = "",
   ttl? : Int = 0,
 ) -> CacheEntry {
-  { key, value, cached_at, ttl }
+  { key, value, cached_at, ttl, }
 }
 
 // =============================================================================
@@ -64,7 +64,7 @@ pub let cache_format_version : Int = 1
 ///|
 /// Create empty cache metadata
 pub fn CacheMeta::new(config_hash? : String = "") -> CacheMeta {
-  { version: cache_format_version, config_hash, entries: {} }
+  { version: cache_format_version, config_hash, entries: {}, }
 }
 
 // =============================================================================

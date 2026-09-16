@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [sol-v0.23.4] - 2026-09-16
+
+### Dependencies
+
+- Update JavaScript bindings to 0.13.0 and migrate imports to the split modules.
+- Update `mizchi/npm_typed` to 0.1.16 for compatibility with the new JavaScript modules.
+- Align dependencies with the workspace patch releases.
+- Generate client imports and starter manifests using the new dependency paths.
+
 
 ## 0.23.3 (2026-09-11)
 

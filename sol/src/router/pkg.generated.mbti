@@ -3,7 +3,7 @@ package "mizchi/sol/router"
 
 import {
   "mizchi/astra",
-  "mizchi/js/web/http",
+  "mizchi/js_web/http",
   "mizchi/luna/core",
   "mizchi/luna/dom/static",
   "mizchi/mars",

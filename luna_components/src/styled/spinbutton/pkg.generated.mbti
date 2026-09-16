@@ -2,11 +2,13 @@
 package "mizchi/luna_components/styled/spinbutton"
 
 import {
+  "mizchi/js_core",
+  "mizchi/luna/core",
   "mizchi/signals",
 }
 
 // Values
-pub fn spinbutton(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, disabled? : Bool, aria_label? : String, aria_valuetext_fn? : (Double) -> String, label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn spinbutton(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, disabled? : Bool, aria_label? : String, aria_valuetext_fn? : (Double) -> String, label? : String, class? : String) -> @core.Node[@js_core.Any, String]
 
 pub fn spinbutton_css() -> String
 
@@ -28,4 +30,3 @@ pub(all) struct SpinbuttonSlots {
 // Type aliases
 
 // Traits
-

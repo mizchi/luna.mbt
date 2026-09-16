@@ -7,7 +7,7 @@ import {
   "mizchi/luna/dom/client",
   "mizchi/luna/core/routes",
   "mizchi/luna/dom/router" @browser_router,
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
   "mizchi/luna/dom/portal",
 }

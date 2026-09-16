@@ -56,7 +56,7 @@ pub fn use_tab(
   )
   let select = fn() { selected.set(index) }
   attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) { select() }))))
-  { attrs, select, is_selected }
+  { attrs, select, is_selected, }
 }
 
 ///|
@@ -207,7 +207,7 @@ pub fn use_tab_nav(
       @luna.attr_handler(make_tabs_keydown_handler(tab_ids, index, selected)),
     ),
   ]
-  { attrs, is_selected }
+  { attrs, is_selected, }
 }
 
 ///|

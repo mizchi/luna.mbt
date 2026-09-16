@@ -25,4 +25,3 @@ pub(all) struct MeterSlots {
 // Type aliases
 
 // Traits
-

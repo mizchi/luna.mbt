@@ -73,7 +73,7 @@ pub fn BrowserRouter::from_compiled(
   }
   let dispose = add_popstate_listener(sync)
   sync()
-  { routes, base, current_path, current_match, dispose_popstate: dispose }
+  { routes, base, current_path, current_match, dispose_popstate: dispose, }
 }
 
 ///|

@@ -64,7 +64,7 @@ priv struct Item {
 } derive(ToJson)
 
 ///|
-let items_store : Ref[Array[Item]] = { val: [] }
+let items_store : Ref[Array[Item]] = { val: [], }
 
 ///|
 fn ensure_items_initialized() -> Unit {
@@ -131,13 +131,13 @@ priv struct CreateItemRequest {
 
 ///|
 async fn health_handler(_props : @sol.PageProps) -> HealthResponse {
-  { status: "ok", timestamp: get_timestamp() }
+  { status: "ok", timestamp: get_timestamp(), }
 }
 
 ///|
 async fn list_items_handler(_props : @sol.PageProps) -> ItemListResponse {
   ensure_items_initialized()
-  { items: items_store.val, total: items_store.val.length() }
+  { items: items_store.val, total: items_store.val.length(), }
 }
 
 ///|
@@ -192,7 +192,11 @@ async fn update_item_handler(props : @sol.PageProps) -> Json {
   let old_item = items_store.val[i]
   let updated_item : Item = {
     id: old_item.id,
-    name: if body.name == "" { old_item.name } else { body.name },
+    name: if body.name == "" {
+      old_item.name
+    } else {
+      body.name
+    },
     description: if body.description == "" {
       old_item.description
     } else {
@@ -226,7 +230,7 @@ async fn delete_item_handler(props : @sol.PageProps) -> Json {
 ///|
 async fn stats_handler(_props : @sol.PageProps) -> StatsResponse {
   ensure_items_initialized()
-  { total_items: items_store.val.length(), last_updated: get_timestamp() }
+  { total_items: items_store.val.length(), last_updated: get_timestamp(), }
 }
 
 ///|

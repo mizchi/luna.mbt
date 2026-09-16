@@ -101,7 +101,7 @@ fn parse_accordion_item(json : String) -> AccordionDemoItem? {
   if id.is_empty() && title.is_empty() {
     return None
   }
-  Some({ id, title, content, open })
+  Some({ id, title, content, open, })
 }
 
 ///|

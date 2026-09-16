@@ -248,7 +248,7 @@ test "Mixed manifest - e-commerce scenario with catch-all" {
         source: "legacy/[...path].md",
         mode: RenderMode::Ssr,
         layout: None,
-        catch_all: Some(CatchAllInfo::{ name: "path", optional: false }),
+        catch_all: Some(CatchAllInfo::{ name: "path", optional: false, }),
         title: None,
         islands: [],
       }),

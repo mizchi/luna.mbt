@@ -104,4 +104,3 @@ pub using @mars {type JsEnv as Env}
 pub using @mars {type JsExecCtx as ExecutionContext}
 
 // Traits
-

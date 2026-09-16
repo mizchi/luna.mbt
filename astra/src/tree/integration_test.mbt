@@ -11,7 +11,9 @@ fn create_test_config() -> @astra.SsgConfig {
     trailing_slash: true,
     i18n: @astra.I18nConfig::{
       default_locale: "en",
-      locales: [@astra.LocaleConfig::{ code: "en", label: "English", path: "" }],
+      locales: [
+        @astra.LocaleConfig::{ code: "en", label: "English", path: "", },
+      ],
     },
     nav: [],
     sidebar: @astra.SidebarConfig::Auto,

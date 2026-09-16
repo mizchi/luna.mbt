@@ -2,7 +2,7 @@
 package "mizchi/sol/hmr"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
@@ -39,7 +39,7 @@ pub fn HmrServer::notify_full_reload(Self) -> Unit
 pub fn HmrServer::notify_reload(Self) -> Unit
 pub fn HmrServer::notify_update(Self, Array[String]) -> Unit
 pub fn HmrServer::on_connection(Self, (HmrClient) -> Unit) -> Unit
-pub fn HmrServer::start(Int) -> @core.Promise[Self]
+pub fn HmrServer::start(Int) -> @js_core.Promise[Self]
 
 // Type aliases
 

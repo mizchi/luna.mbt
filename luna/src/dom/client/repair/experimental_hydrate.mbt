@@ -56,7 +56,7 @@ pub fn RepairInfo::new(
   expected : String,
   actual : String,
 ) -> RepairInfo {
-  { repair_type, message, node_path, expected, actual }
+  { repair_type, message, node_path, expected, actual, }
 }
 
 ///|
@@ -103,7 +103,7 @@ pub struct ExperimentalHydrationReport {
 ///|
 /// Create a clean report
 pub fn ExperimentalHydrationReport::clean() -> ExperimentalHydrationReport {
-  { clean: true, repairs: [], repair_count: 0 }
+  { clean: true, repairs: [], repair_count: 0, }
 }
 
 ///|
@@ -111,7 +111,7 @@ pub fn ExperimentalHydrationReport::clean() -> ExperimentalHydrationReport {
 pub fn ExperimentalHydrationReport::with_repairs(
   repairs : Array[RepairInfo],
 ) -> ExperimentalHydrationReport {
-  { clean: false, repairs, repair_count: repairs.length() }
+  { clean: false, repairs, repair_count: repairs.length(), }
 }
 
 ///|
