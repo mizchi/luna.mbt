@@ -344,10 +344,10 @@ pub fn build_from_manifest_file(
 }
 
 ///|
-extern "js" fn ffi_build_from_manifest(
+extern "js" fn ffi_build_from_manifest_ffi(
   manifest_path : String,
   cwd : String,
-  on_success : (Array[String]) -> Unit,
+  on_success : (FixedArray[String]) -> Unit,
   on_error : (String) -> Unit,
 ) -> @js.Promise[Unit] =
   #| async (manifestPath, cwd, onSuccess, onError) => {
@@ -388,3 +388,13 @@ extern "js" fn ffi_build_from_manifest(
   #|     onError(e.message || String(e));
   #|   }
   #| }
+
+fn ffi_build_from_manifest(
+  manifest_path : String,
+  cwd : String,
+  on_success : (Array[String]) -> Unit,
+  on_error : (String) -> Unit,
+) -> @js.Promise[Unit] {
+  ffi_build_from_manifest_ffi(manifest_path, cwd, fn(__a1) { on_success(Array::from_fixed_array(__a1)) }, on_error)
+}
+
