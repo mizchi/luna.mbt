@@ -1,0 +1,25 @@
+{
+  "name": "@luna_ui/void-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "void prepare && vite --host 127.0.0.1",
+    "build": "void prepare && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "check": "void prepare && tsc --noEmit"
+  },
+  "dependencies": {
+    "@luna_ui/luna": "workspace:^",
+    "hono": "^4.13.13",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "solid-js": "^1.9.17",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "vite": "8.3.4",
+    "vite-plugin-solid": "^2.11.14",
+    "void": "1.1.11",
+    "wrangler": "4.151.1"
+  }
+}

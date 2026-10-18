@@ -11,14 +11,14 @@
     "kv:list": "wrangler kv namespace list"
   },
   "dependencies": {
-    "@hono/node-server": "^2.1.1",
+    "@hono/node-server": "^2.1.5",
     "@sol/core": "workspace:*",
-    "hono": "^4.13.7"
+    "hono": "^4.13.13"
   },
   "devDependencies": {
-    "tsx": "^4.23.13",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "wrangler": "^4.130.0"
+    "wrangler": "^4.151.1"
   },
   "private": true
 }

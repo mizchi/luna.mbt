@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "example/sol-auth/client"
+
+import {
+  "mizchi/luna/dom",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn contact_form(ContactFormProps) -> @dom.DomNode
+
+pub fn counter(CounterProps) -> @dom.DomNode
+
+pub fn wc_counter(WcCounterProps) -> @dom.DomNode
+
+pub let wc_counter_css : String
+
+// Errors
+
+// Types and methods
+pub(all) struct ContactFormProps {
+  initial_name : String
+  initial_email : String
+} derive(ToJson, @json.FromJson)
+pub fn ContactFormProps::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ContactFormProps::to_json(Self) -> Json
+
+pub(all) struct CounterProps {
+  initial_count : Int
+} derive(ToJson, @json.FromJson)
+pub fn CounterProps::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn CounterProps::to_json(Self) -> Json
+
+pub(all) struct WcCounterProps {
+  initial_count : Int
+} derive(ToJson, @json.FromJson)
+pub fn WcCounterProps::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn WcCounterProps::to_json(Self) -> Json
+
+// Type aliases
+
+// Traits

@@ -74,7 +74,7 @@ pub fn rewrite_type_refs(
 }
 
 ///|
-/// Parse mbti file and extract pub fn declarations
+/// Parse mbti file and extract standalone pub fn declarations for islands
 pub fn parse_mbti(content : String) -> Array[(String, String)] {
   let result : Array[(String, String)] = []
   let imports = parse_mbti_imports(content)
@@ -88,6 +88,10 @@ pub fn parse_mbti(content : String) -> Array[(String, String)] {
       // Find function name (up to first '(')
       if rest.find("(") is Some(paren_idx) {
         let name = rest.unsafe_substring(start=0, end=paren_idx)
+        // Methods (including derived JSON conversions) are not JS entry points.
+        if name.contains("::") {
+          continue
+        }
         // Get signature (from '(' to end of line)
         let sig = rest.unsafe_substring(start=paren_idx, end=rest.length())
         // Rewrite type references

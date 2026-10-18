@@ -81,9 +81,9 @@ test "contract_manifest_json_from_ts_source: emits parseable Sol contract manife
   guard json is Object(obj) else { panic() }
   guard obj.get("components") is Some(Array(components)) else { panic() }
   guard components[0] is Object(component) else { panic() }
-  assert_true(component.get("name") == Some("counter".to_json()))
-  assert_true(component.get("package") == Some("app/client".to_json()))
-  assert_true(component.get("importAlias") == Some("client".to_json()))
+  assert_true(component.get("name") == Some(Json("counter")))
+  assert_true(component.get("package") == Some(Json("app/client")))
+  assert_true(component.get("importAlias") == Some(Json("client")))
 }
 
 ///|

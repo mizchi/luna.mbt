@@ -16,7 +16,11 @@ test("MoonBit Playwright exercises the Sol app over BiDi", async ({ baseURL }) =
   const { BrowserInstance } = await import(mapper.href);
   const browser = await BrowserInstance.run({
     chromeBinary: chromium.executablePath(),
-    chromeArgs: ["--headless=new"],
+    chromeArgs: [
+      "--headless=new",
+      // Match Playwright's default Chromium launch on hosted Linux runners.
+      ...(process.platform === "linux" ? ["--no-sandbox"] : []),
+    ],
   }, false);
   const server = new WebSocketServer({ host: "127.0.0.1", port: 0 });
   try {

@@ -1,6 +1,8 @@
 ///|
 test "checkbox: checked state" {
-  let node : @luna.Node[Unit, String] = checkbox(Checked, [@luna.text("Accept")])
+  let node : @luna.Node[Unit, String] = @luna_components.checkbox(Checked, [
+    @luna.text("Accept"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_role = false
   let mut has_checked = false
@@ -20,7 +22,7 @@ test "checkbox: checked state" {
 
 ///|
 test "checkbox: unchecked state" {
-  let node : @luna.Node[Unit, String] = checkbox(Unchecked, [
+  let node : @luna.Node[Unit, String] = @luna_components.checkbox(Unchecked, [
     @luna.text("Terms"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -36,7 +38,9 @@ test "checkbox: unchecked state" {
 
 ///|
 test "checkbox: mixed state (tri-state)" {
-  let node : @luna.Node[Unit, String] = checkbox(Mixed, [@luna.text("All")])
+  let node : @luna.Node[Unit, String] = @luna_components.checkbox(Mixed, [
+    @luna.text("All"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut checked_val = ""
   for attr in el.attrs {
@@ -50,16 +54,21 @@ test "checkbox: mixed state (tri-state)" {
 
 ///|
 test "checkbox_native: creates input and label" {
-  let node : @luna.Node[Unit, String] = checkbox_native("agree", true, [
-    @luna.text("I agree"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.checkbox_native(
+    "agree",
+    true,
+    [@luna.text("I agree")],
+  )
   guard node is @core.Fragment(children) else { fail("expected Fragment") }
   inspect(children.length(), content="2")
 }
 
 ///|
 test "checkbox_group: role group" {
-  let node : @luna.Node[Unit, String] = checkbox_group(aria_label="Options", [])
+  let node : @luna.Node[Unit, String] = @luna_components.checkbox_group(
+    aria_label="Options",
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("role", @core.VStatic("group")) else {
     fail("expected role=group")

@@ -1,6 +1,6 @@
 ///|
 test "MemFSAdapter basic read/write" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
   mem.writeFileSync("/test.txt", "Hello, World!")
   let content = mem.readFileSync("/test.txt")
@@ -9,7 +9,7 @@ test "MemFSAdapter basic read/write" {
 
 ///|
 test "MemFSAdapter exists_sync" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
   inspect(mem.existsSync("/test.txt"), content="false")
   mem.writeFileSync("/test.txt", "content")
@@ -18,7 +18,7 @@ test "MemFSAdapter exists_sync" {
 
 ///|
 test "MemFSAdapter mkdir_sync recursive" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
   mem.mkdirSync("/a/b/c", recursive=true)
   inspect(mem.existsSync("/a"), content="true")
@@ -28,7 +28,7 @@ test "MemFSAdapter mkdir_sync recursive" {
 
 ///|
 test "MemFSAdapter readdir_sync" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
   mem.mkdirSync("/dir")
   mem.writeFileSync("/dir/a.txt", "a")
@@ -39,7 +39,7 @@ test "MemFSAdapter readdir_sync" {
 
 ///|
 test "MemFSAdapter stat_sync" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
   mem.writeFileSync("/test.txt", "Hello")
   let stat = mem.statSync("/test.txt")
@@ -50,7 +50,7 @@ test "MemFSAdapter stat_sync" {
 
 ///|
 test "MemFSAdapter unlink_sync" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
   mem.writeFileSync("/test.txt", "content")
   inspect(mem.existsSync("/test.txt"), content="true")
@@ -60,7 +60,7 @@ test "MemFSAdapter unlink_sync" {
 
 ///|
 test "MemFSAdapter rmdir_sync" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
   mem.mkdirSync("/dir")
   mem.writeFileSync("/dir/file.txt", "content")

@@ -83,6 +83,9 @@ pub struct Edge {
 } derive(Debug)
 
 ///|
+pub extend Edge with @debug.Debug::{to_repr}
+
+///|
 /// Build adjacency list from co-occurrences (for graph algorithms)
 pub fn build_adjacency_list(
   cooccurrences : Array[CoOccurrence],

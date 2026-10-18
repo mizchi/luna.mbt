@@ -165,11 +165,21 @@ pub enum AppMode {
   MoonBitClientTsServer
   TypeScriptFull
 } derive(Eq, Show, @debug.Debug)
+pub fn AppMode::equal(Self, Self) -> Bool
+pub fn AppMode::not_equal(Self, Self) -> Bool
+pub fn AppMode::output(Self, &Logger) -> Unit
+pub fn AppMode::to_repr(Self) -> @debug.Repr
+pub fn AppMode::to_string(Self) -> String
 
 pub enum ClientBundleMode {
   ClientBundleAuto
   ClientBundleExternal
 } derive(Eq, Show, @debug.Debug)
+pub fn ClientBundleMode::equal(Self, Self) -> Bool
+pub fn ClientBundleMode::not_equal(Self, Self) -> Bool
+pub fn ClientBundleMode::output(Self, &Logger) -> Unit
+pub fn ClientBundleMode::to_repr(Self) -> @debug.Repr
+pub fn ClientBundleMode::to_string(Self) -> String
 
 pub(all) struct ClientComponentContract {
   props_type : String?
@@ -181,6 +191,11 @@ pub(all) enum ClientReturnKind {
   ClientReturnVNode
   ClientReturnUnsupported
 } derive(Eq, Show, @debug.Debug)
+pub fn ClientReturnKind::equal(Self, Self) -> Bool
+pub fn ClientReturnKind::not_equal(Self, Self) -> Bool
+pub fn ClientReturnKind::output(Self, &Logger) -> Unit
+pub fn ClientReturnKind::to_repr(Self) -> @debug.Repr
+pub fn ClientReturnKind::to_string(Self) -> String
 
 pub struct ContractTsConfig {
   input : String
@@ -189,6 +204,9 @@ pub struct ContractTsConfig {
   import_alias : String?
   client_url : String?
 } derive(Eq, @debug.Debug)
+pub fn ContractTsConfig::equal(Self, Self) -> Bool
+pub fn ContractTsConfig::not_equal(Self, Self) -> Bool
+pub fn ContractTsConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FuncExport {
   name : String
@@ -216,6 +234,11 @@ pub enum ServerEntryMode {
   ServerEntryGenerated
   ServerEntryUserManaged
 } derive(Eq, Show, @debug.Debug)
+pub fn ServerEntryMode::equal(Self, Self) -> Bool
+pub fn ServerEntryMode::not_equal(Self, Self) -> Bool
+pub fn ServerEntryMode::output(Self, &Logger) -> Unit
+pub fn ServerEntryMode::to_repr(Self) -> @debug.Repr
+pub fn ServerEntryMode::to_string(Self) -> String
 
 pub enum ServerRuntime {
   RuntimeNode
@@ -223,6 +246,11 @@ pub enum ServerRuntime {
   RuntimeDeno
   RuntimeBun
 } derive(Eq, Show, @debug.Debug)
+pub fn ServerRuntime::equal(Self, Self) -> Bool
+pub fn ServerRuntime::not_equal(Self, Self) -> Bool
+pub fn ServerRuntime::output(Self, &Logger) -> Unit
+pub fn ServerRuntime::to_repr(Self) -> @debug.Repr
+pub fn ServerRuntime::to_string(Self) -> String
 
 pub struct SolConfig {
   islands : Array[String]
@@ -274,6 +302,11 @@ pub enum WasmBuildKind {
   DirectCopy
   WiteCompose
 } derive(Eq, Show, @debug.Debug)
+pub fn WasmBuildKind::equal(Self, Self) -> Bool
+pub fn WasmBuildKind::not_equal(Self, Self) -> Bool
+pub fn WasmBuildKind::output(Self, &Logger) -> Unit
+pub fn WasmBuildKind::to_repr(Self) -> @debug.Repr
+pub fn WasmBuildKind::to_string(Self) -> String
 
 pub struct WasmEntrypointBuildArtifacts {
   manifest_path : String
@@ -310,12 +343,22 @@ pub enum WasmEntrypointRuntime {
   WasiCli
   Component
 } derive(Eq, Show, @debug.Debug)
+pub fn WasmEntrypointRuntime::equal(Self, Self) -> Bool
+pub fn WasmEntrypointRuntime::not_equal(Self, Self) -> Bool
+pub fn WasmEntrypointRuntime::output(Self, &Logger) -> Unit
+pub fn WasmEntrypointRuntime::to_repr(Self) -> @debug.Repr
+pub fn WasmEntrypointRuntime::to_string(Self) -> String
 
 pub enum WasmEntrypointSourceKind {
   MoonEntrypoint
   DirectWasm
   WacFile
 } derive(Eq, Show, @debug.Debug)
+pub fn WasmEntrypointSourceKind::equal(Self, Self) -> Bool
+pub fn WasmEntrypointSourceKind::not_equal(Self, Self) -> Bool
+pub fn WasmEntrypointSourceKind::output(Self, &Logger) -> Unit
+pub fn WasmEntrypointSourceKind::to_repr(Self) -> @debug.Repr
+pub fn WasmEntrypointSourceKind::to_string(Self) -> String
 
 pub struct WasmMountEntry {
   id : String

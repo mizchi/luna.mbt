@@ -27,13 +27,20 @@ pub struct AliasDef {
   type_params : Array[TypeParam]
   target : TypeRef
 } derive(Eq, @debug.Debug)
+pub fn AliasDef::equal(Self, Self) -> Bool
+pub fn AliasDef::not_equal(Self, Self) -> Bool
 pub fn AliasDef::to_moonbit(Self) -> String
+pub fn AliasDef::to_repr(Self) -> @debug.Repr
 pub fn AliasDef::to_typescript(Self) -> String
 
 pub struct Annotation {
   name : String
   args : Map[String, Json]
 } derive(Eq, @debug.Debug)
+pub fn Annotation::equal(Self, Self) -> Bool
+pub fn Annotation::not_equal(Self, Self) -> Bool
+pub fn Annotation::to_json(Self) -> Json
+pub fn Annotation::to_repr(Self) -> @debug.Repr
 pub impl ToJson for Annotation
 
 pub struct EnumDef {
@@ -43,7 +50,10 @@ pub struct EnumDef {
   variants : Array[EnumVariant]
   derives : Array[String]
 } derive(Eq, @debug.Debug)
+pub fn EnumDef::equal(Self, Self) -> Bool
+pub fn EnumDef::not_equal(Self, Self) -> Bool
 pub fn EnumDef::to_moonbit(Self) -> String
+pub fn EnumDef::to_repr(Self) -> @debug.Repr
 pub fn EnumDef::to_typescript(Self) -> String
 
 pub struct EnumVariant {
@@ -51,7 +61,11 @@ pub struct EnumVariant {
   doc : String?
   payload : TypeRef?
 } derive(Eq, @debug.Debug)
+pub fn EnumVariant::equal(Self, Self) -> Bool
+pub fn EnumVariant::not_equal(Self, Self) -> Bool
+pub fn EnumVariant::to_json(Self) -> Json
 pub fn EnumVariant::to_moonbit(Self) -> String
+pub fn EnumVariant::to_repr(Self) -> @debug.Repr
 pub impl ToJson for EnumVariant
 
 pub struct Field {
@@ -62,9 +76,13 @@ pub struct Field {
   default : Json?
   attrs : Map[String, String]
 } derive(Eq, @debug.Debug)
+pub fn Field::equal(Self, Self) -> Bool
 pub fn Field::new(String, TypeRef) -> Self
+pub fn Field::not_equal(Self, Self) -> Bool
 pub fn Field::optional(String, TypeRef) -> Self
+pub fn Field::to_json(Self) -> Json
 pub fn Field::to_moonbit(Self) -> String
+pub fn Field::to_repr(Self) -> @debug.Repr
 pub fn Field::to_typescript(Self) -> String
 pub impl ToJson for Field
 
@@ -72,12 +90,19 @@ pub struct FunctionType {
   params : Array[TypeRef]
   return_ : TypeRef
 } derive(Eq, @debug.Debug)
+pub fn FunctionType::equal(Self, Self) -> Bool
+pub fn FunctionType::not_equal(Self, Self) -> Bool
+pub fn FunctionType::to_repr(Self) -> @debug.Repr
 
 pub enum LiteralType {
   BoolLit(Bool)
   IntLit(Int)
   StringLit(String)
 } derive(Eq, @debug.Debug)
+pub fn LiteralType::equal(Self, Self) -> Bool
+pub fn LiteralType::not_equal(Self, Self) -> Bool
+pub fn LiteralType::to_json(Self) -> Json
+pub fn LiteralType::to_repr(Self) -> @debug.Repr
 pub fn LiteralType::to_typescript(Self) -> String
 pub impl ToJson for LiteralType
 
@@ -85,6 +110,9 @@ pub struct ParseError {
   line : Int
   message : String
 } derive(Eq, @debug.Debug)
+pub fn ParseError::equal(Self, Self) -> Bool
+pub fn ParseError::not_equal(Self, Self) -> Bool
+pub fn ParseError::to_repr(Self) -> @debug.Repr
 
 pub struct ParseResult {
   schema : Schema
@@ -101,7 +129,11 @@ pub enum PrimitiveType {
   Unit
   Never
 } derive(Eq, @debug.Debug)
+pub fn PrimitiveType::equal(Self, Self) -> Bool
+pub fn PrimitiveType::not_equal(Self, Self) -> Bool
+pub fn PrimitiveType::to_json(Self) -> Json
 pub fn PrimitiveType::to_moonbit(Self) -> String
+pub fn PrimitiveType::to_repr(Self) -> @debug.Repr
 pub fn PrimitiveType::to_typescript(Self) -> String
 pub impl ToJson for PrimitiveType
 
@@ -111,8 +143,12 @@ pub struct Schema {
   source : SourceInfo?
 } derive(Eq, @debug.Debug)
 pub fn Schema::empty() -> Self
+pub fn Schema::equal(Self, Self) -> Bool
 pub fn Schema::new(String) -> Self
+pub fn Schema::not_equal(Self, Self) -> Bool
+pub fn Schema::to_json(Self) -> Json
 pub fn Schema::to_moonbit(Self) -> String
+pub fn Schema::to_repr(Self) -> @debug.Repr
 pub fn Schema::to_typescript(Self) -> String
 pub impl ToJson for Schema
 
@@ -120,6 +156,10 @@ pub struct SourceInfo {
   file : String
   lang : SourceLang
 } derive(Eq, @debug.Debug)
+pub fn SourceInfo::equal(Self, Self) -> Bool
+pub fn SourceInfo::not_equal(Self, Self) -> Bool
+pub fn SourceInfo::to_json(Self) -> Json
+pub fn SourceInfo::to_repr(Self) -> @debug.Repr
 pub impl ToJson for SourceInfo
 
 pub enum SourceLang {
@@ -129,6 +169,10 @@ pub enum SourceLang {
   Go
   Unknown(String)
 } derive(Eq, @debug.Debug)
+pub fn SourceLang::equal(Self, Self) -> Bool
+pub fn SourceLang::not_equal(Self, Self) -> Bool
+pub fn SourceLang::to_json(Self) -> Json
+pub fn SourceLang::to_repr(Self) -> @debug.Repr
 pub impl ToJson for SourceLang
 
 pub struct StructDef {
@@ -138,8 +182,11 @@ pub struct StructDef {
   fields : Array[Field]
   derives : Array[String]
 } derive(Eq, @debug.Debug)
+pub fn StructDef::equal(Self, Self) -> Bool
 pub fn StructDef::new(String) -> Self
+pub fn StructDef::not_equal(Self, Self) -> Bool
 pub fn StructDef::to_moonbit(Self) -> String
+pub fn StructDef::to_repr(Self) -> @debug.Repr
 pub fn StructDef::to_typescript(Self) -> String
 
 pub enum TypeDef {
@@ -147,7 +194,11 @@ pub enum TypeDef {
   Enum(EnumDef)
   Alias(AliasDef)
 } derive(Eq, @debug.Debug)
+pub fn TypeDef::equal(Self, Self) -> Bool
+pub fn TypeDef::not_equal(Self, Self) -> Bool
+pub fn TypeDef::to_json(Self) -> Json
 pub fn TypeDef::to_moonbit(Self) -> String
+pub fn TypeDef::to_repr(Self) -> @debug.Repr
 pub fn TypeDef::to_typescript(Self) -> String
 pub impl ToJson for TypeDef
 
@@ -156,7 +207,11 @@ pub struct TypeParam {
   constraint : TypeRef?
   default : TypeRef?
 } derive(Eq, @debug.Debug)
+pub fn TypeParam::equal(Self, Self) -> Bool
+pub fn TypeParam::not_equal(Self, Self) -> Bool
+pub fn TypeParam::to_json(Self) -> Json
 pub fn TypeParam::to_moonbit(Self) -> String
+pub fn TypeParam::to_repr(Self) -> @debug.Repr
 pub fn TypeParam::to_typescript(Self) -> String
 pub impl ToJson for TypeParam
 
@@ -176,15 +231,21 @@ pub enum TypeRef {
 } derive(Eq, @debug.Debug)
 pub fn TypeRef::array(Self) -> Self
 pub fn TypeRef::bool_() -> Self
+pub fn TypeRef::equal(Self, Self) -> Bool
 pub fn TypeRef::float() -> Self
 pub fn TypeRef::int() -> Self
 pub fn TypeRef::map(Self, Self) -> Self
 pub fn TypeRef::named(String) -> Self
+pub fn TypeRef::not_equal(Self, Self) -> Bool
 pub fn TypeRef::option(Self) -> Self
+pub fn TypeRef::output(Self, &Logger) -> Unit
 pub fn TypeRef::param(String) -> Self
 pub fn TypeRef::string() -> Self
 pub fn TypeRef::string_lit(String) -> Self
+pub fn TypeRef::to_json(Self) -> Json
 pub fn TypeRef::to_moonbit(Self) -> String
+pub fn TypeRef::to_repr(Self) -> @debug.Repr
+pub fn TypeRef::to_string(Self) -> String
 pub fn TypeRef::to_typescript(Self) -> String
 pub fn TypeRef::union(Array[Self]) -> Self
 pub fn TypeRef::unit() -> Self

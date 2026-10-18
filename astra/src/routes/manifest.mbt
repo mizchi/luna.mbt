@@ -186,6 +186,9 @@ pub(all) enum ComponentType {
 } derive(Debug)
 
 ///|
+pub extend ComponentType with @debug.Debug::{to_repr}
+
+///|
 /// A component route entry for moon.pkg.json directories
 pub(all) struct ComponentRouteEntry {
   /// URL path (e.g., "/counter")

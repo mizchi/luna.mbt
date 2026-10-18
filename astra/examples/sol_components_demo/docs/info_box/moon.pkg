@@ -2,6 +2,8 @@ import {
   "mizchi/luna",
 }
 
+supported_targets = "js"
+
 options(
   link: { "js": { "exports": [ "render" ], "format": "esm" } },
 )

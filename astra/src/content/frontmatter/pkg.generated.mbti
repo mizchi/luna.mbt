@@ -41,11 +41,15 @@ pub(all) struct NavLink {
   text : String
   link : String
 } derive(ToJson, @json.FromJson)
+pub fn NavLink::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn NavLink::to_json(Self) -> Json
 
 pub(all) struct OutlineConfig {
   level_min : Int
   level_max : Int
 } derive(ToJson, @json.FromJson)
+pub fn OutlineConfig::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn OutlineConfig::to_json(Self) -> Json
 
 // Type aliases
 

@@ -37,6 +37,9 @@ pub enum ShadowMode {
 } derive(Eq)
 
 ///|
+pub extend ShadowMode with Eq::{not_equal, equal}
+
+///|
 /// Component metadata for code generation
 pub struct ComponentMeta {
   /// Custom element tag name (e.g., "x-counter")

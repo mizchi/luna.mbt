@@ -33,6 +33,11 @@ pub enum JsonAttrValue {
   Dynamic(String)
   Handler
 } derive(Eq, @debug.Debug)
+pub fn JsonAttrValue::equal(Self, Self) -> Bool
+pub fn JsonAttrValue::not_equal(Self, Self) -> Bool
+pub fn JsonAttrValue::output(Self, &Logger) -> Unit
+pub fn JsonAttrValue::to_repr(Self) -> @debug.Repr
+pub fn JsonAttrValue::to_string(Self) -> String
 pub impl Show for JsonAttrValue
 
 pub struct JsonElement {
@@ -40,6 +45,9 @@ pub struct JsonElement {
   attrs : Map[String, JsonAttrValue]
   children : Array[JsonNode]
 } derive(Eq, @debug.Debug)
+pub fn JsonElement::equal(Self, Self) -> Bool
+pub fn JsonElement::not_equal(Self, Self) -> Bool
+pub fn JsonElement::to_repr(Self) -> @debug.Repr
 
 pub enum JsonNode {
   Element(JsonElement)
@@ -47,8 +55,11 @@ pub enum JsonNode {
   Fragment(Array[JsonNode])
 } derive(Eq, @debug.Debug)
 pub fn JsonNode::children(Self) -> Array[Self]
+pub fn JsonNode::equal(Self, Self) -> Bool
 pub fn JsonNode::get_attr(Self, String) -> JsonAttrValue?
+pub fn JsonNode::not_equal(Self, Self) -> Bool
 pub fn JsonNode::tag(Self) -> String?
+pub fn JsonNode::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

@@ -59,6 +59,10 @@ pnpm add @luna_ui/wcr            # web-component reactive bindings
 pnpm add @luna_ui/testing        # test helpers
 ```
 
+The repository build also provides a [Void adapter](js/luna/docs/void.md) through
+`@luna_ui/luna/void`: Void Pages loaders/actions with delayed Luna islands and
+optional React/Solid islands. Run `just test-void-e2e` for the isolated D1 example.
+
 ## Layout
 
 - `luna/`             — luna primitives (signals, render, routing, e2e, vite/vitest configs, scripts/)
@@ -74,11 +78,14 @@ pnpm add @luna_ui/testing        # test helpers
 
 ## Development
 
-Use MoonBit v0.10.12 or newer and Node.js 24.15 or newer. The current
+Use MoonBit v0.10.15 or newer and Node.js 24.15 or newer. The current
 dependencies use the newer MoonBit collection APIs and jsdom's updated Node
 requirements. Run `moon upgrade` and `moon update` when upgrading an older
 toolchain. All npm packages and examples share the root pnpm workspace and
 `pnpm-lock.yaml`; run `pnpm install` from the repository root.
+
+Keep `parser 0.4.5`, `lexer 0.4.3`, and `moon_config 0.4.4` aligned across
+Luna and Sol. These dependencies require `moonc 0.10.15` for `Int32` support.
 
 The root `moon.work` includes the six libraries, documentation, and all 15
 MoonBit example modules under `sol/examples`, `astra/examples`, and

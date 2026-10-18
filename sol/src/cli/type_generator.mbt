@@ -9,7 +9,7 @@
 /// route constants, action key factories, and Locale enum
 fn generate_types_mbt(
   structs : Array[StructExport],
-  route_info? : RouteInfo = RouteInfo::{
+  route_info~ : RouteInfo = RouteInfo::{
     _page_components: [],
     _api_handlers: [],
     route_paths: [],
@@ -19,9 +19,9 @@ fn generate_types_mbt(
     api_contracts: [],
     contract_shapes: [],
   },
-  static_dirs? : Array[StaticDirEntry] = [],
-  external_client_bundle? : Bool = false,
-  client_assets? : Array[ContractClientAsset] = [],
+  static_dirs~ : Array[StaticDirEntry] = [],
+  external_client_bundle~ : Bool = false,
+  client_assets~ : Array[ContractClientAsset] = [],
 ) -> String {
   let buf = StringBuilder()
   buf.write_string("///| Auto-generated types for island props\n")
@@ -38,6 +38,9 @@ fn generate_types_mbt(
       buf.write_string(s.raw_definition)
       buf.write_string(" derive(ToJson, FromJson)\n\n")
     }
+    buf.write_string(
+      generate_derived_method_extensions(s.name, s.raw_definition),
+    )
   }
   let emitted_struct_names = structs.map(fn(s) { s.name })
   for shape in route_info.contract_shapes {
@@ -47,6 +50,7 @@ fn generate_types_mbt(
     buf.write_string("///| Contract data shape \{shape.name}\n")
     buf.write_string(contract_data_shape_raw_definition(shape))
     buf.write_string(" derive(ToJson, FromJson)\n\n")
+    buf.write_string(generate_derived_method_extensions(shape.name, ""))
     emitted_struct_names.push(shape.name)
   }
 
@@ -129,11 +133,46 @@ fn generate_types_mbt(
 }
 
 ///|
+/// Preserve the method-style API of generated derives without implicit promotion.
+fn generate_derived_method_extensions(
+  name : String,
+  definition : String,
+) -> String {
+  let derives = match definition.find("derive(") {
+    Some(start) => {
+      let tail = definition[start + "derive(".length():]
+      match tail.find(")") {
+        Some(end) =>
+          tail[:end].split(",").map(t => t.trim().to_owned()).collect()
+        None => []
+      }
+    }
+    None => ["ToJson", "FromJson"]
+  }
+  let buf = StringBuilder()
+  for trait_name in derives {
+    let attachment = match trait_name {
+      "ToJson" => "ToJson::{to_json}"
+      "FromJson" | "@json.FromJson" => "@json.FromJson::{from_json}"
+      "Eq" => "Eq::{not_equal, equal}"
+      "Compare" => "Compare::{op_lt, op_le, op_ge, compare, op_gt}"
+      "Hash" => "Hash::{hash, hash_combine}"
+      "Debug" | "@debug.Debug" => "@debug.Debug::{to_repr}"
+      "Show" => "Show::{to_string, output}"
+      "Default" => "Default::{default}"
+      _ => continue
+    }
+    buf.write_string("///|\npub extend \{name} with \{attachment}\n\n")
+  }
+  buf.to_string()
+}
+
+///|
 /// Generate round-trip tests for all Props types.
 /// These tests verify that to_json → from_json produces identical values.
 fn generate_types_roundtrip_tests(
   structs : Array[StructExport],
-  external_client_bundle? : Bool = false,
+  external_client_bundle~ : Bool = false,
 ) -> String {
   if structs.is_empty() {
     return ""
@@ -151,10 +190,10 @@ fn generate_types_roundtrip_tests(
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
+    buf.write_string("  let props : @types.\{s.name} = @json.from_json(json)\n")
     buf.write_string("  let roundtrip = props.to_json()\n")
     buf.write_string(
-      "  let restored : \{s.name} = @json.from_json(roundtrip)\n",
+      "  let restored : @types.\{s.name} = @json.from_json(roundtrip)\n",
     )
     buf.write_string(
       "  assert_eq(props.to_json().stringify(), restored.to_json().stringify())\n",
@@ -167,11 +206,11 @@ fn generate_types_roundtrip_tests(
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
+    buf.write_string("  let props : @types.\{s.name} = @json.from_json(json)\n")
     let factory_call = if external_client_bundle {
-      "\{component_name}_at(\"/static/\{component_name}.js\", props)"
+      "@types.\{component_name}_at(\"/static/\{component_name}.js\", props)"
     } else {
-      "\{component_name}(props)"
+      "@types.\{component_name}(props)"
     }
     buf.write_string("  let cref = \{factory_call}\n")
     buf.write_string(
@@ -246,7 +285,12 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
 ///|
 /// Default JSON value for common MoonBit types
 fn default_json_value(type_str : String) -> String {
-  if type_str == "Int" || type_str == "Double" || type_str == "Float" {
+  if type_str == "Int" ||
+    type_str == "Int32" ||
+    type_str == "UInt" ||
+    type_str == "UInt32" ||
+    type_str == "Double" ||
+    type_str == "Float" {
     "0"
   } else if type_str == "String" {
     "\\\"\\\"" // escaped empty string
@@ -267,16 +311,23 @@ fn default_json_value(type_str : String) -> String {
 /// Generate types/moon.pkg
 fn generate_types_pkg(
   structs : Array[StructExport],
-  has_actions? : Bool = false,
-  external_client_bundle? : Bool = false,
-  has_route_params? : Bool = false,
-  client_assets? : Array[ContractClientAsset] = [],
-  contract_shapes? : Array[ContractDataShape] = [],
+  has_actions~ : Bool = false,
+  external_client_bundle~ : Bool = false,
+  has_route_params~ : Bool = false,
+  client_assets~ : Array[ContractClientAsset] = [],
+  contract_shapes~ : Array[ContractDataShape] = [],
 ) -> String {
   let buf = StringBuilder()
   let imports : Array[String] = []
   if !structs.is_empty() || !contract_shapes.is_empty() {
     imports.push("  \"moonbitlang/core/json\",")
+  }
+  if structs.any(s => {
+      generate_derived_method_extensions(s.name, s.raw_definition).contains(
+        "@debug.Debug",
+      )
+    }) {
+    imports.push("  \"moonbitlang/core/debug\",")
   }
   if !structs.is_empty() {
     imports.push("  \"mizchi/luna\" @luna,")
@@ -322,7 +373,7 @@ fn generate_types_pkg(
 /// Generate TypeScript declarations for frontend code that consumes Sol contracts.
 fn generate_typescript_contract_decl(
   structs : Array[StructExport],
-  route_info? : RouteInfo = RouteInfo::{
+  route_info~ : RouteInfo = RouteInfo::{
     _page_components: [],
     _api_handlers: [],
     route_paths: [],
@@ -332,7 +383,7 @@ fn generate_typescript_contract_decl(
     api_contracts: [],
     contract_shapes: [],
   },
-  client_assets? : Array[ContractClientAsset] = [],
+  client_assets~ : Array[ContractClientAsset] = [],
 ) -> String {
   if structs.is_empty() &&
     route_info.route_paths.is_empty() &&
@@ -454,7 +505,7 @@ fn write_typescript_shape_interface(
 ///|
 fn generate_typescript_route_decl(
   route_paths : Array[String],
-  route_queries? : Array[RouteQueryContract] = [],
+  route_queries~ : Array[RouteQueryContract] = [],
 ) -> String {
   let buf = StringBuilder()
   buf.write_string("export type SolRoutePath = ")
@@ -536,7 +587,7 @@ fn route_query_for_path(
 ///|
 fn generate_typescript_action_decl(
   action_ids : Array[String],
-  action_contracts? : Array[ActionTypeContract] = [],
+  action_contracts~ : Array[ActionTypeContract] = [],
 ) -> String {
   let buf = StringBuilder()
   buf.write_string("export type SolActionId = ")
@@ -687,7 +738,14 @@ fn moonbit_type_to_typescript_type(type_str : String) -> String {
   match type_name {
     "Unit" => "undefined"
     "Bool" => "boolean"
-    "Int" | "UInt" | "Float" | "Double" | "Byte" | "Char" => "number"
+    "Int"
+    | "Int32"
+    | "UInt"
+    | "UInt32"
+    | "Float"
+    | "Double"
+    | "Byte"
+    | "Char" => "number"
     "Int64" | "UInt64" => "bigint"
     "String" => "string"
     "Json" => "unknown"
@@ -747,7 +805,7 @@ pub fn split_params(params_str : String) -> Array[String] {
 
 ///|
 /// Find matching closing paren position
-pub fn find_matching_paren(s : String, start : Int) -> Int? {
+pub fn find_matching_paren(s : String, start : Int32) -> Int32? {
   let mut depth = 0
   let chars = s.to_array()
   for i = start; i < chars.length(); i = i + 1 {

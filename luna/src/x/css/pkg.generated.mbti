@@ -615,6 +615,9 @@ pub(all) enum Property {
   Zoom
 } derive(Eq, @debug.Debug)
 pub fn Property::css_name(Self) -> String
+pub fn Property::equal(Self, Self) -> Bool
+pub fn Property::not_equal(Self, Self) -> Bool
+pub fn Property::to_repr(Self) -> @debug.Repr
 pub impl PropertyName for Property
 
 pub(all) enum Pseudo {
@@ -684,6 +687,9 @@ pub(all) enum Pseudo {
   Where(String)
 } derive(Eq, @debug.Debug)
 pub fn Pseudo::css_selector(Self) -> String
+pub fn Pseudo::equal(Self, Self) -> Bool
+pub fn Pseudo::not_equal(Self, Self) -> Bool
+pub fn Pseudo::to_repr(Self) -> @debug.Repr
 pub impl PseudoSelector for Pseudo
 
 pub struct Style {
@@ -696,6 +702,9 @@ pub(all) struct StyleAttrs {
   class_name : String
   style : String
 } derive(Eq, @debug.Debug)
+pub fn StyleAttrs::equal(Self, Self) -> Bool
+pub fn StyleAttrs::not_equal(Self, Self) -> Bool
+pub fn StyleAttrs::to_repr(Self) -> @debug.Repr
 
 pub struct StyleRule {
   // private fields

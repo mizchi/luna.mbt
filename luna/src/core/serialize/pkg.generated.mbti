@@ -89,7 +89,12 @@ pub fn StateValue::as_bool(Self) -> Bool?
 pub fn StateValue::as_int(Self) -> Int?
 pub fn StateValue::as_number(Self) -> Double?
 pub fn StateValue::as_string(Self) -> String?
+pub fn StateValue::equal(Self, Self) -> Bool
 pub fn StateValue::is_null(Self) -> Bool
+pub fn StateValue::not_equal(Self, Self) -> Bool
+pub fn StateValue::output(Self, &Logger) -> Unit
+pub fn StateValue::to_repr(Self) -> @debug.Repr
+pub fn StateValue::to_string(Self) -> String
 pub impl Show for StateValue
 
 // Type aliases

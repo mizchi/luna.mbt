@@ -35,11 +35,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
@@ -57,13 +57,14 @@ jobs:
       # astra/examples/<name>/ Playwright VRT.
       #
       # The baselines under each example's `e2e/__screenshots__/linux/`
-      # are seeded from `mcr.microsoft.com/playwright:v1.61.1-noble`
+      # are seeded from `mcr.microsoft.com/playwright:v1.64.1-noble`
       # (see `just test-vrt-astra <name> --update --linux`). The host's
       # `ubuntu-latest` runner ships a different font set, so we run the
       # actual test pass inside that same docker image to keep font
       # rendering deterministic — host builds the dist/, container only
       # runs `playwright test`.
       - name: Build astra example dist/ on host (moon-toolchain side)
+        id: build_examples
         run: |
           pnpm -F @luna_ui/sol-landing-example build
           pnpm -F @luna_ui/sol-changelog-example build
@@ -72,6 +73,7 @@ jobs:
           pnpm -F @luna_ui/sol-api-ref-example build
           pnpm -F @luna_ui/sol-docs-search-example build
       - name: sol_landing Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -80,9 +82,10 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.61.1-noble \
+            mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_changelog Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -91,9 +94,10 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.61.1-noble \
+            mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_components_demo Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -102,9 +106,10 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.61.1-noble \
+            mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_portfolio Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -113,9 +118,10 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.61.1-noble \
+            mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_api_ref Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -124,9 +130,10 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.61.1-noble \
+            mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_docs_search Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -135,7 +142,7 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.61.1-noble \
+            mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: Upload astra example VRT diffs on failure
         if: failure()

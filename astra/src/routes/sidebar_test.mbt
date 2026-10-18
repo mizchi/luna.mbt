@@ -58,7 +58,7 @@ fn make_page_no_sidebar(
 ///|
 test "generate_auto_sidebar - empty pages" {
   let pages : Array[@astra.PageMeta] = []
-  let groups = generate_auto_sidebar(pages)
+  let groups = @routes.generate_auto_sidebar(pages)
   inspect(groups.length(), content="0")
 }
 
@@ -67,7 +67,7 @@ test "generate_auto_sidebar - single page in directory" {
   let pages = [
     make_page("guide/intro.md", "/guide/intro/", title=Some("Introduction")),
   ]
-  let groups = generate_auto_sidebar(pages)
+  let groups = @routes.generate_auto_sidebar(pages)
   // Should have one group for "guide"
   inspect(groups.length(), content="1")
   inspect(groups[0].text, content="Guide")
@@ -79,8 +79,8 @@ test "generate_auto_sidebar - filters by locale" {
     make_page("guide/intro.md", "/guide/intro/", locale="en"),
     make_page("ja/guide/intro.md", "/ja/guide/intro/", locale="ja"),
   ]
-  let en_groups = generate_auto_sidebar(pages, locale="en")
-  let ja_groups = generate_auto_sidebar(pages, locale="ja")
+  let en_groups = @routes.generate_auto_sidebar(pages, locale="en")
+  let ja_groups = @routes.generate_auto_sidebar(pages, locale="ja")
   inspect(en_groups.length(), content="1")
   inspect(ja_groups.length(), content="1")
 }
@@ -91,7 +91,7 @@ test "generate_auto_sidebar - excludes sidebar:false pages" {
     make_page("guide/intro.md", "/guide/intro/"),
     make_page_no_sidebar("guide/hidden.md", "/guide/hidden/"),
   ]
-  let groups = generate_auto_sidebar(pages)
+  let groups = @routes.generate_auto_sidebar(pages)
   // Only one page should be included
   inspect(groups.length(), content="1")
 }
@@ -102,7 +102,7 @@ test "generate_auto_sidebar - multiple directories" {
     make_page("guide/intro.md", "/guide/intro/"),
     make_page("api/reference.md", "/api/reference/"),
   ]
-  let groups = generate_auto_sidebar(pages)
+  let groups = @routes.generate_auto_sidebar(pages)
   inspect(groups.length(), content="2")
 }
 
@@ -113,7 +113,7 @@ test "generate_auto_sidebar - nested directories" {
     make_page("guide/basics/config.md", "/guide/basics/config/"),
     make_page("guide/advanced/hooks.md", "/guide/advanced/hooks/"),
   ]
-  let groups = generate_auto_sidebar(pages)
+  let groups = @routes.generate_auto_sidebar(pages)
   // Should have nested structure
   inspect(groups.length() >= 1, content="true")
 }
@@ -129,7 +129,7 @@ test "get_sidebar_for_path - auto sidebar" {
     sidebar: @astra.SidebarConfig::Auto,
   }
   let pages = [make_page("guide/intro.md", "/guide/intro/")]
-  let groups = get_sidebar_for_path(config, pages, "/guide/intro/")
+  let groups = @routes.get_sidebar_for_path(config, pages, "/guide/intro/")
   inspect(groups.length(), content="1")
 }
 
@@ -156,7 +156,7 @@ test "get_sidebar_for_path - manual sidebar" {
     sidebar: @astra.SidebarConfig::Manual(manual_groups),
   }
   let pages : Array[@astra.PageMeta] = []
-  let groups = get_sidebar_for_path(config, pages, "/guide/intro/")
+  let groups = @routes.get_sidebar_for_path(config, pages, "/guide/intro/")
   // Should return all groups for now (matching logic)
   inspect(groups.length() >= 1, content="true")
 }
@@ -168,7 +168,7 @@ test "get_sidebar_for_path - manual sidebar" {
 ///|
 test "get_sidebar_page_order - empty groups" {
   let groups : Array[@astra.SidebarGroup] = []
-  let order = get_sidebar_page_order(groups)
+  let order = @routes.get_sidebar_page_order(groups)
   inspect(order.length(), content="0")
 }
 
@@ -185,7 +185,7 @@ test "get_sidebar_page_order - single group with links" {
       ],
     },
   ]
-  let order = get_sidebar_page_order(groups)
+  let order = @routes.get_sidebar_page_order(groups)
   inspect(order.length(), content="2")
   inspect(order[0], content="/guide/intro/")
   inspect(order[1], content="/guide/setup/")
@@ -215,7 +215,7 @@ test "get_sidebar_page_order - nested groups" {
       ],
     },
   ]
-  let order = get_sidebar_page_order(groups)
+  let order = @routes.get_sidebar_page_order(groups)
   inspect(order.length(), content="3")
   inspect(order[0], content="/guide/intro/")
   inspect(order[1], content="/guide/basics/setup/")
@@ -240,7 +240,7 @@ test "get_sidebar_page_order - multiple groups" {
       ],
     },
   ]
-  let order = get_sidebar_page_order(groups)
+  let order = @routes.get_sidebar_page_order(groups)
   inspect(order.length(), content="2")
   inspect(order[0], content="/guide/intro/")
   inspect(order[1], content="/api/reference/")
@@ -260,7 +260,7 @@ test "render_sidebar - returns valid node" {
       items: [@astra.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
   ]
-  let node = render_sidebar(groups, "/")
+  let node = @routes.render_sidebar(groups, "/")
   // Just verify it returns a node (detailed rendering tests would be integration tests)
   inspect(node is @luna.Node::Element(_), content="true")
 }
@@ -275,7 +275,7 @@ test "render_mobile_sidebar - returns valid node" {
       items: [@astra.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
   ]
-  let node = render_mobile_sidebar(groups, "/")
+  let node = @routes.render_mobile_sidebar(groups, "/")
   inspect(node is @luna.Node::Element(_), content="true")
 }
 
@@ -289,7 +289,7 @@ test "generate_auto_sidebar - index page becomes group link" {
     make_page("guide/index.md", "/guide/", title=Some("Guide Overview")),
     make_page("guide/intro.md", "/guide/intro/", title=Some("Introduction")),
   ]
-  let groups = generate_auto_sidebar(pages)
+  let groups = @routes.generate_auto_sidebar(pages)
   inspect(groups.length(), content="1")
   // The group should have the index page's title
   // and the index page should become the group link
@@ -304,7 +304,7 @@ test "generate_auto_sidebar - sort order by source path" {
     make_page("guide/01_intro.md", "/guide/intro/"),
     make_page("guide/02_basics.md", "/guide/basics/"),
   ]
-  let groups = generate_auto_sidebar(pages)
+  let groups = @routes.generate_auto_sidebar(pages)
   // Should be sorted by sort_key (source_path)
   inspect(groups.length(), content="1")
 }

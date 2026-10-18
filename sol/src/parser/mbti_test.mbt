@@ -20,7 +20,7 @@ test "parse simple function" {
     #|pub(all) struct CounterProps {
     #|  initial_count : Int
     #|}
-  let funcs = parse_pub_funcs(content, "test.mbti")
+  let funcs = @parser.parse_pub_funcs(content, "test.mbti")
   assert_eq(funcs.length(), 1)
   assert_eq(funcs[0].name, "counter")
   assert_true(funcs[0].type_name is None)
@@ -33,7 +33,7 @@ test "parse function with type (method)" {
     #|
     #|fn[A, B] List::map(Self[A], (A) -> B) -> Self[B]
     #|fn[A] empty() -> List[A]
-  let funcs = parse_pub_funcs(content, "test.mbti")
+  let funcs = @parser.parse_pub_funcs(content, "test.mbti")
   assert_eq(funcs.length(), 2)
   // Method
   assert_eq(funcs[0].name, "map")
@@ -52,7 +52,7 @@ test "parse multiple methods on same type" {
     #|fn Counter::increment(Counter) -> Counter
     #|fn Counter::decrement(Counter) -> Counter
     #|fn Counter::value(Counter) -> Int
-  let funcs = parse_pub_funcs(content, "test.mbti")
+  let funcs = @parser.parse_pub_funcs(content, "test.mbti")
   assert_eq(funcs.length(), 4)
   for f in funcs {
     assert_eq(f.type_name, Some("Counter"))
@@ -68,8 +68,8 @@ test "get standalone funcs filters out methods" {
     #|fn counter(Props) -> Node
     #|fn render(State) -> Node
     #|fn Option::unwrap(Self) -> T
-  let funcs = parse_pub_funcs(content, "test.mbti")
-  let standalone = get_standalone_funcs(funcs)
+  let funcs = @parser.parse_pub_funcs(content, "test.mbti")
+  let standalone = @parser.get_standalone_funcs(funcs)
   assert_eq(standalone.length(), 2)
   assert_eq(standalone[0], "counter")
   assert_eq(standalone[1], "render")
@@ -85,12 +85,12 @@ test "get methods for specific type" {
     #|fn Timer::start() -> Timer
     #|fn Timer::stop(Timer) -> Unit
     #|fn helper() -> Unit
-  let funcs = parse_pub_funcs(content, "test.mbti")
-  let counter_methods = get_methods_for_type(funcs, "Counter")
+  let funcs = @parser.parse_pub_funcs(content, "test.mbti")
+  let counter_methods = @parser.get_methods_for_type(funcs, "Counter")
   assert_eq(counter_methods.length(), 2)
   assert_eq(counter_methods[0], "new")
   assert_eq(counter_methods[1], "value")
-  let timer_methods = get_methods_for_type(funcs, "Timer")
+  let timer_methods = @parser.get_methods_for_type(funcs, "Timer")
   assert_eq(timer_methods.length(), 2)
 }
 
@@ -108,7 +108,7 @@ test "parse struct definitions - pub(all)" {
     #|pub(all) struct CounterProps {
     #|  initial_count : Int
     #|}
-  let structs = parse_struct_defs(content, "test.mbti")
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
   assert_eq(structs.length(), 1)
   assert_eq(structs[0].name, "CounterProps")
   assert_eq(structs[0].visibility, "pub(all)")
@@ -124,7 +124,7 @@ test "parse struct definitions - pub" {
     #|  debug : Bool
     #|  timeout : Int
     #|}
-  let structs = parse_struct_defs(content, "test.mbti")
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
   assert_eq(structs.length(), 1)
   assert_eq(structs[0].name, "Config")
   assert_eq(structs[0].visibility, "pub")
@@ -148,7 +148,7 @@ test "parse multiple struct definitions" {
     #|  label : String
     #|  disabled : Bool
     #|}
-  let structs = parse_struct_defs(content, "test.mbti")
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
   assert_eq(structs.length(), 3)
   assert_eq(structs[0].name, "CounterProps")
   assert_eq(structs[1].name, "UserState")
@@ -172,8 +172,8 @@ test "get props structs filters by suffix" {
     #|pub(all) struct Config {
     #|  debug : Bool
     #|}
-  let structs = parse_struct_defs(content, "test.mbti")
-  let props = get_props_structs(structs)
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
+  let props = @parser.get_props_structs(structs)
   assert_eq(props.length(), 2)
   assert_eq(props[0].name, "CounterProps")
   assert_eq(props[1].name, "ButtonProps")
@@ -186,7 +186,7 @@ test "parse single line struct" {
     #|
     #|pub(all) struct Empty {}
     #|pub struct Point { x : Int, y : Int }
-  let structs = parse_struct_defs(content, "test.mbti")
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
   assert_eq(structs.length(), 2)
   assert_eq(structs[0].name, "Empty")
   assert_eq(structs[1].name, "Point")
@@ -202,7 +202,7 @@ test "parse nested struct (multi-line)" {
     #|  items : Array[Item]
     #|  callback : (Int) -> Unit
     #|}
-  let structs = parse_struct_defs(content, "test.mbti")
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
   assert_eq(structs.length(), 1)
   assert_eq(structs[0].name, "ComplexProps")
   assert_true(structs[0].raw_definition.contains("config"))
@@ -217,7 +217,7 @@ test "parse nested struct (multi-line)" {
 ///|
 test "empty content" {
   let content = ""
-  let structs = parse_struct_defs(content, "test.mbti")
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
   assert_eq(structs.length(), 0)
 }
 
@@ -225,7 +225,7 @@ test "empty content" {
 test "content with only package declaration" {
   let content =
     #|package "test"
-  let structs = parse_struct_defs(content, "test.mbti")
+  let structs = @parser.parse_struct_defs(content, "test.mbti")
   assert_eq(structs.length(), 0)
 }
 
@@ -236,7 +236,7 @@ test "parse generic function signatures" {
     #|
     #|fn[T] identity(T) -> T
     #|fn[A, B] compose((A) -> B, (B) -> C) -> (A) -> C
-  let funcs = parse_pub_funcs(content, "test.mbti")
+  let funcs = @parser.parse_pub_funcs(content, "test.mbti")
   assert_eq(funcs.length(), 2)
   assert_eq(funcs[0].name, "identity")
   assert_eq(funcs[1].name, "compose")

@@ -5,16 +5,16 @@
 // { "ssr": true }). No client JS unless hydration is requested.
 
 ///|
-using @luna { h, text, attr_static, type Node, type Attr }
+using @luna {h, text, attr_static, type Node, type Attr}
 
 ///|
-fn attr(key : String, value : String) -> (String, Attr[Unit]) {
+fn attr(key : String, value : String) -> (String, Attr[Unit, String]) {
   (key, attr_static(value))
 }
 
 ///|
 /// Render function - exported for SSR.
-pub fn render() -> Node[Unit] {
+pub fn render() -> Node[Unit, String] {
   h("div", [attr("class", "info-box-component")], [
     h("h2", [], [text("InfoBox (MoonBit)")]),
     h("p", [], [

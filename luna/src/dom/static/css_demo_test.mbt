@@ -32,25 +32,30 @@ test "demo: card component with CSS utilities" {
     md_padding
 
   // Build the card component
-  let card = div(class=full_card_class, [
-    h2(class=@css.css("font-size", "1.25rem"), [text("Hello CSS Utilities")]),
-    p(class=@css.css("color", "#666"), [
-      text("This card uses atomic CSS classes generated at SSR time."),
+  let card = @static.div(class=full_card_class, [
+    @static.h2(class=@css.css("font-size", "1.25rem"), [
+      @static.text("Hello CSS Utilities"),
+    ]),
+    @static.p(class=@css.css("color", "#666"), [
+      @static.text("This card uses atomic CSS classes generated at SSR time."),
     ]),
   ])
 
   // Render component to HTML
-  let card_html = render(card)
+  let card_html = @static.render(card)
 
   // Generate all CSS (base + pseudo + media queries)
   let generated_css = @css.generate_full_css()
 
   // Build complete document with CSS
-  let doc = html(lang="en", [
-    head([title("CSS Utilities Demo"), style_(generated_css)]),
-    body([card]),
+  let doc = @static.html(lang="en", [
+    @static.head([
+      @static.title("CSS Utilities Demo"),
+      @static.style_(generated_css),
+    ]),
+    @static.body([card]),
   ])
-  let full_html = render(doc)
+  let full_html = @static.render(doc)
 
   // Verify: Card HTML contains generated class names
   assert_true(card_html.contains("class=\""))
@@ -100,8 +105,8 @@ test "demo: button with hover states" {
     btn_focus +
     " " +
     btn_active
-  let button = button(class=btn_class, [text("Click me")])
-  let html = render(button)
+  let button = @static.button(class=btn_class, [@static.text("Click me")])
+  let html = @static.render(button)
   let css = @css.generate_full_css()
 
   // Verify button HTML
@@ -131,12 +136,12 @@ test "demo: responsive grid layout" {
   let items = []
   for i in 0..<6 {
     items.push(
-      div(class=@css.css("padding", "1rem"), [
-        text("Item " + (i + 1).to_string()),
+      @static.div(class=@css.css("padding", "1rem"), [
+        @static.text("Item " + (i + 1).to_string()),
       ]),
     )
   }
-  let _ = div(class=grid_class, items)
+  let _ = @static.div(class=grid_class, items)
   let css = @css.generate_full_css()
 
   // Verify responsive breakpoints
@@ -176,27 +181,30 @@ test "demo: complete page generation" {
   ])
 
   // Build page
-  let page = document(
+  let page = @static.document(
     lang="en",
     head_children=[
-      title("CSS Utilities Demo"),
-      meta(charset="UTF-8"),
-      meta(name="viewport", content="width=device-width, initial-scale=1"),
-      style_(@css.generate_full_css()),
+      @static.title("CSS Utilities Demo"),
+      @static.meta(charset="UTF-8"),
+      @static.meta(
+        name="viewport",
+        content="width=device-width, initial-scale=1",
+      ),
+      @static.style_(@css.generate_full_css()),
     ],
     body_children=[
-      header_(class=header_class, [
-        h1([text("My Site")]),
-        nav([text("Home | About | Contact")]),
+      @static.header_(class=header_class, [
+        @static.h1([@static.text("My Site")]),
+        @static.nav([@static.text("Home | About | Contact")]),
       ]),
-      main_(class=main_class, [
-        h2([text("Welcome")]),
-        p([text("This page uses CSS utilities for styling.")]),
+      @static.main_(class=main_class, [
+        @static.h2([@static.text("Welcome")]),
+        @static.p([@static.text("This page uses CSS utilities for styling.")]),
       ]),
-      footer_(class=footer_class, [text("© 2025 My Site")]),
+      @static.footer_(class=footer_class, [@static.text("© 2025 My Site")]),
     ],
   )
-  let html = render_document(page)
+  let html = @static.render_document(page)
 
   // Verify document structure
   assert_true(html.has_prefix("<!DOCTYPE html>"))

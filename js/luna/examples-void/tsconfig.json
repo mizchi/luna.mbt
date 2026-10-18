@@ -1,0 +1,13 @@
+{
+  "extends": "./.void/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "types": ["void/env", "node", "vite/client"]
+  },
+  "include": ["pages", "src", "db", "auth.ts", "*.config.ts"]
+}

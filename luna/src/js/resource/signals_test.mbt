@@ -24,7 +24,7 @@ test "text_sig creates dynamic text from signal" {
 
 ///|
 test "Resource::peek returns state without tracking" {
-  let res = resource_resolved(42)
+  let res = @resource.resource_resolved(42)
   let state = res.peek()
   assert_true(state.is_success())
   assert_eq(state.value(), Some(42))
@@ -32,7 +32,7 @@ test "Resource::peek returns state without tracking" {
 
 ///|
 test "resource_resolved creates pre-resolved resource" {
-  let res = resource_resolved("hello")
+  let res = @resource.resource_resolved("hello")
   assert_true(res.is_success())
   assert_eq(res.value(), Some("hello"))
   assert_false(res.is_pending())
@@ -41,7 +41,7 @@ test "resource_resolved creates pre-resolved resource" {
 
 ///|
 test "resource_rejected creates pre-rejected resource" {
-  let res : Resource[Int] = resource_rejected("error")
+  let res : @resource.Resource[Int] = @resource.resource_rejected("error")
   assert_true(res.is_failure())
   assert_eq(res.error(), Some("error"))
   assert_false(res.is_pending())
@@ -50,7 +50,11 @@ test "resource_rejected creates pre-rejected resource" {
 
 ///|
 test "deferred creates manual resource with resolve/reject" {
-  let (res, resolve, _reject) : (Resource[Int], (Int) -> Unit, (String) -> Unit) = deferred()
+  let (res, resolve, _reject) : (
+    @resource.Resource[Int],
+    (Int) -> Unit,
+    (String) -> Unit,
+  ) = @resource.deferred()
   assert_true(res.is_pending())
   resolve(100)
   assert_true(res.is_success())
@@ -59,7 +63,11 @@ test "deferred creates manual resource with resolve/reject" {
 
 ///|
 test "deferred reject works" {
-  let (res, _resolve, reject) : (Resource[Int], (Int) -> Unit, (String) -> Unit) = deferred()
+  let (res, _resolve, reject) : (
+    @resource.Resource[Int],
+    (Int) -> Unit,
+    (String) -> Unit,
+  ) = @resource.deferred()
   assert_true(res.is_pending())
   reject("failed")
   assert_true(res.is_failure())
@@ -68,7 +76,7 @@ test "deferred reject works" {
 
 ///|
 test "resource_resolved refetch is no-op" {
-  let res = resource_resolved(42)
+  let res = @resource.resource_resolved(42)
   // refetch should be no-op for pre-resolved
   res.refetch()
   // Should still be success
@@ -78,7 +86,7 @@ test "resource_resolved refetch is no-op" {
 
 ///|
 test "resource_rejected refetch is no-op" {
-  let res : Resource[Int] = resource_rejected("error")
+  let res : @resource.Resource[Int] = @resource.resource_rejected("error")
   // refetch should be no-op for pre-rejected
   res.refetch()
   // Should still be failure
@@ -87,7 +95,11 @@ test "resource_rejected refetch is no-op" {
 
 ///|
 test "deferred refetch resets to pending" {
-  let (res, resolve, _reject) : (Resource[Int], (Int) -> Unit, (String) -> Unit) = deferred()
+  let (res, resolve, _reject) : (
+    @resource.Resource[Int],
+    (Int) -> Unit,
+    (String) -> Unit,
+  ) = @resource.deferred()
   assert_true(res.is_pending())
   resolve(100)
   assert_true(res.is_success())

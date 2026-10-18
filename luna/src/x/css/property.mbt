@@ -538,6 +538,12 @@ pub(all) enum Property {
 } derive(Eq, Debug)
 
 ///|
+pub extend Property with @debug.Debug::{to_repr}
+
+///|
+pub extend Property with Eq::{not_equal, equal}
+
+///|
 pub fn Property::css_name(self : Property) -> String {
   match self {
     AccentColor => "accent-color"

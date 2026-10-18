@@ -80,11 +80,11 @@ test "compile asset-scoped routes carries inherited styles and scripts" {
 ///|
 test "compile sol api routes" {
   async fn get_handler(_props : PageProps) -> Json {
-    { "status": "ok" }.to_json()
+    Json::Json({ "status": "ok" })
   }
 
   async fn post_handler(_props : PageProps) -> Json {
-    { "created": true }.to_json()
+    Json::Json({ "created": true })
   }
 
   let routes = [
@@ -313,7 +313,7 @@ extern "js" fn ffi_stream_to_text(stream : @js.Any) -> @js.Promise[String] =
 
 ///|
 struct TestHttpResponse {
-  status : Int
+  status : Int32
   body : String
   content_type : String?
   fragment_response : String?
@@ -363,7 +363,7 @@ fn mark_cached_entry_stale(cache : @isr.MemoryCache, path : String) -> Unit {
 }
 
 ///|
-fn count_substring(haystack : String, needle : String) -> Int {
+fn count_substring(haystack : String, needle : String) -> Int32 {
   if needle.is_empty() {
     0
   } else {
@@ -843,7 +843,7 @@ async test "register_sol_routes keeps API headers and non-ISR pages omit ISR sta
     async fn api_header_scenario() -> Unit {
       async fn api_handler(props : PageProps) -> Json {
         props.set_header("X-Custom", "from-api")
-        { "ok": true }.to_json()
+        Json::Json({ "ok": true })
       }
 
       let app = @mars.Server::new()

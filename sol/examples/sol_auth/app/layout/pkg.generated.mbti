@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "example/sol-auth/layout"
+
+import {
+  "mizchi/luna/core",
+  "mizchi/luna/dom/static",
+  "mizchi/sol/router",
+}
+
+// Values
+pub fn head() -> String
+
+pub fn layout(Array[@core.Node[Unit, String]]) -> @core.Node[Unit, String]
+
+pub fn root_layout(@router.PageProps, @static.ServerNode) -> @static.ServerNode raise
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

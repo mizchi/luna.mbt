@@ -7,10 +7,10 @@ using @test {assert_eq}
 /// Routes tests - cross-platform (js, wasm-gc, native)
 test "compile simple page route" {
   let routes = [
-    Routes::Page(path="/", component="home", title="Home", meta=[]),
-    Routes::Page(path="/about", component="about", title="About", meta=[]),
+    @routes.Routes::Page(path="/", component="home", title="Home", meta=[]),
+    @routes.Routes::Page(path="/about", component="about", title="About", meta=[]),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled.length(), 2)
   assert_eq(compiled[0].pattern, "/")
   assert_eq(compiled[0].component, "home")
@@ -21,12 +21,12 @@ test "compile simple page route" {
 ///|
 test "compile with layout" {
   let routes = [
-    Routes::Layout(segment="/api", layout="api_layout", children=[
-      Routes::Page(path="/users", component="users", title="Users", meta=[]),
-      Routes::Page(path="/posts", component="posts", title="Posts", meta=[]),
+    @routes.Routes::Layout(segment="/api", layout="api_layout", children=[
+      @routes.Routes::Page(path="/users", component="users", title="Users", meta=[]),
+      @routes.Routes::Page(path="/posts", component="posts", title="Posts", meta=[]),
     ]),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled.length(), 2)
   assert_eq(compiled[0].pattern, "/api/users")
   assert_eq(compiled[0].layouts, ["api_layout"])
@@ -36,9 +36,14 @@ test "compile with layout" {
 ///|
 test "compile with param in path" {
   let routes = [
-    Routes::Page(path="/users/:id", component="user_detail", title="User", meta=[]),
+    @routes.Routes::Page(
+      path="/users/:id",
+      component="user_detail",
+      title="User",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled.length(), 1)
   assert_eq(compiled[0].pattern, "/users/:id")
   assert_eq(compiled[0].param_names, ["id"])
@@ -47,14 +52,14 @@ test "compile with param in path" {
 ///|
 test "compile with multiple params" {
   let routes = [
-    Routes::Page(
+    @routes.Routes::Page(
       path="/users/:userId/posts/:postId",
       component="user_post",
       title="Post",
       meta=[],
     ),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled.length(), 1)
   assert_eq(compiled[0].pattern, "/users/:userId/posts/:postId")
   assert_eq(compiled[0].param_names, ["userId", "postId"])
@@ -63,11 +68,11 @@ test "compile with multiple params" {
 ///|
 test "match_url simple" {
   let routes = [
-    Routes::Page(path="/", component="home", title="Home", meta=[]),
-    Routes::Page(path="/about", component="about", title="About", meta=[]),
+    @routes.Routes::Page(path="/", component="home", title="Home", meta=[]),
+    @routes.Routes::Page(path="/about", component="about", title="About", meta=[]),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/about", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/about", compiled)
   assert_true(m is Some(_))
   assert_eq(m.unwrap().component(), "about")
 }
@@ -75,10 +80,10 @@ test "match_url simple" {
 ///|
 test "match_url with param" {
   let routes = [
-    Routes::Page(path="/items/:id", component="item", title="Item", meta=[]),
+    @routes.Routes::Page(path="/items/:id", component="item", title="Item", meta=[]),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/items/123", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/items/123", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.component(), "item")
@@ -88,10 +93,10 @@ test "match_url with param" {
 ///|
 test "match_url with query" {
   let routes = [
-    Routes::Page(path="/search", component="search", title="Search", meta=[]),
+    @routes.Routes::Page(path="/search", component="search", title="Search", meta=[]),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/search?q=hello&page=1", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/search?q=hello&page=1", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.get_query("q"), Some("hello"))
@@ -101,10 +106,10 @@ test "match_url with query" {
 ///|
 test "match_url with query containing equals sign" {
   let routes = [
-    Routes::Page(path="/search", component="search", title="Search", meta=[]),
+    @routes.Routes::Page(path="/search", component="search", title="Search", meta=[]),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/search?q=a=b=c", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/search?q=a=b=c", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.get_query("q"), Some("a=b=c"))
@@ -113,10 +118,12 @@ test "match_url with query containing equals sign" {
 ///|
 test "match_url query decodes percent-encoding and plus" {
   let routes = [
-    Routes::Page(path="/search", component="search", title="Search", meta=[]),
+    @routes.Routes::Page(path="/search", component="search", title="Search", meta=[]),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/search?q=hello%20world&tag=a%2Bb&space=one+two", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url(
+    "/search?q=hello%20world&tag=a%2Bb&space=one+two", compiled,
+  )
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.get_query("q"), Some("hello world"))
@@ -127,10 +134,10 @@ test "match_url query decodes percent-encoding and plus" {
 ///|
 test "match_url query decodes utf8 percent-encoding" {
   let routes = [
-    Routes::Page(path="/search", component="search", title="Search", meta=[]),
+    @routes.Routes::Page(path="/search", component="search", title="Search", meta=[]),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/search?q=%E3%81%82+%E3%81%84%E3%81%86", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/search?q=%E3%81%82+%E3%81%84%E3%81%86", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   let expected = "あ いう"
@@ -140,18 +147,18 @@ test "match_url query decodes utf8 percent-encoding" {
 ///|
 test "match_url no match" {
   let routes = [
-    Routes::Page(path="/home", component="home", title="Home", meta=[]),
+    @routes.Routes::Page(path="/home", component="home", title="Home", meta=[]),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/notfound", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/notfound", compiled)
   assert_true(m is None)
 }
 
 ///|
 test "compile with nested layout" {
   let routes = [
-    Routes::Layout(segment="/admin", layout="admin_layout", children=[
-      Routes::Page(
+    @routes.Routes::Layout(segment="/admin", layout="admin_layout", children=[
+      @routes.Routes::Page(
         path="/dashboard",
         component="dashboard",
         title="Dashboard",
@@ -159,7 +166,7 @@ test "compile with nested layout" {
       ),
     ]),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled.length(), 1)
   assert_eq(compiled[0].pattern, "/admin/dashboard")
   assert_eq(compiled[0].layouts, ["admin_layout"])
@@ -168,12 +175,12 @@ test "compile with nested layout" {
 ///|
 test "RoutesKind via match result" {
   let routes = [
-    Routes::Page(path="/page", component="page", title="Page", meta=[]),
-    Routes::Get(path="/api/data", handler="get_data"),
+    @routes.Routes::Page(path="/page", component="page", title="Page", meta=[]),
+    @routes.Routes::Get(path="/api/data", handler="get_data"),
   ]
-  let compiled = compile(routes)
-  let page_match = match_url("/page", compiled).unwrap()
-  let api_match = match_url("/api/data", compiled).unwrap()
+  let compiled = @routes.compile(routes)
+  let page_match = @routes.match_url("/page", compiled).unwrap()
+  let api_match = @routes.match_url("/api/data", compiled).unwrap()
   assert_true(page_match.kind() is Page)
   assert_true(api_match.kind() is GetApi)
 }
@@ -185,9 +192,14 @@ test "RoutesKind via match result" {
 ///|
 test "compile catch-all route [...slug]" {
   let routes = [
-    Routes::Page(path="/docs/[...slug]", component="docs", title="Docs", meta=[]),
+    @routes.Routes::Page(
+      path="/docs/[...slug]",
+      component="docs",
+      title="Docs",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled.length(), 1)
   assert_eq(compiled[0].pattern, "/docs/[...slug]")
   assert_true(compiled[0].catch_all is Some(_))
@@ -199,9 +211,14 @@ test "compile catch-all route [...slug]" {
 ///|
 test "compile optional catch-all route [[...slug]]" {
   let routes = [
-    Routes::Page(path="/blog/[[...path]]", component="blog", title="Blog", meta=[]),
+    @routes.Routes::Page(
+      path="/blog/[[...path]]",
+      component="blog",
+      title="Blog",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled.length(), 1)
   assert_eq(compiled[0].pattern, "/blog/[[...path]]")
   assert_true(compiled[0].catch_all is Some(_))
@@ -213,10 +230,15 @@ test "compile optional catch-all route [[...slug]]" {
 ///|
 test "match_url catch-all single segment" {
   let routes = [
-    Routes::Page(path="/docs/[...slug]", component="docs", title="Docs", meta=[]),
+    @routes.Routes::Page(
+      path="/docs/[...slug]",
+      component="docs",
+      title="Docs",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/docs/intro", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/docs/intro", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.component(), "docs")
@@ -226,10 +248,15 @@ test "match_url catch-all single segment" {
 ///|
 test "match_url catch-all multiple segments" {
   let routes = [
-    Routes::Page(path="/docs/[...slug]", component="docs", title="Docs", meta=[]),
+    @routes.Routes::Page(
+      path="/docs/[...slug]",
+      component="docs",
+      title="Docs",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/docs/guide/getting-started/install", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/docs/guide/getting-started/install", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.component(), "docs")
@@ -239,20 +266,30 @@ test "match_url catch-all multiple segments" {
 ///|
 test "match_url required catch-all no segments fails" {
   let routes = [
-    Routes::Page(path="/docs/[...slug]", component="docs", title="Docs", meta=[]),
+    @routes.Routes::Page(
+      path="/docs/[...slug]",
+      component="docs",
+      title="Docs",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/docs", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/docs", compiled)
   assert_true(m is None)
 }
 
 ///|
 test "match_url optional catch-all no segments succeeds" {
   let routes = [
-    Routes::Page(path="/blog/[[...path]]", component="blog", title="Blog", meta=[]),
+    @routes.Routes::Page(
+      path="/blog/[[...path]]",
+      component="blog",
+      title="Blog",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/blog", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/blog", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.component(), "blog")
@@ -262,10 +299,15 @@ test "match_url optional catch-all no segments succeeds" {
 ///|
 test "match_url optional catch-all with segments" {
   let routes = [
-    Routes::Page(path="/blog/[[...path]]", component="blog", title="Blog", meta=[]),
+    @routes.Routes::Page(
+      path="/blog/[[...path]]",
+      component="blog",
+      title="Blog",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/blog/2024/12/post", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/blog/2024/12/post", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.component(), "blog")
@@ -275,15 +317,15 @@ test "match_url optional catch-all with segments" {
 ///|
 test "match_url catch-all with prefix param" {
   let routes = [
-    Routes::Page(
+    @routes.Routes::Page(
       path="/user/:id/files/[...path]",
       component="user_files",
       title="Files",
       meta=[],
     ),
   ]
-  let compiled = compile(routes)
-  let m = match_url("/user/123/files/documents/report.pdf", compiled)
+  let compiled = @routes.compile(routes)
+  let m = @routes.match_url("/user/123/files/documents/report.pdf", compiled)
   assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.component(), "user_files")
@@ -294,9 +336,14 @@ test "match_url catch-all with prefix param" {
 ///|
 test "compile does not extract catch-all as regular param" {
   let routes = [
-    Routes::Page(path="/docs/[...slug]", component="docs", title="Docs", meta=[]),
+    @routes.Routes::Page(
+      path="/docs/[...slug]",
+      component="docs",
+      title="Docs",
+      meta=[],
+    ),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   // param_names should not include catch-all
   assert_eq(compiled[0].param_names.length(), 0)
 }
@@ -304,14 +351,14 @@ test "compile does not extract catch-all as regular param" {
 ///|
 test "compile mixed params and catch-all" {
   let routes = [
-    Routes::Page(
+    @routes.Routes::Page(
       path="/org/:orgId/repo/:repoId/tree/[...path]",
       component="tree",
       title="Tree",
       meta=[],
     ),
   ]
-  let compiled = compile(routes)
+  let compiled = @routes.compile(routes)
   assert_eq(compiled[0].param_names, ["orgId", "repoId"])
   assert_true(compiled[0].catch_all is Some(_))
   assert_eq(compiled[0].catch_all.unwrap().name, "path")

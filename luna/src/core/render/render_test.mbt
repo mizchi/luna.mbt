@@ -6,87 +6,87 @@ using @test {assert_eq}
 ///|
 /// Render tests - cross-platform (js, wasm-gc, native)
 test "escape_html basic" {
-  assert_eq(escape_html("hello"), "hello")
-  assert_eq(escape_html("<script>"), "&lt;script&gt;")
-  assert_eq(escape_html("a & b"), "a &amp; b")
-  assert_eq(escape_html("\"quoted\""), "&quot;quoted&quot;")
+  assert_eq(@render.escape_html("hello"), "hello")
+  assert_eq(@render.escape_html("<script>"), "&lt;script&gt;")
+  assert_eq(@render.escape_html("a & b"), "a &amp; b")
+  assert_eq(@render.escape_html("\"quoted\""), "&quot;quoted&quot;")
 }
 
 ///|
 test "escape_attr basic" {
-  assert_eq(escape_attr("hello"), "hello")
-  assert_eq(escape_attr("a\"b"), "a&quot;b")
-  assert_eq(escape_attr("a&b"), "a&amp;b")
+  assert_eq(@render.escape_attr("hello"), "hello")
+  assert_eq(@render.escape_attr("a\"b"), "a&quot;b")
+  assert_eq(@render.escape_attr("a&b"), "a&amp;b")
 }
 
 ///|
 test "escape_js_string basic" {
-  assert_eq(escape_js_string("hello"), "hello")
-  assert_eq(escape_js_string("line\nbreak"), "line\\nbreak")
-  assert_eq(escape_js_string("tab\there"), "tab\\there")
+  assert_eq(@render.escape_js_string("hello"), "hello")
+  assert_eq(@render.escape_js_string("line\nbreak"), "line\\nbreak")
+  assert_eq(@render.escape_js_string("tab\there"), "tab\\there")
 }
 
 ///|
 test "is_void_element" {
-  assert_true(is_void_element("br"))
-  assert_true(is_void_element("img"))
-  assert_true(is_void_element("input"))
-  assert_true(is_void_element("meta"))
-  assert_true(is_void_element("link"))
-  assert_false(is_void_element("div"))
-  assert_false(is_void_element("span"))
-  assert_false(is_void_element("p"))
+  assert_true(@render.is_void_element("br"))
+  assert_true(@render.is_void_element("img"))
+  assert_true(@render.is_void_element("input"))
+  assert_true(@render.is_void_element("meta"))
+  assert_true(@render.is_void_element("link"))
+  assert_false(@render.is_void_element("div"))
+  assert_false(@render.is_void_element("span"))
+  assert_false(@render.is_void_element("p"))
 }
 
 ///|
 test "needs_html_escape" {
-  assert_false(needs_html_escape("hello"))
-  assert_true(needs_html_escape("<script>"))
-  assert_true(needs_html_escape("a & b"))
-  assert_true(needs_html_escape("\"quoted\""))
+  assert_false(@render.needs_html_escape("hello"))
+  assert_true(@render.needs_html_escape("<script>"))
+  assert_true(@render.needs_html_escape("a & b"))
+  assert_true(@render.needs_html_escape("\"quoted\""))
 }
 
 ///|
 test "needs_attr_escape" {
-  assert_false(needs_attr_escape("hello"))
-  assert_true(needs_attr_escape("a\"b"))
-  assert_true(needs_attr_escape("a&b"))
+  assert_false(@render.needs_attr_escape("hello"))
+  assert_true(@render.needs_attr_escape("a\"b"))
+  assert_true(@render.needs_attr_escape("a&b"))
   // Note: < is not escaped in attributes, only in HTML content
-  assert_false(needs_attr_escape("a<b"))
+  assert_false(@render.needs_attr_escape("a<b"))
 }
 
 ///|
 test "escape_html_to" {
   let sb = StringBuilder()
-  escape_html_to(sb, "<div>")
+  @render.escape_html_to(sb, "<div>")
   assert_eq(sb.to_string(), "&lt;div&gt;")
 }
 
 ///|
 test "escape_attr_to" {
   let sb = StringBuilder()
-  escape_attr_to(sb, "class=\"foo\"")
+  @render.escape_attr_to(sb, "class=\"foo\"")
   assert_eq(sb.to_string(), "class=&quot;foo&quot;")
 }
 
 ///|
 test "render_to_string text node" {
   let node : @core.Node[Unit, String] = @core.text("Hello")
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "Hello")
 }
 
 ///|
 test "render_to_string accepts size hint" {
   let node : @core.Node[Unit, String] = @core.text("Hello")
-  let result = render_to_string(node, size_hint=1024)
+  let result = @render.render_to_string(node, size_hint=1024)
   assert_eq(result.html, "Hello")
 }
 
 ///|
 test "render_to_string_with_hydration accepts size hint" {
   let node : @core.Node[Unit, String] = @core.text_dyn(fn() { "Hello" })
-  let html = render_to_string_with_hydration(node, size_hint=1024)
+  let html = @render.render_to_string_with_hydration(node, size_hint=1024)
   assert_eq(html, "<!--t:0-->Hello<!--/t-->")
 }
 
@@ -95,7 +95,7 @@ test "render_to_string element" {
   let node : @core.Node[Unit, String] = @core.h("div", [], [
     @core.text("content"),
   ])
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "<div>content</div>")
 }
 
@@ -107,14 +107,14 @@ test "render_to_string reverse pipeline element" {
       @core.text("world"),
     ],
   ]
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "<div>hello<span>world</span></div>")
 }
 
 ///|
 test "render_to_string void element" {
   let node : @core.Node[Unit, String] = @core.h("br", [], [])
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "<br />")
 }
 
@@ -125,7 +125,7 @@ test "render_to_string with static attr" {
     [("class", @core.attr_static("container"))],
     [],
   )
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "<div class=\"container\"></div>")
 }
 
@@ -136,7 +136,7 @@ test "render_to_string skips remove marker attr" {
     [("hidden", @core.attr_static("__remove__"))],
     [],
   )
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "<div></div>")
 }
 
@@ -145,7 +145,7 @@ test "render_to_string escapes content" {
   let node : @core.Node[Unit, String] = @core.text(
     "<script>alert('xss')</script>",
   )
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
 }
 
@@ -156,19 +156,19 @@ test "render_to_string fragment" {
     @core.text("b"),
     @core.text("c"),
   ])
-  let result = render_to_string(node)
+  let result = @render.render_to_string(node)
   assert_eq(result.html, "abc")
 }
 
 ///|
 test "generate_preload_tags empty" {
-  let tags = generate_preload_tags([])
+  let tags = @render.generate_preload_tags([])
   assert_eq(tags, "")
 }
 
 ///|
 test "generate_preload_tags with urls" {
-  let tags = generate_preload_tags(["/a.js", "/b.js"])
+  let tags = @render.generate_preload_tags(["/a.js", "/b.js"])
   assert_true(tags.contains("modulepreload"))
   assert_true(tags.contains("/a.js"))
   assert_true(tags.contains("/b.js"))

@@ -21,6 +21,11 @@ test.describe("sol_changelog visual regression", () => {
       expect(res?.status(), `expected 2xx at ${page.path}`).toBe(200);
       await expect(p).toHaveTitle(page.title);
       await expect(p.locator("h1").first()).toBeVisible();
+      if (page.path.startsWith("/release/")) {
+        // The continuation belongs to the same list item as its first line.
+        await expect(p.locator("main li").filter({ hasText: "Per-release deep links" }))
+          .toContainText("references inside docs and commit messages.");
+      }
 
       // Wait for fonts / images to settle so the screenshot is taken
       // after the page's idle layout.

@@ -3,7 +3,7 @@
 ///|
 /// Tests for CST to MdNode converter
 test "parse_markdown_native: basic paragraph" {
-  let (fm, nodes) = parse_markdown_native("Hello World")
+  let (fm, nodes) = @md_render.parse_markdown_native("Hello World")
   debug_inspect(fm.title, content="None")
   inspect(nodes.length(), content="1")
   match nodes[0] {
@@ -20,7 +20,7 @@ test "parse_markdown_native: basic paragraph" {
 
 ///|
 test "parse_markdown_native: heading" {
-  let (_, nodes) = parse_markdown_native("# Hello")
+  let (_, nodes) = @md_render.parse_markdown_native("# Hello")
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @markdown.MdNode::Heading(level~, children~, id~) => {
@@ -35,7 +35,7 @@ test "parse_markdown_native: heading" {
 ///|
 test "parse_markdown_native: frontmatter" {
   let content = "---\ntitle: Test\ndescription: A test doc\n---\n\nHello"
-  let (fm, nodes) = parse_markdown_native(content)
+  let (fm, nodes) = @md_render.parse_markdown_native(content)
   debug_inspect(
     fm.title,
     content=(
@@ -54,7 +54,7 @@ test "parse_markdown_native: frontmatter" {
 ///|
 test "parse_markdown_native: code block" {
   let content = "```javascript\nconst x = 1;\n```"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @markdown.MdNode::CodeBlock(lang~, code~) => {
@@ -68,7 +68,7 @@ test "parse_markdown_native: code block" {
 ///|
 test "parse_markdown_native: list" {
   let content = "- Item 1\n- Item 2\n- Item 3"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @markdown.MdNode::List(ordered~, items~) => {
@@ -82,7 +82,7 @@ test "parse_markdown_native: list" {
 ///|
 test "parse_markdown_native: ordered list" {
   let content = "1. First\n2. Second"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @markdown.MdNode::List(ordered~, items~) => {
@@ -96,7 +96,7 @@ test "parse_markdown_native: ordered list" {
 ///|
 test "parse_markdown_native: emphasis and strong" {
   let content = "*italic* and **bold**"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @markdown.MdNode::Paragraph(children~) =>
@@ -109,7 +109,7 @@ test "parse_markdown_native: emphasis and strong" {
 ///|
 test "parse_markdown_native: link" {
   let content = "[Link text](https://example.com)"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   match nodes[0] {
     @markdown.MdNode::Paragraph(children~) =>
       match children[0] {
@@ -126,7 +126,7 @@ test "parse_markdown_native: link" {
 ///|
 test "parse_markdown_native: image" {
   let content = "![Alt text](image.png \"Title\")"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   match nodes[0] {
     @markdown.MdNode::Paragraph(children~) =>
       match children[0] {
@@ -144,7 +144,7 @@ test "parse_markdown_native: image" {
 ///|
 test "parse_markdown_native: blockquote" {
   let content = "> Quote text"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   match nodes[0] {
     @markdown.MdNode::Blockquote(children~) =>
       inspect(children.length(), content="1")
@@ -155,7 +155,7 @@ test "parse_markdown_native: blockquote" {
 ///|
 test "parse_markdown_native: thematic break" {
   let content = "Before\n\n---\n\nAfter"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   // Should have: paragraph, thematic break, paragraph
   let mut found_hr = false
   for node in nodes {
@@ -170,7 +170,7 @@ test "parse_markdown_native: thematic break" {
 ///|
 test "parse_markdown_native: table" {
   let content = "| A | B |\n|---|---|\n| 1 | 2 |"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   match nodes[0] {
     @markdown.MdNode::Table(headers~, rows~) => {
       inspect(headers.length(), content="2")
@@ -183,7 +183,7 @@ test "parse_markdown_native: table" {
 ///|
 test "parse_markdown_native: inline code" {
   let content = "Use `code` here"
-  let (_, nodes) = parse_markdown_native(content)
+  let (_, nodes) = @md_render.parse_markdown_native(content)
   match nodes[0] {
     @markdown.MdNode::Paragraph(children~) => {
       let mut found_code = false
@@ -208,7 +208,7 @@ test "parse_markdown_native: inline code" {
 
 ///|
 test "parse_code_block_info: lang only" {
-  let info = parse_code_block_info("javascript")
+  let info = @md_render.parse_code_block_info("javascript")
   inspect(info.lang, content="javascript")
   inspect(info.filename, content="")
   inspect(info.meta, content="")
@@ -216,7 +216,7 @@ test "parse_code_block_info: lang only" {
 
 ///|
 test "parse_code_block_info: lang with filename" {
-  let info = parse_code_block_info("js:app.js")
+  let info = @md_render.parse_code_block_info("js:app.js")
   inspect(info.lang, content="js")
   inspect(info.filename, content="app.js")
   inspect(info.meta, content="")
@@ -224,7 +224,7 @@ test "parse_code_block_info: lang with filename" {
 
 ///|
 test "parse_code_block_info: lang with path filename" {
-  let info = parse_code_block_info("typescript:src/index.ts")
+  let info = @md_render.parse_code_block_info("typescript:src/index.ts")
   inspect(info.lang, content="typescript")
   inspect(info.filename, content="src/index.ts")
   inspect(info.meta, content="")
@@ -232,7 +232,7 @@ test "parse_code_block_info: lang with path filename" {
 
 ///|
 test "parse_code_block_info: lang with meta" {
-  let info = parse_code_block_info("js {highlight=[1,3]}")
+  let info = @md_render.parse_code_block_info("js {highlight=[1,3]}")
   inspect(info.lang, content="js")
   inspect(info.filename, content="")
   inspect(info.meta, content="{highlight=[1,3]}")
@@ -240,7 +240,7 @@ test "parse_code_block_info: lang with meta" {
 
 ///|
 test "parse_code_block_info: lang, filename, and meta" {
-  let info = parse_code_block_info("ts:index.ts {highlight=[1,3]}")
+  let info = @md_render.parse_code_block_info("ts:index.ts {highlight=[1,3]}")
   inspect(info.lang, content="ts")
   inspect(info.filename, content="index.ts")
   inspect(info.meta, content="{highlight=[1,3]}")
@@ -248,7 +248,7 @@ test "parse_code_block_info: lang, filename, and meta" {
 
 ///|
 test "parse_code_block_info: empty string" {
-  let info = parse_code_block_info("")
+  let info = @md_render.parse_code_block_info("")
   inspect(info.lang, content="")
   inspect(info.filename, content="")
   inspect(info.meta, content="")
@@ -256,7 +256,7 @@ test "parse_code_block_info: empty string" {
 
 ///|
 test "parse_code_block_info: whitespace only" {
-  let info = parse_code_block_info("  ")
+  let info = @md_render.parse_code_block_info("  ")
   inspect(info.lang, content="")
   inspect(info.filename, content="")
   inspect(info.meta, content="")
@@ -264,7 +264,7 @@ test "parse_code_block_info: whitespace only" {
 
 ///|
 test "parse_code_block_info: json package.json" {
-  let info = parse_code_block_info("json:package.json")
+  let info = @md_render.parse_code_block_info("json:package.json")
   inspect(info.lang, content="json")
   inspect(info.filename, content="package.json")
   inspect(info.meta, content="")
@@ -272,7 +272,7 @@ test "parse_code_block_info: json package.json" {
 
 ///|
 test "parse_code_block_info: bare attribute after the language" {
-  let info = parse_code_block_info("mbt check")
+  let info = @md_render.parse_code_block_info("mbt check")
   inspect(info.lang, content="mbt")
   inspect(info.filename, content="")
   inspect(info.meta, content="check")
@@ -280,7 +280,7 @@ test "parse_code_block_info: bare attribute after the language" {
 
 ///|
 test "parse_code_block_info: filename plus bare attribute" {
-  let info = parse_code_block_info("ts:index.ts twoslash")
+  let info = @md_render.parse_code_block_info("ts:index.ts twoslash")
   inspect(info.lang, content="ts")
   inspect(info.filename, content="index.ts")
   inspect(info.meta, content="twoslash")

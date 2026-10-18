@@ -12,8 +12,8 @@
 // asset surface keeps it deferred until then.
 
 ///|
-/// Walk every URL the middleware can serve, render each one in-process,
-/// and write the rendered body to `<output_dir>/<url-to-disk-path>`.
+/// Legacy synchronous crawler for text pages. For component SSR and build
+/// error reporting, use `build_to_disk_async`, as the CLI does.
 pub fn build_to_disk(mw : @middleware.Middleware, output_dir : String) -> Unit {
   ensure_dir(output_dir)
   // Page-vs-asset routing comes from the middleware's own asset surface,
@@ -29,6 +29,29 @@ pub fn build_to_disk(mw : @middleware.Middleware, output_dir : String) -> Unit {
       _ => ()
     }
   }
+}
+
+///|
+/// Crawl the async HTTP rendering path, including component SSR. A failed
+/// render or write aborts the build instead of publishing an error page.
+pub async fn build_to_disk_async(
+  mw : @middleware.Middleware,
+  output_dir : String,
+) -> Result[Unit, String] {
+  ensure_dir(output_dir)
+  let asset_urls = mw.asset_urls()
+  for url in mw.list_urls() {
+    let res = mw.render_url_async(url)
+    if res.status != 200 {
+      return Err("Failed to render \{url}: HTTP \{res.status}")
+    }
+    let target = @path.join2(output_dir, url_to_disk_path(url, asset_urls))
+    ensure_parent_dir(target)
+    @fs.writeFileSync(target, @core.any(res.body)) catch {
+      e => return Err("Failed to write \{target}: \{e}")
+    }
+  }
+  Ok(())
 }
 
 ///|

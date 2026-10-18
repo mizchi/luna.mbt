@@ -11,6 +11,12 @@ pub(all) enum RouteManifestMethod {
 } derive(Eq, Debug)
 
 ///|
+pub extend RouteManifestMethod with @debug.Debug::{to_repr}
+
+///|
+pub extend RouteManifestMethod with Eq::{not_equal, equal}
+
+///|
 pub(all) enum RouteManifestOwner {
   SolPage
   SolApi
@@ -20,11 +26,23 @@ pub(all) enum RouteManifestOwner {
 } derive(Eq, Debug)
 
 ///|
+pub extend RouteManifestOwner with @debug.Debug::{to_repr}
+
+///|
+pub extend RouteManifestOwner with Eq::{not_equal, equal}
+
+///|
 pub(all) enum RouteManifestMatchKind {
   Exact
   Pattern
   Prefix
 } derive(Eq, Debug)
+
+///|
+pub extend RouteManifestMatchKind with @debug.Debug::{to_repr}
+
+///|
+pub extend RouteManifestMatchKind with Eq::{not_equal, equal}
 
 ///|
 pub struct RouteManifestEntry {
@@ -77,11 +95,11 @@ fn route_manifest_match_kind_to_string(
 ///|
 pub fn RouteManifestEntry::to_json(self : RouteManifestEntry) -> Json {
   {
-    "pattern": self.pattern.to_json(),
-    "method": route_manifest_method_to_string(self.http_method).to_json(),
-    "owner": route_manifest_owner_to_string(self.owner).to_json(),
-    "match": route_manifest_match_kind_to_string(self.match_kind).to_json(),
-    "params": self.param_names.to_json(),
+    "pattern": Json::Json(self.pattern),
+    "method": Json::Json(route_manifest_method_to_string(self.http_method)),
+    "owner": Json::Json(route_manifest_owner_to_string(self.owner)),
+    "match": Json::Json(route_manifest_match_kind_to_string(self.match_kind)),
+    "params": Json::Json(self.param_names),
   }
 }
 
@@ -91,7 +109,7 @@ pub fn RouteOwnershipManifest::to_json(self : RouteOwnershipManifest) -> Json {
   for entry in self.entries {
     entries.push(entry.to_json())
   }
-  { "routes": entries.to_json() }
+  { "routes": Json::Json(entries) }
 }
 
 ///|
@@ -116,7 +134,7 @@ fn route_manifest_is_separator(c : Char) -> Bool {
 ///|
 fn route_manifest_upper_ascii(c : Char) -> Char {
   if c >= 'a' && c <= 'z' {
-    Int::unsafe_to_char(c.to_int() - 32)
+    Int32::unsafe_to_char(c.to_int() - 32)
   } else {
     c
   }
@@ -273,14 +291,14 @@ pub fn RouteOwnershipManifest::api_client_manifest_json(
   for entry in self.entries {
     if entry.owner is SolApi {
       routes.push({
-        "name": route_manifest_api_helper_name(entry).to_json(),
-        "method": route_manifest_method_to_string(entry.http_method).to_json(),
-        "path": entry.pattern.to_json(),
-        "params": entry.param_names.to_json(),
+        "name": Json::Json(route_manifest_api_helper_name(entry)),
+        "method": Json::Json(route_manifest_method_to_string(entry.http_method)),
+        "path": Json::Json(entry.pattern),
+        "params": Json::Json(entry.param_names),
       })
     }
   }
-  { "apis": routes.to_json() }
+  { "apis": Json::Json(routes) }
 }
 
 ///|
@@ -463,7 +481,7 @@ fn add_reserved_manifest_entries(entries : Array[RouteManifestEntry]) -> Unit {
 ///|
 pub fn route_ownership_manifest(
   routes : Array[SolRoutes],
-  config? : RouterConfig = RouterConfig::default(),
+  config~ : RouterConfig = RouterConfig::default(),
 ) -> RouteOwnershipManifest {
   let entries : Array[RouteManifestEntry] = []
   add_reserved_manifest_entries(entries)
@@ -573,7 +591,7 @@ fn route_manifest_entry_matches(
 pub fn RouteOwnershipManifest::match_path(
   self : RouteOwnershipManifest,
   path : String,
-  http_method? : RouteManifestMethod = RouteManifestMethod::Get,
+  http_method~ : RouteManifestMethod = RouteManifestMethod::Get,
 ) -> RouteManifestEntry? {
   let normalized = route_manifest_path_for_match(path)
   for entry in self.entries {

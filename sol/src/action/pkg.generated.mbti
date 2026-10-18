@@ -77,6 +77,9 @@ pub enum ActionPhase {
   Failed
   Redirecting
 } derive(Eq, @debug.Debug)
+pub fn ActionPhase::equal(Self, Self) -> Bool
+pub fn ActionPhase::not_equal(Self, Self) -> Bool
+pub fn ActionPhase::to_repr(Self) -> @debug.Repr
 
 pub struct ActionRegistry {
   // private fields

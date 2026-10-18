@@ -17,7 +17,7 @@ pub fn[E, A] has_dynamic_content(attrs : Array[(String, Attr[E, A])]) -> Bool {
 /// Create a static attribute value.
 /// ```mbt check
 /// test {
-///   let attr : Attr[Unit, String] = attr_static("my-class")
+///   let attr : @core.Attr[Unit, String] = @core.attr_static("my-class")
 ///   guard attr is VStatic(v) else { fail("expected VStatic") }
 ///   inspect(v, content="my-class")
 /// }
@@ -32,7 +32,7 @@ pub fn[E, A] attr_static(value : A) -> Attr[E, A] {
 /// ```mbt check
 /// test {
 ///   let mut count = 0
-///   let attr : Attr[Unit, String] = attr_dynamic(fn() {
+///   let attr : @core.Attr[Unit, String] = @core.attr_dynamic(fn() {
 ///     "count-" + count.to_string()
 ///   })
 ///   guard attr is VDynamic(getter) else { fail("expected VDynamic") }

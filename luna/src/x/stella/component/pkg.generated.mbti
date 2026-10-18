@@ -112,6 +112,8 @@ pub enum ShadowMode {
   Closed
   None
 } derive(Eq)
+pub fn ShadowMode::equal(Self, Self) -> Bool
+pub fn ShadowMode::not_equal(Self, Self) -> Bool
 
 pub struct WcContext {
   raw : @js_core.Any

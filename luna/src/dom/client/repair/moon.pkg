@@ -4,7 +4,6 @@ import {
   "mizchi/luna/js/resource",
   "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
-  "mizchi/js_web/event",
   "mizchi/js_builtin/global",
   "mizchi/luna/dom/client",
   "moonbitlang/core/hashmap",
@@ -12,7 +11,6 @@ import {
 
 import {
   "mizchi/npm_typed/global_jsdom",
-  "mizchi/signals",
   "mizchi/luna/core/render",
   "moonbitlang/core/test",
 } for "test"

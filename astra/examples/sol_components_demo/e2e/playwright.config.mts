@@ -3,7 +3,7 @@
 // Strategy (matches sol_landing):
 // 1. `astra build` is run via the `pretest:e2e` npm hook (see package.json).
 // 2. This config's `webServer` then serves the resulting `dist/` over
-//    `http-server` on a fixed port. We deliberately use a static server
+//    `Vite preview` on a fixed port. We deliberately use a static server
 //    rather than `astra dev` here because dev mode renders some
 //    non-deterministic prefetch hints that would invalidate baselines.
 // 3. Each spec navigates the served URL, disables animations, and
@@ -63,7 +63,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npx --no-install http-server dist -p ${port} -s --cors -c-1`,
+    command: `npx --no-install vite preview --outDir dist --host 127.0.0.1 --port ${port} --strictPort`,
     cwd: exampleDir,
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,

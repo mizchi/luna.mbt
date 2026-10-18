@@ -42,12 +42,12 @@ priv struct HealthResponse {
 ///|
 priv struct ItemListResponse {
   items : Array[Item]
-  total : Int
+  total : Int32
 } derive(ToJson)
 
 ///|
 priv struct StatsResponse {
-  total_items : Int
+  total_items : Int32
   last_updated : String
 } derive(ToJson)
 
@@ -57,7 +57,7 @@ priv struct StatsResponse {
 
 ///|
 priv struct Item {
-  id : Int
+  id : Int32
   name : String
   description : String
   created_at : String
@@ -93,7 +93,7 @@ fn ensure_items_initialized() -> Unit {
 }
 
 ///|
-fn get_next_id() -> Int {
+fn get_next_id() -> Int32 {
   ensure_items_initialized()
   let max_id = items_store.val.fold(init=0, fn(acc, item) {
     if item.id > acc {
@@ -106,7 +106,7 @@ fn get_next_id() -> Int {
 }
 
 ///|
-fn find_item_index(id : Int) -> Int? {
+fn find_item_index(id : Int32) -> Int32? {
   for i, item in items_store.val {
     if item.id == id {
       return Some(i)
@@ -224,7 +224,7 @@ async fn delete_item_handler(props : @sol.PageProps) -> Json {
     .iter()
     .filter(fn(item) { item.id != id })
     .collect()
-  @sol.ok([("deleted", true.to_json()), ("item", ToJson::to_json(removed))]).to_json()
+  @sol.ok([("deleted", Json(true)), ("item", ToJson::to_json(removed))]).to_json()
 }
 
 ///|
@@ -252,7 +252,7 @@ async fn error_handler(props : @sol.PageProps) -> Json {
 // =============================================================================
 
 ///|
-fn require_item_id(props : @sol.PageProps) -> Result[Int, @sol.ApiResponse] {
+fn require_item_id(props : @sol.PageProps) -> Result[Int32, @sol.ApiResponse] {
   let raw_id = match @types.params_api_items_id(props) {
     Ok(params) => params.id
     Err(e) => return Err(e)

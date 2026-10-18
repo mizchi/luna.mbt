@@ -91,6 +91,12 @@ pub(all) struct OutlineConfig {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend OutlineConfig with @json.FromJson::{from_json}
+
+///|
+pub extend OutlineConfig with ToJson::{to_json}
+
+///|
 /// Navigation link for prev/next
 pub(all) struct NavLink {
   /// Display text
@@ -98,3 +104,9 @@ pub(all) struct NavLink {
   /// Link URL
   link : String
 } derive(ToJson, FromJson)
+
+///|
+pub extend NavLink with @json.FromJson::{from_json}
+
+///|
+pub extend NavLink with ToJson::{to_json}

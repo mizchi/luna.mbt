@@ -302,7 +302,7 @@ test "typed action response decodes success payload" {
 ///|
 test "typed action response reports decode errors" {
   let obj : Map[String, Json] = Map([])
-  let raw = ActionResponse::Success(@js_any.json_to_any(obj.to_json()))
+  let raw = ActionResponse::Success(@js_any.json_to_any(Json(obj)))
   let typed : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
     raw,
   )
@@ -533,9 +533,9 @@ test "ActionFormConfig::to_raw reports decode error through typed error callback
       error_message = message
     })
   let raw = config.to_raw()
-  let mismatch : Map[String, Json] = { "unexpected": true.to_json() }
+  let mismatch : Map[String, Json] = { "unexpected": Json(true) }
   match raw.on_success {
-    Some(on_success) => on_success(@js_any.json_to_any(mismatch.to_json()))
+    Some(on_success) => on_success(@js_any.json_to_any(Json(mismatch)))
     None => fail("expected raw success callback")
   }
   assert_eq(received, "")

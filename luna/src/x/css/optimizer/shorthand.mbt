@@ -11,6 +11,9 @@ pub struct ShorthandDef {
 } derive(Debug)
 
 ///|
+pub extend ShorthandDef with @debug.Debug::{to_repr}
+
+///|
 /// Get shorthand definitions for box properties (margin, padding)
 fn get_box_shorthand_def(shorthand : String) -> ShorthandDef {
   let longhands = [

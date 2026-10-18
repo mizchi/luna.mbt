@@ -1,1 +1,5 @@
+import {
+  "moonbitlang/core/debug",
+}
+
 supported_targets = "all"

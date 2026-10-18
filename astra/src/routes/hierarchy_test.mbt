@@ -6,32 +6,32 @@
 
 ///|
 test "extract_first_segment - root path" {
-  inspect(extract_first_segment("/"), content="")
+  inspect(@routes.extract_first_segment("/"), content="")
 }
 
 ///|
 test "extract_first_segment - empty path" {
-  inspect(extract_first_segment(""), content="")
+  inspect(@routes.extract_first_segment(""), content="")
 }
 
 ///|
 test "extract_first_segment - single segment" {
-  inspect(extract_first_segment("/about"), content="about")
+  inspect(@routes.extract_first_segment("/about"), content="about")
 }
 
 ///|
 test "extract_first_segment - single segment with trailing slash" {
-  inspect(extract_first_segment("/about/"), content="about")
+  inspect(@routes.extract_first_segment("/about/"), content="about")
 }
 
 ///|
 test "extract_first_segment - nested path" {
-  inspect(extract_first_segment("/docs/guide/intro"), content="docs")
+  inspect(@routes.extract_first_segment("/docs/guide/intro"), content="docs")
 }
 
 ///|
 test "extract_first_segment - two levels" {
-  inspect(extract_first_segment("/blog/post"), content="blog")
+  inspect(@routes.extract_first_segment("/blog/post"), content="blog")
 }
 
 // =============================================================================
@@ -40,28 +40,31 @@ test "extract_first_segment - two levels" {
 
 ///|
 test "path_matches_segment - exact match" {
-  inspect(path_matches_segment("/docs", "docs"), content="true")
+  inspect(@routes.path_matches_segment("/docs", "docs"), content="true")
 }
 
 ///|
 test "path_matches_segment - nested path" {
-  inspect(path_matches_segment("/docs/guide", "docs"), content="true")
+  inspect(@routes.path_matches_segment("/docs/guide", "docs"), content="true")
 }
 
 ///|
 test "path_matches_segment - no match" {
-  inspect(path_matches_segment("/blog/post", "docs"), content="false")
+  inspect(@routes.path_matches_segment("/blog/post", "docs"), content="false")
 }
 
 ///|
 test "path_matches_segment - root path" {
-  inspect(path_matches_segment("/", "docs"), content="false")
+  inspect(@routes.path_matches_segment("/", "docs"), content="false")
 }
 
 ///|
 test "path_matches_segment - partial name no match" {
   // /documentation should not match "docs"
-  inspect(path_matches_segment("/documentation", "docs"), content="false")
+  inspect(
+    @routes.path_matches_segment("/documentation", "docs"),
+    content="false",
+  )
 }
 
 // =============================================================================
@@ -70,43 +73,47 @@ test "path_matches_segment - partial name no match" {
 
 ///|
 test "get_all_segments - mixed routes" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.mbt",
+          output="index.html",
+        ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/about",
           source="about.mbt",
           output="about/index.html",
         ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/docs/intro",
           source="docs/intro.mbt",
           output="docs/intro/index.html",
         ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/docs/guide",
           source="docs/guide.mbt",
           output="docs/guide/index.html",
         ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/blog/post1",
           source="blog/post1.mbt",
           output="blog/post1/index.html",
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
-  let segments = get_all_segments(manifest)
+  let segments = @routes.get_all_segments(manifest)
   // Should have: about, docs, blog (root "/" has no segment)
   inspect(segments.length(), content="3")
   inspect(segments.contains("docs"), content="true")
@@ -116,15 +123,19 @@ test "get_all_segments - mixed routes" {
 
 ///|
 test "get_all_segments - only root routes" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.mbt",
+          output="index.html",
+        ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
-  let segments = get_all_segments(manifest)
+  let segments = @routes.get_all_segments(manifest)
   inspect(segments.length(), content="0")
 }
 
@@ -134,7 +145,7 @@ test "get_all_segments - only root routes" {
 
 ///|
 test "resolve_chunks_inline - exact match" {
-  let manifest = HierarchicalManifest::{
+  let manifest = @routes.HierarchicalManifest::{
     version: 2,
     base: "/_luna/",
     segments: {},
@@ -142,13 +153,13 @@ test "resolve_chunks_inline - exact match" {
     routes: { "/": ["boot"], "/about": ["boot", "about"] },
   }
   debug_inspect(
-    resolve_chunks_inline(manifest, "/"),
+    @routes.resolve_chunks_inline(manifest, "/"),
     content=(
       #|Some(["boot"])
     ),
   )
   debug_inspect(
-    resolve_chunks_inline(manifest, "/about"),
+    @routes.resolve_chunks_inline(manifest, "/about"),
     content=(
       #|Some(["boot", "about"])
     ),
@@ -157,7 +168,7 @@ test "resolve_chunks_inline - exact match" {
 
 ///|
 test "resolve_chunks_inline - with trailing slash" {
-  let manifest = HierarchicalManifest::{
+  let manifest = @routes.HierarchicalManifest::{
     version: 2,
     base: "/_luna/",
     segments: {},
@@ -166,13 +177,13 @@ test "resolve_chunks_inline - with trailing slash" {
   }
   // Should match with or without trailing slash
   debug_inspect(
-    resolve_chunks_inline(manifest, "/about/"),
+    @routes.resolve_chunks_inline(manifest, "/about/"),
     content=(
       #|Some(["boot"])
     ),
   )
   debug_inspect(
-    resolve_chunks_inline(manifest, "/about"),
+    @routes.resolve_chunks_inline(manifest, "/about"),
     content=(
       #|Some(["boot"])
     ),
@@ -181,14 +192,17 @@ test "resolve_chunks_inline - with trailing slash" {
 
 ///|
 test "resolve_chunks_inline - no match returns None" {
-  let manifest = HierarchicalManifest::{
+  let manifest = @routes.HierarchicalManifest::{
     version: 2,
     base: "/_luna/",
     segments: {},
     chunks: {},
     routes: { "/": ["boot"] },
   }
-  debug_inspect(resolve_chunks_inline(manifest, "/docs/guide"), content="None")
+  debug_inspect(
+    @routes.resolve_chunks_inline(manifest, "/docs/guide"),
+    content="None",
+  )
 }
 
 // =============================================================================
@@ -197,20 +211,20 @@ test "resolve_chunks_inline - no match returns None" {
 
 ///|
 test "find_segment_ref - found" {
-  let docs_ref = SegmentRef::{
+  let docs_ref = @routes.SegmentRef::{
     path: "routes/docs.json",
     pattern: "/docs/*",
     spa: false,
     preload: false,
   }
-  let manifest = HierarchicalManifest::{
+  let manifest = @routes.HierarchicalManifest::{
     version: 2,
     base: "/_luna/",
     segments: { "docs": docs_ref },
     chunks: {},
     routes: {},
   }
-  let result = find_segment_ref(manifest, "/docs/guide")
+  let result = @routes.find_segment_ref(manifest, "/docs/guide")
   guard result is Some((name, seg_ref)) else { fail("Expected Some") }
   inspect(name, content="docs")
   inspect(seg_ref.path, content="routes/docs.json")
@@ -218,32 +232,35 @@ test "find_segment_ref - found" {
 
 ///|
 test "find_segment_ref - not found" {
-  let manifest = HierarchicalManifest::{
+  let manifest = @routes.HierarchicalManifest::{
     version: 2,
     base: "/_luna/",
     segments: {},
     chunks: {},
     routes: {},
   }
-  inspect(find_segment_ref(manifest, "/docs/guide") is None, content="true")
+  inspect(
+    @routes.find_segment_ref(manifest, "/docs/guide") is None,
+    content="true",
+  )
 }
 
 ///|
 test "find_segment_ref - root path returns None" {
-  let docs_ref = SegmentRef::{
+  let docs_ref = @routes.SegmentRef::{
     path: "routes/docs.json",
     pattern: "/docs/*",
     spa: false,
     preload: false,
   }
-  let manifest = HierarchicalManifest::{
+  let manifest = @routes.HierarchicalManifest::{
     version: 2,
     base: "/_luna/",
     segments: { "docs": docs_ref },
     chunks: {},
     routes: {},
   }
-  inspect(find_segment_ref(manifest, "/") is None, content="true")
+  inspect(@routes.find_segment_ref(manifest, "/") is None, content="true")
 }
 
 // =============================================================================
@@ -252,37 +269,43 @@ test "find_segment_ref - root path returns None" {
 
 ///|
 test "split_manifest - separates root and segment routes" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.mbt",
+          output="index.html",
+        ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/about",
           source="about.mbt",
           output="about/index.html",
         ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/docs/intro",
           source="docs/intro.mbt",
           output="docs/intro/index.html",
         ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/docs/guide",
           source="docs/guide.mbt",
           output="docs/guide/index.html",
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
-  let configs : Map[String, PageConfig] = Map([])
-  let (hierarchical, segment_manifests) = split_manifest(manifest, configs)
+  let configs : Map[String, @routes.PageConfig] = Map([])
+  let (hierarchical, segment_manifests) = @routes.split_manifest(
+    manifest, configs,
+  )
 
   // Root routes should be inline
   debug_inspect(
@@ -317,29 +340,37 @@ test "split_manifest - separates root and segment routes" {
 
 ///|
 test "split_manifest - spa config applied" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.mbt",
+          output="index.html",
+        ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/wiki/page1",
           source="wiki/page1.mbt",
           output="wiki/page1/index.html",
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
-  let wiki_config = PageConfig::default()
-  let wiki_config_with_spa = PageConfig::{
+  let wiki_config = @routes.PageConfig::default()
+  let wiki_config_with_spa = @routes.PageConfig::{
     ..wiki_config,
     spa: true,
     fallback_behavior: Some("spa"),
   }
-  let configs : Map[String, PageConfig] = { "wiki": wiki_config_with_spa }
-  let (hierarchical, segment_manifests) = split_manifest(manifest, configs)
+  let configs : Map[String, @routes.PageConfig] = {
+    "wiki": wiki_config_with_spa,
+  }
+  let (hierarchical, segment_manifests) = @routes.split_manifest(
+    manifest, configs,
+  )
 
   // Check segment ref has spa flag
   guard hierarchical.segments.get("wiki") is Some(wiki_ref) else {
@@ -356,25 +387,29 @@ test "split_manifest - spa config applied" {
 
 ///|
 test "split_manifest - dynamic routes included in segment" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.mbt",
+          output="index.html",
+        ),
       ),
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/blog/:slug",
           pattern="^/blog/([^/]+)$",
           param_names=["slug"],
           source="blog/_slug_.mbt",
-          mode=RenderMode::Ssr,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
-  let configs : Map[String, PageConfig] = Map([])
-  let (_, segment_manifests) = split_manifest(manifest, configs)
+  let configs : Map[String, @routes.PageConfig] = Map([])
+  let (_, segment_manifests) = @routes.split_manifest(manifest, configs)
   guard segment_manifests.get("blog") is Some(blog_manifest) else {
     fail("Expected blog manifest")
   }
@@ -392,11 +427,11 @@ test "split_manifest - dynamic routes included in segment" {
 
 ///|
 test "match_dynamic_pattern - simple param" {
-  let manifest = SegmentManifest::{
+  let manifest = @routes.SegmentManifest::{
     base: "/blog",
     routes: {},
     dynamic: [
-      DynamicPattern::{
+      @routes.DynamicPattern::{
         pattern: "/:slug",
         regex: "^/([^/]+)$",
         params: ["slug"],
@@ -405,7 +440,7 @@ test "match_dynamic_pattern - simple param" {
     ],
     fallback: "404",
   }
-  let result = match_dynamic_pattern(manifest, "/blog/hello-world")
+  let result = @routes.match_dynamic_pattern(manifest, "/blog/hello-world")
   guard result is Some((pattern, params)) else { fail("Expected match") }
   inspect(pattern.pattern, content="/:slug")
   debug_inspect(
@@ -418,11 +453,11 @@ test "match_dynamic_pattern - simple param" {
 
 ///|
 test "match_dynamic_pattern - no match" {
-  let manifest = SegmentManifest::{
+  let manifest = @routes.SegmentManifest::{
     base: "/blog",
     routes: {},
     dynamic: [
-      DynamicPattern::{
+      @routes.DynamicPattern::{
         pattern: "/:slug",
         regex: "^/([^/]+)$",
         params: ["slug"],
@@ -432,17 +467,17 @@ test "match_dynamic_pattern - no match" {
     fallback: "404",
   }
   // Path with extra segment should not match single param pattern
-  let result = match_dynamic_pattern(manifest, "/blog/category/post")
+  let result = @routes.match_dynamic_pattern(manifest, "/blog/category/post")
   inspect(result is None, content="true")
 }
 
 ///|
 test "match_dynamic_pattern - catch-all" {
-  let manifest = SegmentManifest::{
+  let manifest = @routes.SegmentManifest::{
     base: "/docs",
     routes: {},
     dynamic: [
-      DynamicPattern::{
+      @routes.DynamicPattern::{
         pattern: "/:...path",
         regex: "^/(.+)$",
         params: ["path"],
@@ -451,7 +486,9 @@ test "match_dynamic_pattern - catch-all" {
     ],
     fallback: "404",
   }
-  let result = match_dynamic_pattern(manifest, "/docs/guide/getting-started")
+  let result = @routes.match_dynamic_pattern(
+    manifest, "/docs/guide/getting-started",
+  )
   guard result is Some((pattern, params)) else { fail("Expected match") }
   inspect(pattern.catch_all, content="true")
   debug_inspect(

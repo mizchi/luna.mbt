@@ -26,7 +26,7 @@ pub(all) struct Middleware {
 /// middleware. Mount it via `app.all("/*path", mw.handler())` (or any other
 /// route shape) so that every URL hits `dispatch` below.
 pub fn Middleware::handler(self : Middleware) -> @mars.Handler {
-  @mars.handler(fn(ctx) { dispatch(self, ctx) })
+  @mars.handler(async fn(ctx) { dispatch(self, ctx) })
 }
 
 ///|

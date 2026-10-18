@@ -2,16 +2,16 @@
 // Note: @element DSL returns DomNode for browser, so SSR uses VNode API directly
 
 ///|
-using @luna { h, text, attr_static, type Node, type Attr }
+using @luna {h, text, attr_static, type Node, type Attr}
 
 ///|
-fn attr(key : String, value : String) -> (String, Attr[Unit]) {
+fn attr(key : String, value : String) -> (String, Attr[Unit, String]) {
   (key, attr_static(value))
 }
 
 ///|
 /// Render function - exported for SSR
-pub fn render() -> Node[Unit] {
+pub fn render() -> Node[Unit, String] {
   h("div", [attr("class", "ssr-local-component")], [
     h("h2", [], [text("Local SSR Component")]),
     h("p", [], [text("This component is defined in docs/ssr_test_component/")]),

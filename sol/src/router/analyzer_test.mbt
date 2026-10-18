@@ -1,17 +1,17 @@
 ///|
 /// Tests for Route Analyzer
 test "analyze_routes extracts API routes as dynamic" {
-  let routes : Array[SolRoutes] = [
-    SolRoutes::Get(
+  let routes : Array[@router.SolRoutes] = [
+    @router.SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(async fn(_) { ().to_json() }),
+      handler=ApiHandler(async fn(_) { Json::Json(()) }),
     ),
-    SolRoutes::Post(
+    @router.SolRoutes::Post(
       path="/api/users",
-      handler=ApiHandler(async fn(_) { ().to_json() }),
+      handler=ApiHandler(async fn(_) { Json::Json(()) }),
     ),
   ]
-  let analyzed = analyze_routes(routes)
+  let analyzed = @router.analyze_routes(routes)
   inspect(analyzed.length(), content="2")
   inspect(analyzed[0].pattern, content="/api/health")
   inspect(analyzed[0].kind is Dynamic, content="true")
@@ -23,8 +23,8 @@ test "analyze_routes extracts API routes as dynamic" {
 
 ///|
 test "analyze_routes classifies ISR pages as dynamic" {
-  let routes : Array[SolRoutes] = [
-    SolRoutes::Page(
+  let routes : Array[@router.SolRoutes] = [
+    @router.SolRoutes::Page(
       path="/blog",
       handler=PageHandler(async fn(_) {
         @server_dom.ServerNode::sync(@luna.text(""))
@@ -35,7 +35,7 @@ test "analyze_routes classifies ISR pages as dynamic" {
       cache=None,
     ),
   ]
-  let analyzed = analyze_routes(routes)
+  let analyzed = @router.analyze_routes(routes)
   inspect(analyzed.length(), content="1")
   inspect(analyzed[0].kind is Dynamic, content="true")
   inspect(analyzed[0].reason, content="ISR enabled (revalidate)")
@@ -43,8 +43,8 @@ test "analyze_routes classifies ISR pages as dynamic" {
 
 ///|
 test "analyze_routes classifies static pages correctly" {
-  let routes : Array[SolRoutes] = [
-    SolRoutes::Page(
+  let routes : Array[@router.SolRoutes] = [
+    @router.SolRoutes::Page(
       path="/about",
       handler=PageHandler(async fn(_) {
         @server_dom.ServerNode::sync(@luna.text(""))
@@ -55,7 +55,7 @@ test "analyze_routes classifies static pages correctly" {
       cache=None,
     ),
   ]
-  let analyzed = analyze_routes(routes)
+  let analyzed = @router.analyze_routes(routes)
   inspect(analyzed.length(), content="1")
   inspect(analyzed[0].kind is Static, content="true")
   inspect(analyzed[0].reason, content="Static page")
@@ -63,8 +63,8 @@ test "analyze_routes classifies static pages correctly" {
 
 ///|
 test "analyze_routes classifies dynamic path params as dynamic" {
-  let routes : Array[SolRoutes] = [
-    SolRoutes::Page(
+  let routes : Array[@router.SolRoutes] = [
+    @router.SolRoutes::Page(
       path="/user/:id",
       handler=PageHandler(async fn(_) {
         @server_dom.ServerNode::sync(@luna.text(""))
@@ -75,7 +75,7 @@ test "analyze_routes classifies dynamic path params as dynamic" {
       cache=None,
     ),
   ]
-  let analyzed = analyze_routes(routes)
+  let analyzed = @router.analyze_routes(routes)
   inspect(analyzed.length(), content="1")
   inspect(analyzed[0].kind is Dynamic, content="true")
   inspect(analyzed[0].reason, content="Dynamic path parameter")

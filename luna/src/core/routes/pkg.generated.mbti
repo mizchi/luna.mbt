@@ -41,6 +41,9 @@ pub enum RoutesKind {
   GetApi
   PostApi
 } derive(Eq, @debug.Debug)
+pub fn RoutesKind::equal(Self, Self) -> Bool
+pub fn RoutesKind::not_equal(Self, Self) -> Bool
+pub fn RoutesKind::to_repr(Self) -> @debug.Repr
 
 pub struct RoutesMatch {
   route : CompiledRoutes

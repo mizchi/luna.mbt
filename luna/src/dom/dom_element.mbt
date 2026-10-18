@@ -73,6 +73,9 @@ pub trait ToDomNode {
 }
 
 ///|
+pub extend DomElement with ToDomNode::{to_dom_node}
+
+///|
 /// DomElement -> DomNode
 pub impl ToDomNode for DomElement with fn to_dom_node(self) {
   El(self)
@@ -102,6 +105,9 @@ pub impl ToDomNode for @js_dom.Element with fn to_dom_node(self) {
 pub impl ToDomNode for @js_dom.Text with fn to_dom_node(self) {
   Txt(self)
 }
+
+///|
+pub extend DomNode with ToDomNode::{to_dom_node}
 
 ///|
 /// DomNode -> DomNode (identity)

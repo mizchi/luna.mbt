@@ -11,6 +11,12 @@ pub enum JsonNode {
 } derive(Eq, Debug)
 
 ///|
+pub extend JsonNode with @debug.Debug::{to_repr}
+
+///|
+pub extend JsonNode with Eq::{not_equal, equal}
+
+///|
 /// JSON element structure
 pub struct JsonElement {
   tag : String
@@ -19,12 +25,27 @@ pub struct JsonElement {
 } derive(Eq, Debug)
 
 ///|
+pub extend JsonElement with @debug.Debug::{to_repr}
+
+///|
+pub extend JsonElement with Eq::{not_equal, equal}
+
+///|
 /// Attribute value in JSON representation
 pub enum JsonAttrValue {
   Static(String)
   Dynamic(String) // Evaluated value at render time
   Handler // Placeholder for event handlers
 } derive(Eq, Debug)
+
+///|
+pub extend JsonAttrValue with @debug.Debug::{to_repr}
+
+///|
+pub extend JsonAttrValue with Eq::{not_equal, equal}
+
+///|
+pub extend JsonAttrValue with Show::{to_string, output}
 
 ///|
 pub impl Show for JsonAttrValue with fn output(self, logger) {

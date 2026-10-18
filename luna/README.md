@@ -20,7 +20,7 @@ For TypeScript consumers, the JS bindings ship as
 - `experiments/` — research code (css-factorize, view_transition,
   webcomponents_ssr, …)
 - `spec/` — design notes
-- `vite.config.ts`, `vitest.config.ts` — JS-side dev / test runners
+- `vite.config.ts`, `vitest.config.mts` — JS-side dev / test runners
 
 ## Animation and easing
 

@@ -2,7 +2,7 @@
 /// Create an event handler from a callback.
 /// ```mbt check
 /// test {
-///   let h : EventHandler[Int] = handler(fn(x) { let _ = x * 2 })
+///   let h : @core.EventHandler[Int] = @core.handler(fn(x) { let _ = x * 2 })
 ///   inspect(h.get_callback()(5), content="()")
 /// }
 /// ```
@@ -21,10 +21,10 @@ pub fn[E] EventHandler::get_callback(self : EventHandler[E]) -> (E) -> Unit {
 /// The main building block for creating virtual DOM elements.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit, String] = h(
+///   let node : @core.Node[Unit, String] = @core.h(
 ///     "div",
-///     [("class", attr_static("container"))],
-///     [text("Hello")],
+///     [("class", @core.attr_static("container"))],
+///     [@core.text("Hello")],
 ///   )
 ///   guard node is Element(el) else { fail("expected Element") }
 ///   inspect(el.tag, content="div")
@@ -42,7 +42,7 @@ pub fn[E, A] h(
 /// Create a text VNode.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit, String] = text("Hello World")
+///   let node : @core.Node[Unit, String] = @core.text("Hello World")
 ///   guard node is Text(s) else { fail("expected Text") }
 ///   inspect(s, content="Hello World")
 /// }
@@ -57,7 +57,9 @@ pub fn[E, A] text(content : String) -> Node[E, A] {
 /// ```mbt check
 /// test {
 ///   let mut count = 5
-///   let node : Node[Unit, String] = text_dyn(fn() { count.to_string() })
+///   let node : @core.Node[Unit, String] = @core.text_dyn(fn() {
+///     count.to_string()
+///   })
 ///   guard node is DynamicText(getter) else { fail("expected DynamicText") }
 ///   inspect(getter(), content="5")
 ///   count = 10
@@ -73,10 +75,10 @@ pub fn[E, A] text_dyn(content : () -> String) -> Node[E, A] {
 /// Groups multiple nodes without a wrapper element.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit, String] = fragment([
-///     text("Hello"),
-///     text(" "),
-///     text("World"),
+///   let node : @core.Node[Unit, String] = @core.fragment([
+///     @core.text("Hello"),
+///     @core.text(" "),
+///     @core.text("World"),
 ///   ])
 ///   guard node is Fragment(children) else { fail("expected Fragment") }
 ///   inspect(children.length(), content="3")
@@ -91,7 +93,7 @@ pub fn[E, A] fragment(children : Array[Node[E, A]]) -> Node[E, A] {
 /// Use with caution: content should be trusted or sanitized.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit, String] = raw_html("<strong>Bold</strong>")
+///   let node : @core.Node[Unit, String] = @core.raw_html("<strong>Bold</strong>")
 ///   guard node is RawHtml(html) else { fail("expected RawHtml") }
 ///   inspect(html, content="<strong>Bold</strong>")
 /// }
@@ -112,8 +114,8 @@ pub fn[E, A] raw_trusted_html(content : TrustedHtml) -> Node[E, A] {
 /// ```mbt check
 /// test {
 ///   let visible = true
-///   let node : Node[Unit, String] = show(fn() { visible }, fn() {
-///     text("Visible!")
+///   let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
+///     @core.text("Visible!")
 ///   })
 ///   guard node is Show(condition~, ..) else { fail("expected Show") }
 ///   inspect(condition(), content="true")
@@ -129,7 +131,9 @@ pub fn[E, A] show(when : () -> Bool, child : () -> Node[E, A]) -> Node[E, A] {
 /// ```mbt check
 /// test {
 ///   let items = ["a", "b", "c"]
-///   let node : Node[Unit, String] = for_each(fn() { items.map(fn(s) { text(s) }) })
+///   let node : @core.Node[Unit, String] = @core.for_each(fn() {
+///     items.map(fn(s) { @core.text(s) })
+///   })
 ///   guard node is For(render~) else { fail("expected For") }
 ///   inspect(render().length(), content="3")
 /// }
@@ -143,8 +147,8 @@ pub fn[E, A] for_each(items : () -> Array[Node[E, A]]) -> Node[E, A] {
 /// Wraps a render function as a component boundary.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit, String] = component(fn() {
-///     h("div", [], [text("Component")])
+///   let node : @core.Node[Unit, String] = @core.component(fn() {
+///     @core.h("div", [], [@core.text("Component")])
 ///   })
 ///   guard node is Component(render~) else { fail("expected Component") }
 ///   guard render() is Element(el) else { fail("expected Element") }

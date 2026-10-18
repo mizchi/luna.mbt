@@ -41,8 +41,8 @@ pub(all) struct RenderedResponse {
 /// without going through a Mars `Server` or `@testing.invoke`. Asset
 /// URLs win first (matching `dispatch`'s ordering); page URLs flow
 /// through `render_page`; unknown URLs return a 404 with a plain-text
-/// body. This is the API the SSG build path uses — see
-/// `astra/src/cli/build.mbt`.
+/// body. Component pages require `render_url_async`; this synchronous
+/// entry point returns a render error for them.
 pub fn Middleware::render_url(
   self : Middleware,
   url : String,
@@ -53,10 +53,7 @@ pub fn Middleware::render_url(
     None => {
       let path = normalize_path(url, self.config.trailing_slash)
       match find_page_meta(self.pages, path) {
-        Some(page) => {
-          let html = render_page(self, page)
-          { status: 200, body: html, content_type: "text/html; charset=utf-8", }
-        }
+        Some(page) => page_response(render_page(self, page))
         None =>
           {
             status: 404,
@@ -70,12 +67,12 @@ pub fn Middleware::render_url(
 
 ///|
 /// Reject non-GET/HEAD methods with 405; otherwise delegate to
-/// `render_url` and copy the rendered status / body / content-type onto
-/// the Mars `Context`. `render_url` already handles asset-first
+/// `render_url_async` and copy the rendered status / body / content-type onto
+/// the Mars `Context`. `render_url_async` already handles asset-first
 /// resolution and the page-vs-404 split, so this function stays thin —
 /// the same body bytes the SSG build crawler writes to disk are what
 /// the Mars handler returns over the wire.
-fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
+async fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
   match ctx.meth() {
     @http.RequestMethod::Get | @http.RequestMethod::Head => ()
     _ => {
@@ -83,7 +80,7 @@ fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
       return
     }
   }
-  let res = mw.render_url(ctx.path())
+  let res = mw.render_url_async(ctx.path())
   // `set_header` before `text` so the explicit Content-Type wins over
   // mars's text-helper default (`text/plain`). The same rule applied in
   // the previous asset path; it now covers pages too.
@@ -92,6 +89,34 @@ fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
     .replace_all(old="\n", new="")
   ctx.set_header("Content-Type", content_type)
   ctx.text(res.body, status=res.status)
+}
+
+///|
+/// Render a URL with component SSR support. The synchronous API remains
+/// available for callers rendering text pages and built-in assets.
+pub async fn Middleware::render_url_async(
+  self : Middleware,
+  url : String,
+) -> RenderedResponse {
+  if @assets.lookup_asset(url, self.config, minify=self.minify_css)
+    is Some(asset) {
+    return { status: 200, body: asset.body, content_type: asset.content_type, }
+  }
+  let path = normalize_path(url, self.config.trailing_slash)
+  guard find_page_meta(self.pages, path) is Some(page) else {
+    return self.render_url(url)
+  }
+  let build_ctx : @astra.BuildContext = {
+    config: self.config,
+    pages: self.pages,
+    sidebar: [],
+    cwd: self.cwd,
+    doc_tree: Some(self.doc_tree),
+    is_dev: false,
+  }
+  page_response(
+    @render.render_page_html_async(build_ctx, page, self.highlighter),
+  )
 }
 
 ///|
@@ -113,11 +138,11 @@ fn find_page_meta(
 ///|
 /// Render a single page to HTML by invoking the shared `render_page_html`
 /// pipeline (markdown parse → VNode tree → string → optional syntax
-/// highlighting). Highlighting is intentionally skipped at runtime in this
-/// phase; it adds significant per-request latency and Task 11 will gate it
-/// behind config. On render error we fall back to a simple error page so
-/// the response never silently 500s.
-fn render_page(mw : Middleware, page : @astra.PageMeta) -> String {
+/// highlighting). Errors are converted to HTTP 500 by `page_response`.
+fn render_page(
+  mw : Middleware,
+  page : @astra.PageMeta,
+) -> Result[String, String] {
   let build_ctx : @astra.BuildContext = {
     config: mw.config,
     pages: mw.pages,
@@ -126,14 +151,7 @@ fn render_page(mw : Middleware, page : @astra.PageMeta) -> String {
     doc_tree: Some(mw.doc_tree),
     is_dev: false,
   }
-  match @render.render_page_html(build_ctx, page, mw.highlighter) {
-    Ok(html) => html
-    Err(e) =>
-      "<!doctype html><html><head><title>Render error</title></head>" +
-      "<body><h1>Render error</h1><pre>" +
-      escape_html(e) +
-      "</pre></body></html>"
-  }
+  @render.render_page_html(build_ctx, page, mw.highlighter)
 }
 
 ///|
@@ -174,5 +192,20 @@ fn normalize_path(p : String, trailing_slash : Bool) -> String {
     "/"
   } else {
     p
+  }
+}
+
+///|
+fn page_response(result : Result[String, String]) -> RenderedResponse {
+  match result {
+    Ok(html) =>
+      { status: 200, body: html, content_type: "text/html; charset=utf-8", }
+    Err(e) => {
+      let body = "<!doctype html><html><head><title>Render error</title></head>" +
+        "<body><h1>Render error</h1><pre>" +
+        escape_html(e) +
+        "</pre></body></html>"
+      { status: 500, body, content_type: "text/html; charset=utf-8", }
+    }
   }
 }

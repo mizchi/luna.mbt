@@ -5,7 +5,7 @@ version = "0.23.3"
 import {
   "mizchi/js_core@0.13.0",
   "mizchi/luna@0.25.1",
-  "mizchi/signals@0.6.5",
+  "mizchi/signals@0.6.6",
   "mizchi/js@0.13.0",
   "mizchi/js_browser@0.13.0",
 }

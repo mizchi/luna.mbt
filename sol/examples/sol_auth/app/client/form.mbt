@@ -9,6 +9,12 @@ pub(all) struct ContactFormProps {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend ContactFormProps with @json.FromJson::{from_json}
+
+///|
+pub extend ContactFormProps with ToJson::{to_json}
+
+///|
 priv struct ContactSubmitRequest {
   name : String
   email : String

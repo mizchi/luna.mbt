@@ -34,6 +34,15 @@ pub(all) struct StatInfo {
 } derive(Eq, Debug)
 
 ///|
+pub extend StatInfo with @debug.Debug::{to_repr}
+
+///|
+pub extend StatInfo with Eq::{not_equal, equal}
+
+///|
+pub extend StatInfo with FileStat::{mtime_ms, isDirectory, isFile, size}
+
+///|
 pub impl FileStat for StatInfo with fn isFile(self) {
   self.is_file
 }

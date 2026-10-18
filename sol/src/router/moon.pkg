@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
   "moonbitlang/core/hashset",
   "moonbitlang/core/string",

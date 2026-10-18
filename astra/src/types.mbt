@@ -24,6 +24,12 @@ pub(all) enum DeployTarget {
 } derive(Eq, Debug)
 
 ///|
+pub extend DeployTarget with @debug.Debug::{to_repr}
+
+///|
+pub extend DeployTarget with Eq::{not_equal, equal}
+
+///|
 /// Default deploy target
 pub fn DeployTarget::default() -> DeployTarget {
   Static
@@ -120,6 +126,12 @@ pub(all) struct LocaleConfig {
   path : String
 } derive(ToJson, FromJson)
 
+///|
+pub extend LocaleConfig with @json.FromJson::{from_json}
+
+///|
+pub extend LocaleConfig with ToJson::{to_json}
+
 // =============================================================================
 // Navigation Configuration
 // =============================================================================
@@ -134,6 +146,12 @@ pub(all) struct NavigationConfig {
   /// Enable keyboard navigation (arrow keys)
   keyboard : Bool
 } derive(ToJson, FromJson)
+
+///|
+pub extend NavigationConfig with @json.FromJson::{from_json}
+
+///|
+pub extend NavigationConfig with ToJson::{to_json}
 
 ///|
 /// Default navigation configuration
@@ -185,6 +203,12 @@ pub(all) struct NavItem {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend NavItem with @json.FromJson::{from_json}
+
+///|
+pub extend NavItem with ToJson::{to_json}
+
+///|
 /// Default empty NavItem
 pub fn NavItem::new(text : String, link : String) -> NavItem {
   { text, link, icon: None, items: [], }
@@ -213,6 +237,12 @@ pub(all) struct SidebarGroup {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend SidebarGroup with @json.FromJson::{from_json}
+
+///|
+pub extend SidebarGroup with ToJson::{to_json}
+
+///|
 /// Sidebar item
 pub(all) enum SidebarItem {
   /// Link to a page
@@ -220,6 +250,12 @@ pub(all) enum SidebarItem {
   /// Nested group
   Group(SidebarGroup)
 } derive(ToJson, FromJson)
+
+///|
+pub extend SidebarItem with @json.FromJson::{from_json}
+
+///|
+pub extend SidebarItem with ToJson::{to_json}
 
 ///|
 /// Theme configuration
@@ -291,6 +327,12 @@ pub(all) struct SocialLink {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend SocialLink with @json.FromJson::{from_json}
+
+///|
+pub extend SocialLink with ToJson::{to_json}
+
+///|
 /// Default theme configuration
 /// Luna theme: Moon-inspired gold color
 pub fn ThemeConfig::default() -> ThemeConfig {
@@ -336,6 +378,12 @@ pub(all) struct FooterLink {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend FooterLink with @json.FromJson::{from_json}
+
+///|
+pub extend FooterLink with ToJson::{to_json}
+
+///|
 /// Footer column (group of links)
 pub(all) struct FooterColumn {
   /// Column title
@@ -343,6 +391,12 @@ pub(all) struct FooterColumn {
   /// Links in this column
   items : Array[FooterLink]
 } derive(ToJson, FromJson)
+
+///|
+pub extend FooterColumn with @json.FromJson::{from_json}
+
+///|
+pub extend FooterColumn with ToJson::{to_json}
 
 ///|
 /// Footer configuration
@@ -358,6 +412,12 @@ pub(all) struct FooterConfig {
   /// Bottom section elements
   bottom : Array[FooterElement]
 } derive(ToJson, FromJson)
+
+///|
+pub extend FooterConfig with @json.FromJson::{from_json}
+
+///|
+pub extend FooterConfig with ToJson::{to_json}
 
 // =============================================================================
 // Header/Footer Element System
@@ -385,6 +445,18 @@ pub(all) enum HeaderElement {
 } derive(Eq, Debug, ToJson, FromJson)
 
 ///|
+pub extend HeaderElement with @json.FromJson::{from_json}
+
+///|
+pub extend HeaderElement with ToJson::{to_json}
+
+///|
+pub extend HeaderElement with @debug.Debug::{to_repr}
+
+///|
+pub extend HeaderElement with Eq::{not_equal, equal}
+
+///|
 /// Footer element types
 pub(all) enum FooterElement {
   /// Link columns
@@ -400,6 +472,18 @@ pub(all) enum FooterElement {
 } derive(Eq, Debug, ToJson, FromJson)
 
 ///|
+pub extend FooterElement with @json.FromJson::{from_json}
+
+///|
+pub extend FooterElement with ToJson::{to_json}
+
+///|
+pub extend FooterElement with @debug.Debug::{to_repr}
+
+///|
+pub extend FooterElement with Eq::{not_equal, equal}
+
+///|
 /// Header configuration with element slots
 pub(all) struct HeaderConfig {
   /// Elements in left section
@@ -411,6 +495,12 @@ pub(all) struct HeaderConfig {
   /// Sticky header (fixed on scroll)
   sticky : Bool
 } derive(ToJson, FromJson)
+
+///|
+pub extend HeaderConfig with @json.FromJson::{from_json}
+
+///|
+pub extend HeaderConfig with ToJson::{to_json}
 
 ///|
 /// Default header configuration
@@ -530,6 +620,12 @@ pub(all) enum ContentType {
   /// MDX file (.mdx) - Markdown with JSX components
   Mdx
 } derive(Eq, Debug)
+
+///|
+pub extend ContentType with @debug.Debug::{to_repr}
+
+///|
+pub extend ContentType with Eq::{not_equal, equal}
 
 ///|
 /// Page metadata for routing and generation

@@ -22,6 +22,12 @@ pub(all) enum RendererType {
 } derive(Eq, Debug)
 
 ///|
+pub extend RendererType with @debug.Debug::{to_repr}
+
+///|
+pub extend RendererType with Eq::{not_equal, equal}
+
+///|
 /// Default renderer type
 pub fn RendererType::default() -> RendererType {
   MarkdownRenderer

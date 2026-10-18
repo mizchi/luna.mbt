@@ -221,6 +221,11 @@ test "generate_action_key_factories: generates factory" {
   assert_true(result.contains("pub fn action_create_user()"))
   assert_true(result.contains("-> ActionCreateUser"))
   assert_true(result.contains("ActionCreateUser::{}"))
+  assert_true(
+    result.contains(
+      "pub extend ActionCreateUser with @action.ActionKey::{id, base_path}",
+    ),
+  )
   assert_false(result.contains("Action" + "Ref"))
 }
 

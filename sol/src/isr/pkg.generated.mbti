@@ -74,7 +74,11 @@ pub fn ISRMiddlewareConfig::default() -> Self
 pub struct MemoryCache {
   store : @ref.Ref[Map[String, CacheEntry]]
 }
+pub fn MemoryCache::delete(Self, String) -> Unit
+pub fn MemoryCache::get(Self, String) -> CacheEntry?
 pub fn MemoryCache::new() -> Self
+pub fn MemoryCache::put(Self, String, CacheEntry) -> Unit
+pub fn MemoryCache::schedule_revalidation(Self, async () -> Unit) -> Unit
 pub impl ISRCache for MemoryCache
 
 // Type aliases

@@ -5,7 +5,7 @@
 ///|
 test "render simple text" {
   let node : @core.Node[Unit, String] = @core.text("Hello, World!")
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "Hello, World!")
 }
 
@@ -14,21 +14,21 @@ test "render escaped text" {
   let node : @core.Node[Unit, String] = @core.text(
     "<script>alert('xss')</script>",
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
 }
 
 ///|
 test "render simple element" {
   let node : @core.Node[Unit, String] = @core.h("div", [], [])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div></div>")
 }
 
 ///|
 test "render element with text child" {
   let node : @core.Node[Unit, String] = @core.h("div", [], [@core.text("Hello")])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div>Hello</div>")
 }
 
@@ -39,7 +39,7 @@ test "render element with class" {
     [("class", @core.attr_static("container"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div class=\"container\"></div>")
 }
 
@@ -53,7 +53,7 @@ test "render element with multiple attrs" {
     ],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div id=\"main\" class=\"container\"></div>")
 }
 
@@ -62,7 +62,7 @@ test "render nested elements" {
   let node : @core.Node[Unit, String] = @core.h("div", [], [
     @core.h("span", [], [@core.text("nested")]),
   ])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div><span>nested</span></div>")
 }
 
@@ -76,7 +76,7 @@ test "render void element" {
     ],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<input type=\"text\" placeholder=\"Enter name\" />")
 }
 
@@ -86,7 +86,7 @@ test "render br and hr" {
     @core.h("br", [], []),
     @core.h("hr", [], []),
   ])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<br /><hr />")
 }
 
@@ -97,7 +97,7 @@ test "render fragment" {
     @core.text("B"),
     @core.text("C"),
   ])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "ABC")
 }
 
@@ -107,7 +107,7 @@ test "render dynamic text" {
   let node : @core.Node[Unit, String] = @core.text_dyn(fn() {
     "Count: " + count.to_string()
   })
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "Count: 42")
 }
 
@@ -124,7 +124,7 @@ test "render dynamic attribute" {
     ],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div class=\"active\"></div>")
 }
 
@@ -135,7 +135,7 @@ test "render style attribute" {
     [("style", @core.attr_style("color: red; font-size: 16px"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div style=\"color: red; font-size: 16px\"></div>")
 }
 
@@ -146,7 +146,7 @@ test "render disabled attribute true" {
     [("disabled", @core.attr_static(""))],
     [@core.text("Submit")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<button disabled>Submit</button>")
 }
 
@@ -155,7 +155,7 @@ test "render disabled attribute false" {
   let node : @core.Node[Unit, String] = @core.h("button", [], [
     @core.text("Submit"),
   ])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<button>Submit</button>")
 }
 
@@ -165,7 +165,7 @@ test "render show when true" {
   let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
     @core.text("Visible!")
   })
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "Visible!")
 }
 
@@ -175,7 +175,7 @@ test "render show when false" {
   let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
     @core.text("Visible!")
   })
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<!--show-->")
 }
 
@@ -185,7 +185,7 @@ test "render for list" {
   let node : @core.Node[Unit, String] = @core.for_each(fn() {
     items.map(fn(item) { @core.h("li", [], [@core.text(item)]) })
   })
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<li>A</li><li>B</li><li>C</li>")
 }
 
@@ -198,7 +198,7 @@ test "render component" {
   let node : @core.Node[Unit, String] = @core.component(fn() {
     greeting("World")
   })
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div>Hello, World!</div>")
 }
 
@@ -212,7 +212,7 @@ test "handlers are not rendered" {
     ],
     [@core.text("Click me")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Handler should not appear in output
   assert_eq(html, "<button class=\"btn\">Click me</button>")
 }
@@ -224,7 +224,7 @@ test "escape attribute value" {
     [("data-value", @core.attr_static("a\"b&c"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div data-value=\"a&quot;b&amp;c\"></div>")
 }
 
@@ -234,7 +234,7 @@ test "render with hydration markers for dynamic text" {
   let node : @core.Node[Unit, String] = @core.text_dyn(fn() {
     count.to_string()
   })
-  let html = render_to_string_with_hydration(node)
+  let html = @render.render_to_string_with_hydration(node)
   assert_eq(html, "<!--t:0-->5<!--/t-->")
 }
 
@@ -245,7 +245,7 @@ test "render with hydration markers for element with handler" {
     [("onClick", @core.attr_handler(@core.event_handler()))],
     [@core.text("Click")],
   )
-  let html = render_to_string_with_hydration(node)
+  let html = @render.render_to_string_with_hydration(node)
   assert_eq(html, "<button sol:hk=\"0\">Click</button>")
 }
 
@@ -255,7 +255,7 @@ test "render with hydration markers for show" {
   let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
     @core.text("Content")
   })
-  let html = render_to_string_with_hydration(node)
+  let html = @render.render_to_string_with_hydration(node)
   assert_eq(html, "<!--s:0-->Content<!--/s-->")
 }
 
@@ -264,7 +264,7 @@ test "render with hydration markers for list" {
   let node : @core.Node[Unit, String] = @core.for_each(fn() {
     [@core.text("A"), @core.text("B")]
   })
-  let html = render_to_string_with_hydration(node)
+  let html = @render.render_to_string_with_hydration(node)
   assert_eq(
     html, "<!--f:0--><!--fi:0-->A<!--/fi:0--><!--fi:0-->B<!--/fi:0--><!--/f-->",
   )
@@ -296,7 +296,7 @@ test "complex page render" {
       ),
     ],
   )
-  let html = render_to_string(page).html
+  let html = @render.render_to_string(page).html
   assert_true(html.contains("<h1>My App</h1>"))
   assert_true(html.contains("Count: 0"))
   assert_true(html.contains("<li>Item 1</li><li>Item 2</li>"))
@@ -310,14 +310,14 @@ test "complex page render" {
 ///|
 test "render text with ampersand" {
   let node : @core.Node[Unit, String] = @core.text("Tom & Jerry")
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "Tom &amp; Jerry")
 }
 
 ///|
 test "render text with double quote" {
   let node : @core.Node[Unit, String] = @core.text("Say \"hello\"")
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "Say &quot;hello&quot;")
 }
 
@@ -328,7 +328,7 @@ test "render void elements img" {
     [("src", @core.attr_static("/image.png"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<img src=\"/image.png\" />")
 }
 
@@ -339,14 +339,14 @@ test "render void element col" {
     [("span", @core.attr_static("2"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<col span=\"2\" />")
 }
 
 ///|
 test "render void element wbr" {
   let node : @core.Node[Unit, String] = @core.h("wbr", [], [])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<wbr />")
 }
 
@@ -357,7 +357,7 @@ test "render void element area" {
     [("shape", @core.attr_static("rect"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<area shape=\"rect\" />")
 }
 
@@ -368,7 +368,7 @@ test "render void element base" {
     [("href", @core.attr_static("/"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<base href=\"/\" />")
 }
 
@@ -379,7 +379,7 @@ test "render void element link" {
     [("rel", @core.attr_static("stylesheet"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<link rel=\"stylesheet\" />")
 }
 
@@ -390,7 +390,7 @@ test "render void element meta" {
     [("charset", @core.attr_static("utf-8"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<meta charset=\"utf-8\" />")
 }
 
@@ -401,7 +401,7 @@ test "render void element embed" {
     [("src", @core.attr_static("/video.swf"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<embed src=\"/video.swf\" />")
 }
 
@@ -412,7 +412,7 @@ test "render void element track" {
     [("kind", @core.attr_static("subtitles"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<track kind=\"subtitles\" />")
 }
 
@@ -423,7 +423,7 @@ test "render void element source" {
     [("src", @core.attr_static("/audio.mp3"))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<source src=\"/audio.mp3\" />")
 }
 
@@ -433,7 +433,7 @@ test "render non-void element with length 7" {
   let node : @core.Node[Unit, String] = @core.h("section", [], [
     @core.text("content"),
   ])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<section>content</section>")
 }
 
@@ -444,7 +444,7 @@ test "render dynamic style" {
     [("style", @core.attr_dynamic_style(fn() { "color: blue; margin: 10px" }))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div style=\"color: blue; margin: 10px\"></div>")
 }
 
@@ -455,7 +455,7 @@ test "render empty dynamic style" {
     [("style", @core.attr_dynamic_style(fn() { "" }))],
     [],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Empty string results in empty style attribute (no quotes needed)
   assert_eq(html, "<div style></div>")
 }
@@ -469,7 +469,7 @@ test "preload with wc_island collects luna:wc-url" {
     "{\"count\":0}",
     [@core.text("0")],
   )
-  let result = render_to_string(node, preload=true)
+  let result = @render.render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 1)
   assert_true(result.preload_urls.contains("/static/wc_counter.js"))
   assert_true(result.html.contains("luna:wc-url=\"/static/wc_counter.js\""))
@@ -484,7 +484,7 @@ test "preload with nested wc_island in div" {
       ]),
     ]),
   ])
-  let result = render_to_string(node, preload=true)
+  let result = @render.render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 1)
   assert_true(result.preload_urls.contains("/static/wc_nested.js"))
 }
@@ -497,7 +497,7 @@ test "preload with wc_island in conditional show" {
       @core.text("Conditional"),
     ])
   })
-  let result = render_to_string(node, preload=true)
+  let result = @render.render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 1)
   assert_true(result.preload_urls.contains("/static/wc_conditional.js"))
 }
@@ -515,7 +515,7 @@ test "preload with duplicate wc_island urls" {
       @core.text("3"),
     ]),
   ])
-  let result = render_to_string(node, preload=true)
+  let result = @render.render_to_string(node, preload=true)
   // Should deduplicate - only one URL
   assert_eq(result.preload_urls.length(), 1)
   assert_true(result.preload_urls.contains("/static/wc_counter.js"))
@@ -532,7 +532,7 @@ test "render async fallback in sync mode" {
     fallback=fn() { @core.h("div", [], [@core.text("Loading...")]) },
   )
   // In sync rendering, fallback is rendered
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "<div>Loading...</div>")
 }
 
@@ -542,7 +542,7 @@ test "render async with hydration markers" {
     render=fn() { @core.h("div", [], [@core.text("Loaded!")]) },
     fallback=fn() { @core.h("div", [], [@core.text("Loading...")]) },
   )
-  let html = render_to_string_with_hydration(node)
+  let html = @render.render_to_string_with_hydration(node)
   // Should have async marker <!--a:ID-->
   assert_true(html.contains("<!--a:"))
   assert_true(html.contains("<!--/a-->"))
@@ -560,7 +560,7 @@ test "render nested async fallback" {
     [("class", @core.attr_static("container"))],
     [inner],
   )
-  let html = render_to_string(outer).html
+  let html = @render.render_to_string(outer).html
   assert_eq(html, "<div class=\"container\">Inner loading...</div>")
 }
 
@@ -576,7 +576,7 @@ test "render async with on_error handler" {
     }),
   )
   // Still renders fallback in sync mode
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_eq(html, "Loading...")
 }
 
@@ -593,7 +593,7 @@ test "render wc_island basic" {
     "{\"count\":5}",
     [@core.text("5")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Check custom element with data attributes
   assert_true(html.contains("<wc-counter"))
   assert_true(html.contains("luna:wc-url=\"/static/wc-counter.js\""))
@@ -620,7 +620,7 @@ test "render wc_island preserves spaces in css strings" {
     "{}",
     [@core.text("ok")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Minifier should keep spaces inside quoted strings
   assert_true(html.contains("content:\"a  b\""))
   // And still minify outside whitespace
@@ -636,7 +636,7 @@ test "render wc_island without styles" {
     "{}",
     [@core.text("Content")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Should not have style tag when styles is empty
   assert_true(!html.contains("<style>"))
   assert_true(
@@ -654,7 +654,7 @@ test "render wc_island with idle trigger" {
     [@core.text("Loading...")],
     trigger=@core.Idle,
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_true(html.contains("luna:wc-trigger=\"idle\""))
 }
 
@@ -668,7 +668,7 @@ test "render wc_island with visible trigger" {
     [@core.text("Loading...")],
     trigger=@core.Visible,
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_true(html.contains("luna:wc-trigger=\"visible\""))
 }
 
@@ -682,7 +682,7 @@ test "render wc_island with media trigger" {
     [@core.text("Content")],
     trigger=@core.Media("(min-width: 768px)"),
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_true(html.contains("luna:wc-trigger=\"media:(min-width: 768px)\""))
 }
 
@@ -697,7 +697,7 @@ test "render wc_island load trigger omits luna:wc-trigger" {
     [@core.text("Default")],
     trigger=@core.Load,
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Should NOT have luna:wc-trigger for load (it's the default)
   assert_true(!html.contains("luna:wc-trigger="))
 }
@@ -711,7 +711,7 @@ test "render wc_island state escaping" {
     "{\"text\":\"<script>alert(1)</script>\"}",
     [@core.text("Safe")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Ensure < and > are escaped in attribute value
   assert_true(!html.contains("data-state=\"{\"text\":\"<script>"))
 }
@@ -733,7 +733,7 @@ test "render wc_island with complex children" {
       ]),
     ],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_true(html.contains("<h2>Items</h2>"))
   assert_true(html.contains("<li>A</li>"))
   assert_true(html.contains("<li>B</li>"))
@@ -751,7 +751,7 @@ test "render wc_island with hydration markers" {
     "{\"count\":10}",
     [@core.text_dyn(fn() { "10" })],
   )
-  let html = render_to_string_with_hydration(node)
+  let html = @render.render_to_string_with_hydration(node)
   // Should have wc marker
   assert_true(html.contains("<!--wc:"))
   assert_true(html.contains("<!--/wc-->"))
@@ -774,7 +774,7 @@ test "wc_island CSS with :host selector" {
     "{}",
     [@core.text("Content")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // CSS should be in <template><style id="style-{hash}">
   assert_true(html.contains("<template shadowrootmode=\"open\">"))
   assert_true(html.contains("<style id=\"style-"))
@@ -792,7 +792,7 @@ test "wc_island CSS with @media query" {
     "{}",
     [@core.text("Responsive")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_true(html.contains("<style id=\"style-"))
   // CSS is minified (space after @media preserved since ( is not punctuation)
   assert_true(html.contains("@media (max-width:768px){:host{padding:0.5rem;}}"))
@@ -808,7 +808,7 @@ test "wc_island CSS with ::slotted selector" {
     "{}",
     [@core.h("slot", [], [])],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_true(html.contains("::slotted(*)"))
   assert_true(html.contains("::slotted(p)"))
 }
@@ -823,7 +823,7 @@ test "wc_island CSS with :host-context" {
     "{}",
     [@core.text("Themed")],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   assert_true(html.contains(":host-context(.dark)"))
 }
 
@@ -844,7 +844,7 @@ test "wc_island CSS with multiple rules" {
       ]),
     ],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // CSS is minified: spaces around { } : ; are removed
   assert_true(html.contains(":host{display:block;}"))
   assert_true(html.contains(".title{font-size:1.5rem;}"))
@@ -869,7 +869,7 @@ test "multiple wc_islands with different styles" {
       [@core.text("Card B")],
     ),
   ])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // Each island should have its own style (minified)
   assert_true(html.contains(":host{background:blue;}"))
   assert_true(html.contains(":host{background:red;}"))
@@ -897,7 +897,7 @@ test "wc_island CSS preserved in nested structure" {
       ),
     ]),
   ])
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // CSS should be properly nested inside the component's template (minified)
   assert_true(html.contains("<main>"))
   assert_true(html.contains("<section>"))
@@ -919,7 +919,7 @@ test "wc_island CSS with CSS variables" {
       ]),
     ],
   )
-  let html = render_to_string(node).html
+  let html = @render.render_to_string(node).html
   // CSS is minified: spaces around : are removed
   assert_true(html.contains("--primary:#007bff"))
   assert_true(html.contains("var(--primary)"))
@@ -931,7 +931,7 @@ fn count_occurrences(s : String, pattern : String) -> Int {
   let mut count = 0
   let mut start = 0
   while start < s.length() {
-    let view = s.sub(start~)
+    let view = s.exact_view(start~)
     match view.find(pattern) {
       Some(idx) => {
         count = count + 1

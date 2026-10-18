@@ -150,7 +150,13 @@ pub async fn run_build(args : Array[String], cwd : String) -> Unit {
   )
   let urls = mw.list_urls()
   println("astra build: \{urls.length()} URL(s) -> \{output_dir}")
-  build_to_disk(mw, output_dir)
+  match build_to_disk_async(mw, output_dir) {
+    Ok(_) => ()
+    Err(e) => {
+      println("astra build: FAILED: \{e}")
+      @process.exit(1)
+    }
+  }
   let build_ctx : @astra.BuildContext = {
     config: cfg,
     pages: [],

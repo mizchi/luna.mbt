@@ -32,6 +32,15 @@ pub(all) enum ClientReturnKind {
 } derive(Eq, Show, Debug)
 
 ///|
+pub extend ClientReturnKind with @debug.Debug::{to_repr}
+
+///|
+pub extend ClientReturnKind with Show::{to_string, output}
+
+///|
+pub extend ClientReturnKind with Eq::{not_equal, equal}
+
+///|
 pub(all) struct ClientComponentContract {
   props_type : String?
   return_kind : ClientReturnKind

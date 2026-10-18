@@ -1,6 +1,5 @@
 import {
   "mizchi/luna",
-  "mizchi/signals",
   "mizchi/luna/js/resource",
   "mizchi/luna/core/render" @ssr,
   "mizchi/luna/dom/client",
@@ -10,5 +9,9 @@ import {
   "mizchi/npm_typed/global_jsdom",
   "moonbitlang/core/bench",
 }
+
+import {
+  "mizchi/signals",
+} for "test"
 
 supported_targets = "js"

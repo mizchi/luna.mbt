@@ -10,6 +10,18 @@
     "luna": "./dist/cli.mjs"
   },
   "exports": {
+    "./void": {
+      "types": "./dist/void.d.ts",
+      "import": "./dist/void.js"
+    },
+    "./void/server": {
+      "types": "./dist/void/server.d.ts",
+      "import": "./dist/void/server.js"
+    },
+    "./void/client": {
+      "types": "./dist/void/client.d.ts",
+      "import": "./dist/void/client.js"
+    },
     "./animation": {
       "types": "./dist/animation.d.ts",
       "import": "./dist/animation.js"
@@ -68,21 +80,30 @@
     }
   },
   "scripts": {
+    "build:moon": "node scripts/build-moon.mjs",
     "build": "node ../../luna/scripts/strip-moonbit-abort-loc.mjs && tsdown",
     "test": "vitest run --root ../..",
+    "test:void": "vitest run --config void.vitest.config.ts",
     "build:examples": "vite build examples",
-    "prepack": "pnpm -w build:moon && pnpm build"
+    "prepack": "pnpm build:moon && pnpm build"
   },
   "devDependencies": {
-    "jsdom": "^30.0.1",
+    "jsdom": "^30.1.3",
     "preact": "^10.29.8",
-    "tsdown": "0.23.0"
+    "tsdown": "0.23.1",
+    "typescript": "6.0.3",
+    "void": "1.1.11",
+    "wrangler": "4.151.1"
   },
   "peerDependencies": {
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "void": "1.1.11"
   },
   "peerDependenciesMeta": {
     "vite": {
+      "optional": true
+    },
+    "void": {
       "optional": true
     }
   },
@@ -96,6 +117,7 @@
   },
   "license": "MIT",
   "files": [
-    "dist"
+    "dist",
+    "docs/void.md"
   ]
 }

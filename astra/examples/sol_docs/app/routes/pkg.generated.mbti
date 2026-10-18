@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "example/sol-docs/routes"
+package "example/sol-docs/app/routes"
 
 import {
   "mizchi/sol/action",

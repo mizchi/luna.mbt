@@ -26,7 +26,7 @@ test "BrowserRouter syncs path on popstate" {
     @routes.Routes::Page(path="/", component="home", title="Home", meta=[]),
     @routes.Routes::Page(path="/about", component="about", title="About", meta=[]),
   ]
-  let router = BrowserRouter::new(routes)
+  let router = @router.BrowserRouter::new(routes)
   assert_eq(router.get_path(), "/")
   set_location_path("/about")
   dispatch_popstate()
@@ -43,7 +43,7 @@ test "BrowserRouter dispose removes popstate listener" {
     @routes.Routes::Page(path="/", component="home", title="Home", meta=[]),
     @routes.Routes::Page(path="/about", component="about", title="About", meta=[]),
   ]
-  let router = BrowserRouter::new(routes)
+  let router = @router.BrowserRouter::new(routes)
   set_location_path("/about")
   dispatch_popstate()
   assert_eq(router.get_path(), "/about")
@@ -62,7 +62,7 @@ test "BrowserRouter navigate applies base path" {
     @routes.Routes::Page(path="/", component="home", title="Home", meta=[]),
     @routes.Routes::Page(path="/users", component="users", title="Users", meta=[]),
   ]
-  let router = BrowserRouter::new(routes, base="/app")
+  let router = @router.BrowserRouter::new(routes, base="/app")
   assert_eq(router.get_path(), "/app")
   assert_eq(router.get_component(), Some("home"))
   router.navigate("/users")

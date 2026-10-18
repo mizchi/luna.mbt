@@ -1,4 +1,4 @@
-// Smoke test: every MoonBit example passes `moon check` with its own backend.
+// Smoke test: every MoonBit example passes `moon check --deny-warn` with its own backend.
 // Sol-app-style examples (those with app/__gen__/ as a generated dep)
 // need `sol generate` first, so the test runs that.
 //
@@ -14,6 +14,9 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..", "..");
+// A standalone example also checks local library members. Compiler warnings
+// across that workspace can exceed spawnSync's default 1 MiB output limit.
+const MAX_OUTPUT = 16 * 1024 * 1024;
 const EXAMPLES = [
   { dir: "sol/examples/sol_api", needsGenerate: true },
   { dir: "sol/examples/sol_sqlite", needsGenerate: true },
@@ -44,12 +47,14 @@ before(() => {
     cwd: ROOT,
     encoding: "utf8",
     timeout: 120_000,
+    maxBuffer: MAX_OUTPUT,
   });
+  assert.ifError(generated.error);
   assert.equal(generated.status, 0, `example generation failed:\n${generated.stdout}\n${generated.stderr}`);
 });
 
 for (const { dir, target = "js", islands } of EXAMPLES) {
-  test(`${dir}: moon check passes`, { timeout: 120_000 }, () => {
+  test(`${dir}: moon check passes without warnings`, { timeout: 120_000 }, () => {
     const exampleDir = path.join(ROOT, dir);
     assert.ok(
       fs.existsSync(exampleDir),
@@ -62,11 +67,13 @@ for (const { dir, target = "js", islands } of EXAMPLES) {
       assert.deepEqual(manifest.islands.map((island) => island.name).sort(), [...islands].sort());
     }
 
-    const check = spawnSync("moon", ["check", "--target", target], {
+    const check = spawnSync("moon", ["check", "--target", target, "--deny-warn"], {
       cwd: exampleDir,
       encoding: "utf8",
       timeout: 120_000,
+      maxBuffer: MAX_OUTPUT,
     });
+    assert.ifError(check.error);
     assert.equal(
       check.status,
       0,

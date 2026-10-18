@@ -8,6 +8,12 @@ pub(all) struct CounterProps {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend CounterProps with @json.FromJson::{from_json}
+
+///|
+pub extend CounterProps with ToJson::{to_json}
+
+///|
 /// Counter component
 pub fn counter(props : CounterProps) -> DomNode {
   let count = @signal.signal(props.initial_count)

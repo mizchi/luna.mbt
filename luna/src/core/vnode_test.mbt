@@ -10,7 +10,7 @@ using @test {assert_eq}
 ///|
 test "EventHandler::get_callback" {
   let called : Ref[Bool] = Ref(false)
-  let h = handler(fn(_e : Unit) { called.val = true })
+  let h = @core.handler(fn(_e : Unit) { called.val = true })
   let cb = h.get_callback()
   cb(())
   assert_true(called.val)
@@ -22,7 +22,7 @@ test "EventHandler::get_callback" {
 
 ///|
 test "attr_static" {
-  let attr : Attr[Unit, String] = attr_static("value")
+  let attr : @core.Attr[Unit, String] = @core.attr_static("value")
   match attr {
     VStatic(s) => assert_eq(s, "value")
     _ => assert_true(false)
@@ -31,7 +31,7 @@ test "attr_static" {
 
 ///|
 test "attr_dynamic" {
-  let attr : Attr[Unit, String] = attr_dynamic(fn() { "dynamic" })
+  let attr : @core.Attr[Unit, String] = @core.attr_dynamic(fn() { "dynamic" })
   match attr {
     VDynamic(getter) => assert_eq(getter(), "dynamic")
     _ => assert_true(false)
@@ -41,8 +41,8 @@ test "attr_dynamic" {
 ///|
 test "attr_handler" {
   let called : Ref[Bool] = Ref(false)
-  let h = handler(fn(_e : Unit) { called.val = true })
-  let attr : Attr[Unit, String] = attr_handler(h)
+  let h = @core.handler(fn(_e : Unit) { called.val = true })
+  let attr : @core.Attr[Unit, String] = @core.attr_handler(h)
   match attr {
     VHandler(handler) => {
       handler.get_callback()(())
@@ -54,7 +54,7 @@ test "attr_handler" {
 
 ///|
 test "attr_style" {
-  let attr : Attr[Unit, String] = attr_style("color: red")
+  let attr : @core.Attr[Unit, String] = @core.attr_style("color: red")
   match attr {
     VStatic(s) => assert_eq(s, "color: red")
     _ => assert_true(false)
@@ -63,7 +63,9 @@ test "attr_style" {
 
 ///|
 test "attr_dynamic_style" {
-  let attr : Attr[Unit, String] = attr_dynamic_style(fn() { "color: blue" })
+  let attr : @core.Attr[Unit, String] = @core.attr_dynamic_style(fn() {
+    "color: blue"
+  })
   match attr {
     VDynamic(getter) => assert_eq(getter(), "color: blue")
     _ => assert_true(false)
@@ -92,7 +94,7 @@ impl Show for TestAction with fn output(self, logger) {
 
 ///|
 test "action with enum - Increment" {
-  let attr : Attr[Unit, String] = action(Increment)
+  let attr : @core.Attr[Unit, String] = @core.action(Increment)
   match attr {
     VAction(name) => assert_eq(name, "Increment")
     _ => assert_true(false)
@@ -101,7 +103,7 @@ test "action with enum - Increment" {
 
 ///|
 test "action with enum - Decrement" {
-  let attr : Attr[Unit, String] = action(Decrement)
+  let attr : @core.Attr[Unit, String] = @core.action(Decrement)
   match attr {
     VAction(name) => assert_eq(name, "Decrement")
     _ => assert_true(false)
@@ -114,7 +116,7 @@ test "action with enum - Decrement" {
 
 ///|
 test "h creates Element node" {
-  let node : Node[Unit, String] = h("div", [], [])
+  let node : @core.Node[Unit, String] = @core.h("div", [], [])
   match node {
     Element(elem) => assert_eq(elem.tag, "div")
     _ => assert_true(false)
@@ -123,7 +125,7 @@ test "h creates Element node" {
 
 ///|
 test "text creates Text node" {
-  let node : Node[Unit, String] = text("hello")
+  let node : @core.Node[Unit, String] = @core.text("hello")
   match node {
     Text(content) => assert_eq(content, "hello")
     _ => assert_true(false)
@@ -132,7 +134,7 @@ test "text creates Text node" {
 
 ///|
 test "text_dyn creates DynamicText node" {
-  let node : Node[Unit, String] = text_dyn(fn() { "dynamic" })
+  let node : @core.Node[Unit, String] = @core.text_dyn(fn() { "dynamic" })
   match node {
     DynamicText(getter) => assert_eq(getter(), "dynamic")
     _ => assert_true(false)
@@ -141,7 +143,10 @@ test "text_dyn creates DynamicText node" {
 
 ///|
 test "fragment creates Fragment node" {
-  let node : Node[Unit, String] = fragment([text("a"), text("b")])
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.text("a"),
+    @core.text("b"),
+  ])
   match node {
     Fragment(children) => assert_eq(children.length(), 2)
     _ => assert_true(false)
@@ -150,9 +155,9 @@ test "fragment creates Fragment node" {
 
 ///|
 test "raw_trusted_html requires explicit trusted wrapper" {
-  let trusted = unsafe_trusted_html("<strong>trusted</strong>")
+  let trusted = @core.unsafe_trusted_html("<strong>trusted</strong>")
   assert_eq(trusted.to_string(), "<strong>trusted</strong>")
-  let node : Node[Unit, String] = raw_trusted_html(trusted)
+  let node : @core.Node[Unit, String] = @core.raw_trusted_html(trusted)
   match node {
     RawHtml(content) => assert_eq(content, "<strong>trusted</strong>")
     _ => assert_true(false)
@@ -161,7 +166,9 @@ test "raw_trusted_html requires explicit trusted wrapper" {
 
 ///|
 test "show creates Show node" {
-  let node : Node[Unit, String] = show(fn() { true }, fn() { text("shown") })
+  let node : @core.Node[Unit, String] = @core.show(fn() { true }, fn() {
+    @core.text("shown")
+  })
   match node {
     Show(condition~, child~) => {
       assert_true(condition())
@@ -176,7 +183,9 @@ test "show creates Show node" {
 
 ///|
 test "for_each creates For node" {
-  let node : Node[Unit, String] = for_each(fn() { [text("a"), text("b")] })
+  let node : @core.Node[Unit, String] = @core.for_each(fn() {
+    [@core.text("a"), @core.text("b")]
+  })
   match node {
     For(render~) => assert_eq(render().length(), 2)
     _ => assert_true(false)
@@ -185,7 +194,9 @@ test "for_each creates For node" {
 
 ///|
 test "component creates Component node" {
-  let node : Node[Unit, String] = component(fn() { text("component") })
+  let node : @core.Node[Unit, String] = @core.component(fn() {
+    @core.text("component")
+  })
   match node {
     Component(render~) =>
       match render() {
@@ -198,9 +209,10 @@ test "component creates Component node" {
 
 ///|
 test "async_ creates Async node" {
-  let node : Node[Unit, String] = async_(render=fn() { text("resolved") }, fallback=fn() {
-    text("loading")
-  })
+  let node : @core.Node[Unit, String] = @core.async_(
+    render=fn() { @core.text("resolved") },
+    fallback=fn() { @core.text("loading") },
+  )
   match node {
     Async(async_node) =>
       match (async_node.fallback)() {
@@ -213,9 +225,9 @@ test "async_ creates Async node" {
 
 ///|
 test "error_boundary creates ErrorBoundary node" {
-  let node : Node[Unit, String] = error_boundary(
-    children=fn() { text("content") },
-    fallback=fn(_err, _reset) { text("error") },
+  let node : @core.Node[Unit, String] = @core.error_boundary(
+    children=fn() { @core.text("content") },
+    fallback=fn(_err, _reset) { @core.text("error") },
   )
   match node {
     ErrorBoundary(boundary) =>
@@ -229,9 +241,10 @@ test "error_boundary creates ErrorBoundary node" {
 
 ///|
 test "match_case creates MatchCase" {
-  let case_ : MatchCase[Unit, String] = match_case(when=fn() { true }, render=fn() {
-    text("matched")
-  })
+  let case_ : @core.MatchCase[Unit, String] = @core.match_case(
+    when=fn() { true },
+    render=fn() { @core.text("matched") },
+  )
   assert_true((case_.when)())
   match (case_.render)() {
     Text(s) => assert_eq(s, "matched")
@@ -241,12 +254,12 @@ test "match_case creates MatchCase" {
 
 ///|
 test "switch_ creates Switch node" {
-  let node : Node[Unit, String] = switch_(
+  let node : @core.Node[Unit, String] = @core.switch_(
     cases=[
-      match_case(when=fn() { false }, render=fn() { text("first") }),
-      match_case(when=fn() { true }, render=fn() { text("second") }),
+      @core.match_case(when=fn() { false }, render=fn() { @core.text("first") }),
+      @core.match_case(when=fn() { true }, render=fn() { @core.text("second") }),
     ],
-    fallback=Some(fn() { text("fallback") }),
+    fallback=Some(fn() { @core.text("fallback") }),
   )
   match node {
     Switch(switch_node) => {
@@ -263,14 +276,14 @@ test "switch_ creates Switch node" {
 
 ///|
 test "TriggerType::to_string" {
-  assert_eq(TriggerType::Load.to_string(), "load")
-  assert_eq(TriggerType::Idle.to_string(), "idle")
-  assert_eq(TriggerType::Visible.to_string(), "visible")
+  assert_eq(@core.TriggerType::Load.to_string(), "load")
+  assert_eq(@core.TriggerType::Idle.to_string(), "idle")
+  assert_eq(@core.TriggerType::Visible.to_string(), "visible")
   assert_eq(
-    TriggerType::Media("(min-width: 768px)").to_string(),
+    @core.TriggerType::Media("(min-width: 768px)").to_string(),
     "media:(min-width: 768px)",
   )
-  assert_eq(TriggerType::None.to_string(), "none")
+  assert_eq(@core.TriggerType::None.to_string(), "none")
 }
 
 // =============================================================================
@@ -279,40 +292,42 @@ test "TriggerType::to_string" {
 
 ///|
 test "has_dynamic_content returns false for static attrs" {
-  let attrs : Array[(String, Attr[Unit, String])] = [
-    ("class", attr_static("foo")),
-    ("id", attr_static("bar")),
+  let attrs : Array[(String, @core.Attr[Unit, String])] = [
+    ("class", @core.attr_static("foo")),
+    ("id", @core.attr_static("bar")),
   ]
-  assert_true(!has_dynamic_content(attrs))
+  assert_true(!@core.has_dynamic_content(attrs))
 }
 
 ///|
 test "has_dynamic_content returns true for VDynamic" {
-  let attrs : Array[(String, Attr[Unit, String])] = [
-    ("class", attr_static("foo")),
-    ("value", attr_dynamic(fn() { "dynamic" })),
+  let attrs : Array[(String, @core.Attr[Unit, String])] = [
+    ("class", @core.attr_static("foo")),
+    ("value", @core.attr_dynamic(fn() { "dynamic" })),
   ]
-  assert_true(has_dynamic_content(attrs))
+  assert_true(@core.has_dynamic_content(attrs))
 }
 
 ///|
 test "has_dynamic_content returns true for VHandler" {
-  let attrs : Array[(String, Attr[Unit, String])] = [
-    ("onclick", attr_handler(handler(fn(_) { () }))),
+  let attrs : Array[(String, @core.Attr[Unit, String])] = [
+    ("onclick", @core.attr_handler(@core.handler(fn(_) { () }))),
   ]
-  assert_true(has_dynamic_content(attrs))
+  assert_true(@core.has_dynamic_content(attrs))
 }
 
 ///|
 test "has_dynamic_content returns true for VAction" {
-  let attrs : Array[(String, Attr[Unit, String])] = [("onclick", action(Click))]
-  assert_true(has_dynamic_content(attrs))
+  let attrs : Array[(String, @core.Attr[Unit, String])] = [
+    ("onclick", @core.action(Click)),
+  ]
+  assert_true(@core.has_dynamic_content(attrs))
 }
 
 ///|
 test "has_dynamic_content empty attrs" {
-  let attrs : Array[(String, Attr[Unit, String])] = []
-  assert_true(!has_dynamic_content(attrs))
+  let attrs : Array[(String, @core.Attr[Unit, String])] = []
+  assert_true(!@core.has_dynamic_content(attrs))
 }
 
 // =============================================================================
@@ -321,7 +336,7 @@ test "has_dynamic_content empty attrs" {
 
 ///|
 test "event_handler creates noop handler" {
-  let h = event_handler()
+  let h = @core.event_handler()
   // Should not throw
   h.get_callback()(())
 }
@@ -329,7 +344,7 @@ test "event_handler creates noop handler" {
 ///|
 test "handler_from_callback creates handler from callback" {
   let called : Ref[Bool] = Ref(false)
-  let h = handler_from_callback(fn() { called.val = true })
+  let h = @core.handler_from_callback(fn() { called.val = true })
   h.get_callback()(())
   assert_true(called.val)
 }
@@ -340,7 +355,9 @@ test "handler_from_callback creates handler from callback" {
 
 ///|
 test "component_ref creates Web Components ref" {
-  let cref : ComponentRef[Int] = component_ref("/static/counter.js", 42)
+  let cref : @core.ComponentRef[Int] = @core.component_ref(
+    "/static/counter.js", 42,
+  )
   assert_eq(cref.url, "/static/counter.js")
   assert_eq(cref.props, 42)
   match cref.trigger {
@@ -351,7 +368,7 @@ test "component_ref creates Web Components ref" {
 
 ///|
 test "component_ref with custom trigger" {
-  let cref : ComponentRef[Int] = component_ref(
+  let cref : @core.ComponentRef[Int] = @core.component_ref(
     "/static/counter.js",
     42,
     trigger=Idle,
@@ -368,7 +385,7 @@ test "component_ref with custom trigger" {
 
 ///|
 test "internal_ref creates InternalRef node" {
-  let node : Node[Unit, String] = internal_ref(
+  let node : @core.Node[Unit, String] = @core.internal_ref(
     "/static/wc-counter.js", "{\"count\":0}",
   )
   match node {
@@ -384,11 +401,11 @@ test "internal_ref creates InternalRef node" {
 
 ///|
 test "internal_ref with styles and children" {
-  let node : Node[Unit, String] = internal_ref(
+  let node : @core.Node[Unit, String] = @core.internal_ref(
     "/static/wc_counter.js",
     "{}",
     styles=":host { display: block; }",
-    children=[text("child")],
+    children=[@core.text("child")],
   )
   match node {
     InternalRef(iref) => {
@@ -402,7 +419,7 @@ test "internal_ref with styles and children" {
 
 ///|
 test "internal_ref with custom trigger" {
-  let node : Node[Unit, String] = internal_ref(
+  let node : @core.Node[Unit, String] = @core.internal_ref(
     "/static/counter.js",
     "{}",
     trigger=Idle,
@@ -423,7 +440,7 @@ test "internal_ref with custom trigger" {
 
 ///|
 test "Trigger type alias works" {
-  let t : Trigger = Load
+  let t : @core.Trigger = Load
   match t {
     Load => ()
     _ => assert_true(false)

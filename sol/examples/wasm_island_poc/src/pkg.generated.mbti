@@ -1,0 +1,15 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "example/wasm-island-poc"
+
+// Values
+pub fn handle_click() -> Unit
+
+pub fn render() -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

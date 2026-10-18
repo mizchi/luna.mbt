@@ -447,7 +447,12 @@ pub(all) enum KeyCode {
   Tab
   Escape
 } derive(Eq, @debug.Debug)
+pub fn KeyCode::equal(Self, Self) -> Bool
 pub fn KeyCode::from_string(String) -> Self?
+pub fn KeyCode::not_equal(Self, Self) -> Bool
+pub fn KeyCode::output(Self, &Logger) -> Unit
+pub fn KeyCode::to_repr(Self) -> @debug.Repr
+pub fn KeyCode::to_string(Self) -> String
 pub impl Show for KeyCode
 
 pub(all) enum LinkTarget {
@@ -473,12 +478,18 @@ pub(all) enum PopoverMode {
   Auto
   Manual
 } derive(Eq, @debug.Debug)
+pub fn PopoverMode::equal(Self, Self) -> Bool
+pub fn PopoverMode::not_equal(Self, Self) -> Bool
+pub fn PopoverMode::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PopoverTargetAction {
   Toggle
   Show
   Hide
 } derive(Eq, @debug.Debug)
+pub fn PopoverTargetAction::equal(Self, Self) -> Bool
+pub fn PopoverTargetAction::not_equal(Self, Self) -> Bool
+pub fn PopoverTargetAction::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PopupType {
   Menu

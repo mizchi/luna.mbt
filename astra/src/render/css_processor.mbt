@@ -215,12 +215,24 @@ pub(all) struct CssManifestEntry {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend CssManifestEntry with ToJson::{to_json}
+
+///|
+pub extend CssManifestEntry with @json.FromJson::{from_json}
+
+///|
 /// CSS split manifest result
 pub(all) struct CssSplitManifest {
   entries : Map[String, CssManifestEntry]
   shared_css : String
   shared_size : Int
 } derive(FromJson, ToJson)
+
+///|
+pub extend CssSplitManifest with ToJson::{to_json}
+
+///|
+pub extend CssSplitManifest with @json.FromJson::{from_json}
 
 // =============================================================================
 // CSS Building

@@ -1,6 +1,5 @@
 import {
   "mizchi/luna/js/resource",
-  "mizchi/signals",
 }
 
 supported_targets = "js"

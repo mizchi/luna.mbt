@@ -23,6 +23,13 @@ test.describe("sol_api_ref visual regression", () => {
       expect(res?.status(), `expected 2xx at ${page.path}`).toBe(200);
       await expect(p).toHaveTitle(page.title);
       await expect(p.locator("h1").first()).toBeVisible();
+      if (page.path === "/" || page.path === "/api/") {
+        await expect(p.locator(".module-grid a")).toHaveCount(4);
+        await expect(p.locator(".module-grid a h3")).toHaveCount(4);
+      }
+      if (page.path === "/api/string/concat/") {
+        await expect(p.locator("code.sig")).toContainText("concat");
+      }
 
       // Wait for fonts / images to settle so the screenshot is taken
       // after the page's idle layout.

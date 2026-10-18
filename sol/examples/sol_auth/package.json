@@ -15,18 +15,18 @@
     "db:migrate:local": "wrangler d1 execute sol-auth-db --local --file=migrations/0001_init.sql"
   },
   "dependencies": {
-    "@hono/node-server": "^2.1.1",
-    "better-auth": "^1.7.4",
-    "better-sqlite3": "^12.11.1",
-    "drizzle-orm": "^0.45.2",
-    "hono": "^4.13.7"
+    "@hono/node-server": "^2.1.5",
+    "better-auth": "^1.7.10",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.4",
+    "hono": "^4.13.13"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260910.1",
-    "@playwright/test": "^1.63.0",
+    "@cloudflare/workers-types": "^5.20261018.1",
+    "@playwright/test": "^1.64.1",
     "@types/better-sqlite3": "^9.6.0",
-    "tsx": "^4.23.13",
-    "wrangler": "^4.130.0"
+    "tsx": "^4.23.15",
+    "wrangler": "^4.151.1"
   },
   "private": true
 }

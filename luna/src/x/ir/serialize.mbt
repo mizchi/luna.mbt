@@ -8,6 +8,10 @@
 // Schema Serialization
 // =============================================================================
 
+///|
+pub extend Schema with ToJson::{to_json}
+
+///|
 pub impl ToJson for Schema with fn to_json(self) {
   let obj : Map[String, Json] = Map([])
   obj["version"] = ToJson::to_json(self.version)
@@ -24,17 +28,26 @@ pub impl ToJson for Schema with fn to_json(self) {
 }
 
 ///|
+pub extend SourceInfo with ToJson::{to_json}
+
+///|
 pub impl ToJson for SourceInfo with fn to_json(self) {
-  { "file": ToJson::to_json(self.file), "lang": ToJson::to_json(self.lang) }.to_json()
+  Json({
+    "file": ToJson::to_json(self.file),
+    "lang": ToJson::to_json(self.lang),
+  })
 }
+
+///|
+pub extend SourceLang with ToJson::{to_json}
 
 ///|
 pub impl ToJson for SourceLang with fn to_json(self) {
   match self {
-    MoonBit => "moonbit".to_json()
-    TypeScript => "typescript".to_json()
-    Rust => "rust".to_json()
-    Go => "go".to_json()
+    MoonBit => Json("moonbit")
+    TypeScript => Json("typescript")
+    Rust => Json("rust")
+    Go => Json("go")
     Unknown(s) => ToJson::to_json(s)
   }
 }
@@ -44,21 +57,24 @@ pub impl ToJson for SourceLang with fn to_json(self) {
 // =============================================================================
 
 ///|
+pub extend TypeDef with ToJson::{to_json}
+
+///|
 pub impl ToJson for TypeDef with fn to_json(self) {
   match self {
     Struct(s) => {
       let obj = s.to_json_obj()
-      obj["kind"] = "struct".to_json()
+      obj["kind"] = Json("struct")
       ToJson::to_json(obj)
     }
     Enum(e) => {
       let obj = e.to_json_obj()
-      obj["kind"] = "enum".to_json()
+      obj["kind"] = Json("enum")
       ToJson::to_json(obj)
     }
     Alias(a) => {
       let obj = a.to_json_obj()
-      obj["kind"] = "alias".to_json()
+      obj["kind"] = Json("alias")
       ToJson::to_json(obj)
     }
   }
@@ -120,6 +136,9 @@ fn AliasDef::to_json_obj(self : AliasDef) -> Map[String, Json] {
 // =============================================================================
 
 ///|
+pub extend Field with ToJson::{to_json}
+
+///|
 pub impl ToJson for Field with fn to_json(self) {
   let obj : Map[String, Json] = Map([])
   obj["name"] = ToJson::to_json(self.name)
@@ -142,6 +161,9 @@ pub impl ToJson for Field with fn to_json(self) {
 }
 
 ///|
+pub extend EnumVariant with ToJson::{to_json}
+
+///|
 pub impl ToJson for EnumVariant with fn to_json(self) {
   let obj : Map[String, Json] = Map([])
   obj["name"] = ToJson::to_json(self.name)
@@ -161,75 +183,85 @@ pub impl ToJson for EnumVariant with fn to_json(self) {
 // =============================================================================
 
 ///|
+pub extend TypeRef with ToJson::{to_json}
+
+///|
 pub impl ToJson for TypeRef with fn to_json(self) {
   match self {
     Primitive(p) =>
-      { "kind": "primitive".to_json(), "type": ToJson::to_json(p) }.to_json()
+      Json({ "kind": Json("primitive"), "type": ToJson::to_json(p) })
     Array(elem) =>
-      { "kind": "array".to_json(), "element": ToJson::to_json(elem) }.to_json()
+      Json({ "kind": Json("array"), "element": ToJson::to_json(elem) })
     Map(key, value) =>
-      {
-        "kind": "map".to_json(),
+      Json({
+        "kind": Json("map"),
         "key": ToJson::to_json(key),
         "value": ToJson::to_json(value),
-      }.to_json()
+      })
     Tuple(elems) =>
-      { "kind": "tuple".to_json(), "elements": ToJson::to_json(elems) }.to_json()
+      Json({ "kind": Json("tuple"), "elements": ToJson::to_json(elems) })
     Option(inner) =>
-      { "kind": "option".to_json(), "inner": ToJson::to_json(inner) }.to_json()
+      Json({ "kind": Json("option"), "inner": ToJson::to_json(inner) })
     Named(name) =>
-      { "kind": "named".to_json(), "name": ToJson::to_json(name) }.to_json()
+      Json({ "kind": Json("named"), "name": ToJson::to_json(name) })
     Applied(name, args) =>
-      {
-        "kind": "applied".to_json(),
+      Json({
+        "kind": Json("applied"),
         "name": ToJson::to_json(name),
         "args": ToJson::to_json(args),
-      }.to_json()
+      })
     Param(name) =>
-      { "kind": "param".to_json(), "name": ToJson::to_json(name) }.to_json()
+      Json({ "kind": Json("param"), "name": ToJson::to_json(name) })
     Literal(lit) =>
-      { "kind": "literal".to_json(), "value": ToJson::to_json(lit) }.to_json()
+      Json({ "kind": Json("literal"), "value": ToJson::to_json(lit) })
     Union(types) =>
-      { "kind": "union".to_json(), "types": ToJson::to_json(types) }.to_json()
+      Json({ "kind": Json("union"), "types": ToJson::to_json(types) })
     Function(f) =>
-      {
-        "kind": "function".to_json(),
+      Json({
+        "kind": Json("function"),
         "params": ToJson::to_json(f.params),
         "return": ToJson::to_json(f.return_),
-      }.to_json()
-    Unknown => { "kind": "unknown".to_json() }.to_json()
+      })
+    Unknown => Json({ "kind": Json("unknown") })
   }
 }
+
+///|
+pub extend PrimitiveType with ToJson::{to_json}
 
 ///|
 pub impl ToJson for PrimitiveType with fn to_json(self) {
   match self {
-    Bool => "bool".to_json()
-    Int => "int".to_json()
-    Int64 => "int64".to_json()
-    Float => "float".to_json()
-    Float64 => "float64".to_json()
-    String => "string".to_json()
-    Unit => "unit".to_json()
-    Never => "never".to_json()
+    Bool => Json("bool")
+    Int => Json("int")
+    Int64 => Json("int64")
+    Float => Json("float")
+    Float64 => Json("float64")
+    String => Json("string")
+    Unit => Json("unit")
+    Never => Json("never")
   }
 }
 
 ///|
+pub extend LiteralType with ToJson::{to_json}
+
+///|
 pub impl ToJson for LiteralType with fn to_json(self) {
   match self {
-    BoolLit(b) =>
-      { "type": "bool".to_json(), "value": ToJson::to_json(b) }.to_json()
-    IntLit(i) =>
-      { "type": "int".to_json(), "value": ToJson::to_json(i) }.to_json()
+    BoolLit(b) => Json({ "type": Json("bool"), "value": ToJson::to_json(b) })
+    IntLit(i) => Json({ "type": Json("int"), "value": ToJson::to_json(i) })
     StringLit(s) =>
-      { "type": "string".to_json(), "value": ToJson::to_json(s) }.to_json()
+      Json({ "type": Json("string"), "value": ToJson::to_json(s) })
   }
 }
 
 // =============================================================================
 // TypeParam Serialization
 // =============================================================================
+
+///|
+pub extend TypeParam with ToJson::{to_json}
 
 ///|
 pub impl ToJson for TypeParam with fn to_json(self) {
@@ -251,6 +283,12 @@ pub impl ToJson for TypeParam with fn to_json(self) {
 // =============================================================================
 
 ///|
+pub extend Annotation with ToJson::{to_json}
+
+///|
 pub impl ToJson for Annotation with fn to_json(self) {
-  { "name": ToJson::to_json(self.name), "args": ToJson::to_json(self.args) }.to_json()
+  Json({
+    "name": ToJson::to_json(self.name),
+    "args": ToJson::to_json(self.args),
+  })
 }

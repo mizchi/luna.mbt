@@ -1,6 +1,5 @@
 import {
   "mizchi/luna/js/resource",
-  "mizchi/signals",
   "mizchi/luna/core/routes",
   "mizchi/luna/dom/router",
   "mizchi/luna/dom" @element,

@@ -46,7 +46,7 @@ astra dev --port 3000
 `astra build` walks every URL the in-process middleware can serve and
 writes the rendered body to `<out>/<url-to-disk-path>`. No network
 listener is opened during the build, and no Mars `Server` is
-instantiated — `build_to_disk` calls `Middleware::render_url(url)`
+instantiated — `build_to_disk_async` calls `Middleware::render_url_async(url)`
 directly. Deploy the resulting tree to any static host (Cloudflare
 Workers Static Assets, GitHub Pages, S3, etc).
 
@@ -88,10 +88,22 @@ crawl.
 ## How dev and build share one Middleware
 
 Both modes render through the same `Middleware`. `astra dev` serves it
-over HTTP; the build crawler calls `mw.render_url(url)` for each entry in
+over HTTP; the build crawler calls `mw.render_url_async(url)` for each entry in
 `mw.list_urls()` and writes the response body to disk. So if a page
 renders correctly via `astra dev`, it is also correct in the static
 dump — there is no second renderer to keep in sync.
+
+React and MoonBit component pages use async SSR in both modes. React pages
+require `react`, `react-dom`, and `esbuild` in the site's npm workspace.
+MoonBit components must be compiled with `moon build --target js --release`
+before starting Astra. Include their directories in the module's `source`
+root; for example, use `source = "."` when components live in `docs/` next
+to `app/`. Each SSR package exports `render() -> Node[Unit, String]` from
+its `moon.pkg` JS link options.
+
+Failed SSR returns HTTP 500 in dev and fails a static build. The synchronous
+`render_url` and `render_page_html` APIs remain available for Markdown and
+HTML pages; use their `_async` variants for component pages.
 
 ## Type-checked pages (`.mbt.md`)
 

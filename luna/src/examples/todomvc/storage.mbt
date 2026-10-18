@@ -5,7 +5,7 @@ let storage_key : String = "todos-luna"
 
 ///|
 fn save_todos(todos : Array[Todo]) -> Unit {
-  @storage.localStorage().setItem(storage_key, todos.to_json().stringify())
+  @storage.localStorage().setItem(storage_key, Json(todos).stringify())
 }
 
 ///|

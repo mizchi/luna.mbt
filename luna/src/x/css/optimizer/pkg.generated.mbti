@@ -53,36 +53,51 @@ pub struct AnalysisResult {
   patterns : Array[FrequentPattern]
   suggestions : Array[MergeSuggestion]
 } derive(@debug.Debug)
+pub fn AnalysisResult::to_repr(Self) -> @debug.Repr
 
 pub struct ClassUsage {
   classes : Array[String]
   source : String
 } derive(@debug.Debug)
 pub fn ClassUsage::new(Array[String], String) -> Self
+pub fn ClassUsage::to_repr(Self) -> @debug.Repr
 
 pub struct CoOccurrence {
   class_a : String
   class_b : String
   frequency : Int
 } derive(@debug.Debug)
+pub fn CoOccurrence::to_repr(Self) -> @debug.Repr
 
 pub struct Declaration {
   property : String
   value : String
 } derive(Compare, Eq, Hash, @debug.Debug)
+pub fn Declaration::compare(Self, Self) -> Int
+pub fn Declaration::equal(Self, Self) -> Bool
+pub fn Declaration::hash(Self) -> Int
+pub fn Declaration::hash_combine(Self, Hasher) -> Unit
 pub fn Declaration::key(Self) -> String
 pub fn Declaration::new(String, String) -> Self
+pub fn Declaration::not_equal(Self, Self) -> Bool
+pub fn Declaration::op_ge(Self, Self) -> Bool
+pub fn Declaration::op_gt(Self, Self) -> Bool
+pub fn Declaration::op_le(Self, Self) -> Bool
+pub fn Declaration::op_lt(Self, Self) -> Bool
+pub fn Declaration::to_repr(Self) -> @debug.Repr
 
 pub struct Edge {
   target : String
   weight : Int
 } derive(@debug.Debug)
+pub fn Edge::to_repr(Self) -> @debug.Repr
 
 pub struct FrequentPattern {
   classes : Array[String]
   frequency : Int
   potential_savings : Int
 } derive(@debug.Debug)
+pub fn FrequentPattern::to_repr(Self) -> @debug.Repr
 
 pub struct MergeSuggestion {
   original_classes : Array[String]
@@ -91,6 +106,7 @@ pub struct MergeSuggestion {
   usage_count : Int
   bytes_saved : Int
 } derive(@debug.Debug)
+pub fn MergeSuggestion::to_repr(Self) -> @debug.Repr
 
 pub enum PropertyCategory {
   Position
@@ -112,16 +128,26 @@ pub enum PropertyCategory {
   Cursor
   Other
 } derive(Compare, Eq, @debug.Debug)
+pub fn PropertyCategory::compare(Self, Self) -> Int
+pub fn PropertyCategory::equal(Self, Self) -> Bool
+pub fn PropertyCategory::not_equal(Self, Self) -> Bool
+pub fn PropertyCategory::op_ge(Self, Self) -> Bool
+pub fn PropertyCategory::op_gt(Self, Self) -> Bool
+pub fn PropertyCategory::op_le(Self, Self) -> Bool
+pub fn PropertyCategory::op_lt(Self, Self) -> Bool
+pub fn PropertyCategory::to_repr(Self) -> @debug.Repr
 
 pub struct Rule {
   selector : String
   declarations : Array[Declaration]
 } derive(@debug.Debug)
+pub fn Rule::to_repr(Self) -> @debug.Repr
 
 pub struct ShorthandDef {
   shorthand : String
   longhands : Array[String]
 } derive(@debug.Debug)
+pub fn ShorthandDef::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

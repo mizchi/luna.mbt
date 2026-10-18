@@ -4,7 +4,11 @@
 
 ///|
 /// Send `Json` as JSON response (wasm/native compatible).
-pub fn send_json(ctx : @mars.Context, data : Json, status? : Int = 200) -> Unit {
+pub fn send_json(
+  ctx : @mars.Context,
+  data : Json,
+  status~ : Int32 = 200,
+) -> Unit {
   send_json_text(ctx, data.stringify(), status)
 }
 
@@ -13,9 +17,9 @@ pub fn send_json(ctx : @mars.Context, data : Json, status? : Int = 200) -> Unit 
 pub fn send_json_error(
   ctx : @mars.Context,
   message : String,
-  status? : Int = 500,
+  status~ : Int32 = 500,
 ) -> Unit {
-  let json : Json = { "error": message.to_json() }
+  let json : Json = { "error": Json(message) }
   send_json_text(ctx, json.stringify(), status)
 }
 
@@ -23,13 +27,13 @@ pub fn send_json_error(
 /// Send 500 JSON error response.
 pub fn send_internal_error(
   ctx : @mars.Context,
-  message? : String = "Internal Server Error",
+  message~ : String = "Internal Server Error",
 ) -> Unit {
   send_json_error(ctx, message, status=500)
 }
 
 ///|
-fn send_json_text(ctx : @mars.Context, body : String, status : Int) -> Unit {
+fn send_json_text(ctx : @mars.Context, body : String, status : Int32) -> Unit {
   ctx.set_header("Content-Type", "application/json")
   ctx.set_header("X-Content-Type-Options", "nosniff")
   ctx.text(body, status~)

@@ -2,7 +2,7 @@
 /// SSG Simulation Test - Verifies FileSystem trait works for SSG-like operations
 /// Simulate reading markdown and writing HTML (like SSG does)
 test "SSG simulation: read markdown and write HTML" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
 
   // Setup: Create docs directory with markdown file
@@ -45,7 +45,7 @@ test "SSG simulation: read markdown and write HTML" {
 ///|
 /// Simulate asset generation (CSS, JS files)
 test "SSG simulation: generate assets" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
 
   // Create assets directory
@@ -72,7 +72,7 @@ test "SSG simulation: generate assets" {
 ///|
 /// Simulate directory scanning (like file_router.mbt does)
 test "SSG simulation: scan docs directory" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
 
   // Setup: Create nested docs structure
@@ -102,7 +102,7 @@ test "SSG simulation: scan docs directory" {
 /// Simulate copying public directory (like cpSync does)
 /// Note: Uses memfs directly since trait impl is not visible in blackbox tests
 test "SSG simulation: copy public directory" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
 
   // Setup: Create public directory with assets
@@ -139,7 +139,7 @@ test "SSG simulation: copy public directory" {
 ///|
 /// Simulate sitemap generation
 test "SSG simulation: generate sitemap" {
-  let fs = MemFSAdapter::new()
+  let fs = @fs.MemFSAdapter::new()
   let mem = fs.memfs()
 
   // Create output directory

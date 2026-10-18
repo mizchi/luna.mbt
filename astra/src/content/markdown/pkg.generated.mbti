@@ -15,7 +15,10 @@ pub(all) struct ClsHints {
   width : String?
   height : String?
 } derive(Eq, @debug.Debug)
+pub fn ClsHints::equal(Self, Self) -> Bool
 pub fn ClsHints::new() -> Self
+pub fn ClsHints::not_equal(Self, Self) -> Bool
+pub fn ClsHints::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ComponentEmbed {
   tag : String
@@ -68,6 +71,9 @@ pub(all) enum MdxAttrValue {
   Expression(String)
   Boolean
 } derive(Eq, @debug.Debug)
+pub fn MdxAttrValue::equal(Self, Self) -> Bool
+pub fn MdxAttrValue::not_equal(Self, Self) -> Bool
+pub fn MdxAttrValue::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

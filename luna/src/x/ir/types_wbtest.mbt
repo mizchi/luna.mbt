@@ -25,7 +25,7 @@ test "StructDef serialization" {
     ],
     derives: ["Serialize", "Eq"],
   }
-  let json = struct_def.to_json_obj().to_json()
+  let json = Json(struct_def.to_json_obj())
   let json_str = json.stringify()
 
   // Verify it contains expected fields

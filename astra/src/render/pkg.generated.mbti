@@ -39,6 +39,8 @@ pub fn generate_site_with_highlighter(@astra.SsgConfig, String, @shiki.Highlight
 
 pub fn render_page_html(@astra.BuildContext, @astra.PageMeta, @shiki.Highlighter?) -> Result[String, String]
 
+pub async fn render_page_html_async(@astra.BuildContext, @astra.PageMeta, @shiki.Highlighter?) -> Result[String, String]
+
 pub fn write_isr_manifest(@isr.ISRManifest, String) -> Unit
 
 pub fn write_routes_json(@astra.BuildContext) -> Unit
@@ -50,12 +52,16 @@ pub(all) struct CssManifestEntry {
   css : String
   size : Int
 } derive(ToJson, @json.FromJson)
+pub fn CssManifestEntry::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn CssManifestEntry::to_json(Self) -> Json
 
 pub(all) struct CssSplitManifest {
   entries : Map[String, CssManifestEntry]
   shared_css : String
   shared_size : Int
 } derive(ToJson, @json.FromJson)
+pub fn CssSplitManifest::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn CssSplitManifest::to_json(Self) -> Json
 
 pub struct ParallelCssConfig {
   max_workers : Int

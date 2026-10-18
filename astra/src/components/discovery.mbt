@@ -16,6 +16,12 @@ pub(all) enum ComponentType {
 } derive(Eq, Debug)
 
 ///|
+pub extend ComponentType with @debug.Debug::{to_repr}
+
+///|
+pub extend ComponentType with Eq::{not_equal, equal}
+
+///|
 /// Get the conventional filename for a component type
 pub fn ComponentType::filename(self : ComponentType) -> String {
   match self {

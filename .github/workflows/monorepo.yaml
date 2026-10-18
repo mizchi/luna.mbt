@@ -37,11 +37,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
@@ -53,9 +53,10 @@ jobs:
           mkdir -p _build/js/debug/test
           echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
       - name: moon check (workspace — libraries + docs + examples)
-        run: moon check --target js
+        run: moon check --target js --deny-warn
       - name: Build workspace packages
         run: |
+          node js/luna/scripts/build-moon.mjs
           cd js/wcr && pnpm build
           cd ../stella && pnpm build
       - name: TypeScript check
@@ -75,11 +76,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest

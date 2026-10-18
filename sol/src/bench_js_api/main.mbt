@@ -10,21 +10,21 @@ fn main {
   app.get(
     "/api/health",
     @mars.handler(async fn(c) {
-      let json : Json = { "status": "ok".to_json() }
+      let json : Json = { "status": Json("ok") }
       c.json(json)
     }),
   )
 
   // Items endpoint (static JSON for consistent benchmark)
-  let items_json : Json = [
-    { "id": (1).to_json(), "name": "Item 1".to_json() },
-    { "id": (2).to_json(), "name": "Item 2".to_json() },
-    { "id": (3).to_json(), "name": "Item 3".to_json() },
-  ].to_json()
+  let items_json : Json = Json([
+    { "id": Json(1), "name": Json("Item 1") },
+    { "id": Json(2), "name": Json("Item 2") },
+    { "id": Json(3), "name": Json("Item 3") },
+  ])
   app.get(
     "/api/items",
     @mars.handler(async fn(c) {
-      let json : Json = { "items": items_json, "total": (3).to_json() }
+      let json : Json = { "items": items_json, "total": Json(3) }
       c.json(json)
     }),
   )
@@ -34,7 +34,7 @@ fn main {
     "/api/echo/:msg",
     @mars.handler(async fn(c) {
       let msg = c.param("msg").unwrap_or("hello")
-      let json : Json = { "echo": msg.to_json() }
+      let json : Json = { "echo": Json(msg) }
       c.json(json)
     }),
   )
@@ -51,7 +51,7 @@ extern "js" fn ffi_init() -> Unit =
   #| }
 
 ///|
-extern "js" fn ffi_serve(handler : @mars.AppHandler, port : Int) -> Unit =
+extern "js" fn ffi_serve(handler : @mars.AppHandler, port : Int32) -> Unit =
   #| async (handler, port) => {
   #|   const { serve } = await import("@hono/node-server");
   #|   serve({ fetch: handler, port });

@@ -4,7 +4,7 @@ using @test {assert_eq}
 ///|
 /// Tests for default switch component
 test "switch_css returns valid CSS" {
-  let css = switch_css()
+  let css = @switch.switch_css()
   // Check that CSS contains expected selectors
   assert_true(css.contains(".switch"))
   assert_true(css.contains(".switch__track"))
@@ -18,7 +18,7 @@ test "switch_css returns valid CSS" {
 
 ///|
 test "switch_slots returns BEM class names" {
-  let slots = switch_slots()
+  let slots = @switch.switch_slots()
   assert_eq(slots.root, "switch")
   assert_eq(slots.track, "switch__track")
   assert_eq(slots.thumb, "switch__thumb")

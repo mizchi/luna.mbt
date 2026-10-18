@@ -22,6 +22,9 @@ pub fn MemoryCache::new() -> MemoryCache {
 }
 
 ///|
+pub extend MemoryCache with ISRCache::{schedule_revalidation, put, get, delete}
+
+///|
 pub impl ISRCache for MemoryCache with fn get(self, key) {
   self.store.val.get(key)
 }

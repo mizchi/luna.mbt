@@ -9,11 +9,26 @@ pub struct Declaration {
 } derive(Eq, Compare, Hash, Debug)
 
 ///|
+pub extend Declaration with @debug.Debug::{to_repr}
+
+///|
+pub extend Declaration with Hash::{hash, hash_combine}
+
+///|
+pub extend Declaration with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+pub extend Declaration with Eq::{not_equal, equal}
+
+///|
 /// A CSS rule: selector -> declarations
 pub struct Rule {
   selector : String
   declarations : Array[Declaration]
 } derive(Debug)
+
+///|
+pub extend Rule with @debug.Debug::{to_repr}
 
 ///|
 /// A class usage instance (which classes appear together on an element)
@@ -25,12 +40,18 @@ pub struct ClassUsage {
 } derive(Debug)
 
 ///|
+pub extend ClassUsage with @debug.Debug::{to_repr}
+
+///|
 /// Co-occurrence pair with frequency
 pub struct CoOccurrence {
   class_a : String
   class_b : String
   frequency : Int
 } derive(Debug)
+
+///|
+pub extend CoOccurrence with @debug.Debug::{to_repr}
 
 ///|
 /// A frequent pattern: set of classes that often appear together
@@ -40,6 +61,9 @@ pub struct FrequentPattern {
   /// Combined CSS size if merged
   potential_savings : Int
 } derive(Debug)
+
+///|
+pub extend FrequentPattern with @debug.Debug::{to_repr}
 
 ///|
 /// Merge suggestion
@@ -57,6 +81,9 @@ pub struct MergeSuggestion {
 } derive(Debug)
 
 ///|
+pub extend MergeSuggestion with @debug.Debug::{to_repr}
+
+///|
 /// Analysis result
 pub struct AnalysisResult {
   /// All class usages found
@@ -68,6 +95,9 @@ pub struct AnalysisResult {
   /// Merge suggestions
   suggestions : Array[MergeSuggestion]
 } derive(Debug)
+
+///|
+pub extend AnalysisResult with @debug.Debug::{to_repr}
 
 ///|
 /// Create a declaration

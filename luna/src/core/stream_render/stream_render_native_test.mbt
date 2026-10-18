@@ -11,8 +11,10 @@ test "streaming produces multiple chunks, not a single string" {
     @luna.h("div", [], [@luna.text("C")]),
   ])
   let chunks : Array[String] = []
-  let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
-  render_to_stream(node, writer)
+  let writer = @stream_render.StreamWriter::from_callback(fn(chunk) {
+    chunks.push(chunk)
+  })
+  @stream_render.render_to_stream(node, writer)
   // Must produce multiple chunks (not a single concatenated string)
   assert_true(chunks.length() > 1)
   // Reconstructed HTML is correct
@@ -30,8 +32,12 @@ test "streaming flushes header before async fallback" {
     @luna.h("footer", [], [@luna.text("Footer")]),
   ])
   let chunks : Array[String] = []
-  let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
-  let boundaries = render_to_stream_collecting_async(node, writer)
+  let writer = @stream_render.StreamWriter::from_callback(fn(chunk) {
+    chunks.push(chunk)
+  })
+  let boundaries = @stream_render.render_to_stream_collecting_async(
+    node, writer,
+  )
   // Find indices
   let mut header_idx = -1
   let mut fallback_idx = -1
@@ -61,8 +67,10 @@ async test "render_to_stream_with_async resolves and streams replacement" {
     ),
   ])
   let chunks : Array[String] = []
-  let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
-  render_to_stream_with_async(node, writer)
+  let writer = @stream_render.StreamWriter::from_callback(fn(chunk) {
+    chunks.push(chunk)
+  })
+  @stream_render.render_to_stream_with_async(node, writer)
   let html = chunks.iter().join("")
   // Contains both fallback placeholder and resolved replacement
   assert_true(html.contains("Loading..."))

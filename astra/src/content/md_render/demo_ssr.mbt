@@ -15,6 +15,9 @@ pub struct AccordionDemoItem {
 } derive(Eq)
 
 ///|
+pub extend AccordionDemoItem with Eq::{not_equal, equal}
+
+///|
 /// Parse accordion items from JSON-like string
 /// Format: [{"id":"1","title":"...","content":"...","open":true}, ...]
 pub fn parse_accordion_items(json : String) -> Array[AccordionDemoItem] {

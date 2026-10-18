@@ -15,7 +15,7 @@ test-incremental: generate-examples
 
 # 型チェック
 check: generate-examples
-    moon check --target js
+    moon check --target js --deny-warn
 
 # Sol サンプルの生成コードを準備（クリーン checkout から実行可能）
 generate-examples:
@@ -49,10 +49,7 @@ retest *tasks="test:moonbit test:vitest":
 # MoonBit ビルド
 build-moon: generate-examples
     moon build --target js --release luna/src
-    moon build --target js --release luna/src/js/api
-    moon build --target js --release luna/src/js/api_signals
-    moon build --target js --release luna/src/js/api_resource_lite
-    moon build --target js --release luna/src/js/api_router_lite
+    node js/luna/scripts/build-moon.mjs
     @rm -f _build/js/release/build/package.json
 
 # MoonBit デバッグビルド（ソースマップ付き）
@@ -82,11 +79,24 @@ test-moonbit: generate-examples _setup-test-env
 
 # Vitest テスト
 test-vitest:
-    pnpm vitest run --config luna/vitest.config.ts --project node --project browser
+    pnpm vitest run --config luna/vitest.config.mts --project node --project browser
 
 # E2E テスト
 test-e2e:
     env -u NO_COLOR pnpm playwright test --config luna/e2e/playwright.config.mts
+
+# Void adapter contracts and DOM lifecycle
+test-void: build-void
+    pnpm --filter @luna_ui/luna test:void
+
+build-void:
+    pnpm --filter @luna_ui/luna build:moon
+    pnpm --filter @luna_ui/luna build
+
+# Isolated D1 databases; never uses the example's development DB
+test-void-e2e: build-void
+    node scripts/test-void-adapter.mjs
+    node scripts/test-void-adapter.mjs --production
 
 # animation / easing デモ: http://127.0.0.1:4179/animation.html
 demo-animation:
@@ -131,7 +141,7 @@ test-vrt-astra name *args:
         if [[ " {{args}} " =~ " --linux " ]]; then
             # CI 互換の linux ベースラインを docker で seed する。
             docker run --rm -v "$(pwd):/work" -w /work \
-                mcr.microsoft.com/playwright:v1.61.1-noble \
+                mcr.microsoft.com/playwright:v1.64.1-noble \
                 bash -c "corepack enable && cd astra/examples/{{name}} && \
                   pnpm exec playwright test --config e2e/playwright.config.mts --update-snapshots"
         else
@@ -299,7 +309,7 @@ test-css: _setup-test-env
     moon test --target wasm-gc luna/src/x/css
     moon test --target js luna/src/tests/css_styles
     node luna/src/x/css/extract.test.js
-    pnpm exec vitest run --config luna/vitest.config.ts --project node js/luna/tests/cli-style-compose.test.ts js/luna/tests/cli-style-compile.test.ts js/luna/tests/cli-css-vite.test.ts js/luna/tests/cli-moon-css.test.ts
+    pnpm exec vitest run --config luna/vitest.config.mts --project node js/luna/tests/cli-style-compose.test.ts js/luna/tests/cli-style-compile.test.ts js/luna/tests/cli-css-vite.test.ts js/luna/tests/cli-moon-css.test.ts
     env -u NO_COLOR pnpm exec playwright test --config luna/e2e/playwright.config.mts luna/e2e/css-styles.test.mts luna/e2e/css-watch.test.mts
 
 # Regenerate the typed CSS property API and extractor mapping from the pinned catalog

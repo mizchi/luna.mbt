@@ -63,7 +63,7 @@ test "exp: repair missing static text" {
   let vnode = @luna.text("Hello World")
   // Empty container
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -86,7 +86,7 @@ test "exp: repair wrong static text content" {
   let vnode = @luna.text("Correct")
   // Wrong text
   exp_set_inner_html(container, "Wrong")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -113,7 +113,7 @@ test "exp: repair missing element with handler" {
   )
   // Empty container
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -140,7 +140,7 @@ test "exp: repair tag mismatch with sol:hk" {
   )
   // Wrong tag (span instead of button) but correct sol:hk
   exp_set_inner_html(container, "<span sol:hk=\"0\">Submit</span>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -169,7 +169,7 @@ test "exp: repair class attribute mismatch" {
   ])
   // Wrong class
   exp_set_inner_html(container, "<div class=\"wrong-class\">Content</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -193,7 +193,7 @@ test "exp: repair id attribute mismatch" {
   ])
   // Wrong id
   exp_set_inner_html(container, "<div id=\"wrong-id\">Content</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -217,7 +217,7 @@ test "exp: repair missing attribute" {
   ])
   // No attribute
   exp_set_inner_html(container, "<div>Content</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -243,7 +243,7 @@ test "exp: repair missing dynamic text markers" {
   let vnode = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
   // No markers
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -268,7 +268,7 @@ test "exp: repair dynamic text with existing marker but missing text node" {
   let vnode = @luna.text_dyn(fn() { name.get() })
   // Has marker but no text node after it
   exp_set_inner_html(container, "<!--t:0--><!--/t-->")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -297,7 +297,7 @@ test "exp: dynamic attribute setup works after repair" {
   )
   // Element exists but wrong structure
   exp_set_inner_html(container, "<div>Hover me</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -328,7 +328,7 @@ test "exp: dynamic style setup works after repair" {
   )
   // Element exists
   exp_set_inner_html(container, "<div>Styled</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -355,7 +355,7 @@ test "exp: repair missing show markers" {
   })
   // No markers
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -382,7 +382,7 @@ test "exp: repair show with condition initially false" {
   let visible = @resource.signal(false)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Hidden") })
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -407,7 +407,7 @@ test "exp: repair missing for markers" {
   })
   // No markers
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -435,7 +435,7 @@ test "exp: repair for item count mismatch - too few items" {
   })
   // Only 1 item in DOM
   exp_set_inner_html(container, "<!--f:0-->X<!--/f-->")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -458,7 +458,7 @@ test "exp: repair for item count mismatch - too many items" {
   let vnode = @luna.for_each(fn() { [@luna.text("A")] })
   // 3 items in DOM
   exp_set_inner_html(container, "<!--f:0-->X Y Z<!--/f-->")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -487,7 +487,7 @@ test "exp: repair deeply nested missing element" {
   ])
   // Only outer div
   exp_set_inner_html(container, "<div></div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(repairs) => {
       assert_true(repairs.length() > 0)
@@ -511,7 +511,7 @@ test "exp: repair fragment children" {
   ])
   // Only partial content
   exp_set_inner_html(container, "Partial")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(_) => assert_true(true)
     Clean => assert_true(true)
@@ -541,7 +541,7 @@ test "exp: repair component render" {
   let vnode = @luna.component(fn() { counter_component(10) })
   // Empty container
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Repaired(_) => assert_true(true)
     Clean => assert_true(true)
@@ -563,7 +563,7 @@ test "exp: fallback succeeds when normal hydration works" {
   let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   exp_set_inner_html(container, html)
-  let result = hydrate_with_fallback(container, vnode, logger~)
+  let result = @repair.hydrate_with_fallback(container, vnode, logger~)
   match result {
     @client.Success => assert_true(true)
     _ => assert_true(false)
@@ -583,7 +583,7 @@ test "exp: fallback recovers from complete mismatch" {
   )
   // Completely wrong HTML
   exp_set_inner_html(container, "<table><tr><td>Wrong</td></tr></table>")
-  let result = hydrate_with_fallback(container, vnode, logger~)
+  let result = @repair.hydrate_with_fallback(container, vnode, logger~)
   match result {
     @client.Recovered(msg) =>
       assert_true(
@@ -609,7 +609,7 @@ test "exp: fallback with logger captures both phases" {
   )
   // Wrong HTML
   exp_set_inner_html(container, "<input type=\"text\" />")
-  let _ = hydrate_with_fallback(container, vnode, logger~)
+  let _ = @repair.hydrate_with_fallback(container, vnode, logger~)
   let log = logger.to_string()
   // Should mention regular hydration failed
   assert_true(log.contains("[Hydration]"))
@@ -627,7 +627,7 @@ test "exp: handle empty vnode" {
   let logger = StringBuilder()
   let vnode = @luna.text("")
   exp_set_inner_html(container, "something")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -643,7 +643,7 @@ test "exp: handle special characters in text" {
   let logger = StringBuilder()
   let vnode = @luna.text("<script>alert('xss')</script>")
   exp_set_inner_html(container, "wrong content")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -664,7 +664,7 @@ test "exp: handle multiple dynamic elements" {
     @luna.text_dyn(fn() { b.get() }),
   ])
   exp_set_inner_html(container, "<div></div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -690,7 +690,7 @@ test "exp: handle static style attribute" {
     [@luna.text("Styled")],
   )
   exp_set_inner_html(container, "<div>Styled</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -712,7 +712,7 @@ test "exp: handle event handler attachment" {
   )
   // Correct HTML with sol:hk
   exp_set_inner_html(container, "<button sol:hk=\"0\">Click</button>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -735,7 +735,11 @@ test "report: clean hydration returns clean report" {
   let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   exp_set_inner_html(container, html)
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_true(report.is_clean())
   assert_eq(report.get_repair_count(), 0)
   assert_eq(report.get_repairs().length(), 0)
@@ -749,10 +753,14 @@ test "report: text mismatch has correct repair type" {
   let logger = StringBuilder()
   let vnode = @luna.text("Expected")
   exp_set_inner_html(container, "Wrong")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_text_mismatch()))
-  let repairs = report.get_repairs_by_type(repair_type_text_mismatch())
+  assert_true(report.has_repair_type(@repair.repair_type_text_mismatch()))
+  let repairs = report.get_repairs_by_type(@repair.repair_type_text_mismatch())
   assert_true(repairs.length() > 0)
   let repair = repairs[0]
   assert_eq(repair.get_expected(), "Expected")
@@ -768,9 +776,13 @@ test "report: missing text has correct repair type" {
   let logger = StringBuilder()
   let vnode = @luna.text("Missing")
   exp_set_inner_html(container, "")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_text_missing()))
+  assert_true(report.has_repair_type(@repair.repair_type_text_missing()))
 }
 
 ///|
@@ -785,10 +797,16 @@ test "report: element missing has correct repair type" {
     [@luna.text("Click")],
   )
   exp_set_inner_html(container, "")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_element_missing()))
-  let repairs = report.get_repairs_by_type(repair_type_element_missing())
+  assert_true(report.has_repair_type(@repair.repair_type_element_missing()))
+  let repairs = report.get_repairs_by_type(
+    @repair.repair_type_element_missing(),
+  )
   assert_true(repairs.length() > 0)
   let repair = repairs[0]
   assert_true(repair.get_expected().contains("button"))
@@ -806,10 +824,14 @@ test "report: tag mismatch has correct repair type" {
     [@luna.text("Click")],
   )
   exp_set_inner_html(container, "<span sol:hk=\"0\">Click</span>")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_tag_mismatch()))
-  let repairs = report.get_repairs_by_type(repair_type_tag_mismatch())
+  assert_true(report.has_repair_type(@repair.repair_type_tag_mismatch()))
+  let repairs = report.get_repairs_by_type(@repair.repair_type_tag_mismatch())
   assert_true(repairs.length() > 0)
   let repair = repairs[0]
   assert_eq(repair.get_expected(), "button")
@@ -826,10 +848,16 @@ test "report: attribute mismatch has correct repair type" {
     @luna.text("Content"),
   ])
   exp_set_inner_html(container, "<div class=\"wrong\">Content</div>")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_attribute_mismatch()))
-  let repairs = report.get_repairs_by_type(repair_type_attribute_mismatch())
+  assert_true(report.has_repair_type(@repair.repair_type_attribute_mismatch()))
+  let repairs = report.get_repairs_by_type(
+    @repair.repair_type_attribute_mismatch(),
+  )
   assert_true(repairs.length() > 0)
   let repair = repairs[0]
   assert_eq(repair.get_expected(), "expected")
@@ -845,9 +873,15 @@ test "report: dynamic text marker missing has correct repair type" {
   let sig = @resource.signal("Dynamic")
   let vnode = @luna.text_dyn(fn() { sig.get() })
   exp_set_inner_html(container, "")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_dynamic_text_marker_missing()))
+  assert_true(
+    report.has_repair_type(@repair.repair_type_dynamic_text_marker_missing()),
+  )
 }
 
 ///|
@@ -859,9 +893,13 @@ test "report: show marker missing has correct repair type" {
   let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Content") })
   exp_set_inner_html(container, "")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_show_marker_missing()))
+  assert_true(report.has_repair_type(@repair.repair_type_show_marker_missing()))
 }
 
 ///|
@@ -872,9 +910,13 @@ test "report: for marker missing has correct repair type" {
   let logger = StringBuilder()
   let vnode = @luna.for_each(fn() { [@luna.text("A"), @luna.text("B")] })
   exp_set_inner_html(container, "")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_for_marker_missing()))
+  assert_true(report.has_repair_type(@repair.repair_type_for_marker_missing()))
 }
 
 ///|
@@ -887,11 +929,17 @@ test "report: for item count mismatch has correct repair type" {
     [@luna.text("A"), @luna.text("B"), @luna.text("C")]
   })
   exp_set_inner_html(container, "<!--f:0-->X<!--/f-->")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_for_item_count_mismatch()))
+  assert_true(
+    report.has_repair_type(@repair.repair_type_for_item_count_mismatch()),
+  )
   let repairs = report.get_repairs_by_type(
-    repair_type_for_item_count_mismatch(),
+    @repair.repair_type_for_item_count_mismatch(),
   )
   assert_true(repairs.length() > 0)
   let repair = repairs[0]
@@ -909,9 +957,15 @@ test "report: show content missing has correct repair type" {
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Content") })
   // Markers exist but no content
   exp_set_inner_html(container, "<!--s:0--><!--/s-->")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
-  assert_true(report.has_repair_type(repair_type_show_content_missing()))
+  assert_true(
+    report.has_repair_type(@repair.repair_type_show_content_missing()),
+  )
 }
 
 ///|
@@ -924,7 +978,11 @@ test "report: node path tracks hierarchy" {
     @luna.h("span", [], [@luna.text("Wrong content")]),
   ])
   exp_set_inner_html(container, "<div><span>Different</span></div>")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   if !report.is_clean() {
     let repairs = report.get_repairs()
     if repairs.length() > 0 {
@@ -953,7 +1011,11 @@ test "report: multiple repairs tracked" {
     ),
   ])
   exp_set_inner_html(container, "<div class=\"wrong\">Different</div>")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   assert_false(report.is_clean())
   // Should have multiple repairs
   assert_true(report.get_repair_count() >= 1)
@@ -969,7 +1031,11 @@ test "report: get_repairs returns all repair infos" {
     @luna.text("Hello"),
   ])
   exp_set_inner_html(container, "<div class=\"wrong\">World</div>")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
+  )
   let repairs = report.get_repairs()
   for repair in repairs {
     // Each repair should have valid info
@@ -988,11 +1054,17 @@ test "report: filter repairs by type returns correct subset" {
     @luna.text("Content"),
   ])
   exp_set_inner_html(container, "<div id=\"wrong-id\">Content</div>")
-  let report = experimental_hydrate_with_report(container, vnode, logger~)
-  let attr_repairs = report.get_repairs_by_type(
-    repair_type_attribute_mismatch(),
+  let report = @repair.experimental_hydrate_with_report(
+    container,
+    vnode,
+    logger~,
   )
-  let text_repairs = report.get_repairs_by_type(repair_type_text_missing())
+  let attr_repairs = report.get_repairs_by_type(
+    @repair.repair_type_attribute_mismatch(),
+  )
+  let text_repairs = report.get_repairs_by_type(
+    @repair.repair_type_text_missing(),
+  )
   // Should have attribute mismatch but not text missing
   assert_true(attr_repairs.length() > 0)
   assert_eq(text_repairs.length(), 0)
@@ -1011,7 +1083,7 @@ test "smart_hydrate uses experimental for small trees" {
   // Small tree - should use experimental hydration
   let vnode = @luna.h("div", [], [@luna.text("Small")])
   exp_set_inner_html(container, "<div>Small</div>")
-  let result = smart_hydrate(container, vnode, logger~)
+  let result = @repair.smart_hydrate(container, vnode, logger~)
   match result {
     Hydrated(Clean) => assert_true(true)
     Hydrated(Repaired(_)) => assert_true(true)
@@ -1033,7 +1105,7 @@ test "smart_hydrate falls back for empty DOM" {
     @luna.text("C"),
   ])
   exp_set_inner_html(container, "")
-  let result = smart_hydrate(container, vnode, logger~)
+  let result = @repair.smart_hydrate(container, vnode, logger~)
   match result {
     FellBackToFullRender(reason) =>
       // Should mention ratio
@@ -1051,7 +1123,7 @@ test "smart_hydrate without logger outputs to console" {
   let vnode = @luna.h("div", [], [@luna.text("Test")])
   exp_set_inner_html(container, "<div>Test</div>")
   // No logger - should use console
-  let result = smart_hydrate(container, vnode)
+  let result = @repair.smart_hydrate(container, vnode)
   match result {
     Hydrated(Clean) => assert_true(true)
     Hydrated(Repaired(_)) => assert_true(true)
@@ -1066,7 +1138,7 @@ test "smart_hydrate without logger outputs to console" {
 
 ///|
 test "hydration_failed creates Failed result" {
-  let result = hydration_failed("test error message")
+  let result = @repair.hydration_failed("test error message")
   match result {
     Failed(msg) => assert_eq(msg, "test error message")
     _ => assert_true(false)
@@ -1088,7 +1160,7 @@ test "exp: hydrate async node fallback" {
     fallback=fn() { @luna.text("Loading...") },
   )
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) =>
@@ -1109,7 +1181,7 @@ test "exp: hydrate error_boundary success" {
     fallback=fn(_err, _reset) { @luna.text("Error") },
   )
   exp_set_inner_html(container, "<div>Safe</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1131,7 +1203,7 @@ test "exp: hydrate switch first case" {
     fallback=Some(fn() { @luna.text("Fallback") }),
   )
   exp_set_inner_html(container, "First")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1152,7 +1224,7 @@ test "exp: hydrate switch fallback" {
     fallback=Some(fn() { @luna.text("Fallback") }),
   )
   exp_set_inner_html(container, "Fallback")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1170,7 +1242,7 @@ test "exp: hydrate switch no fallback" {
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1193,7 +1265,7 @@ test "exp: apply_vattr with className" {
     @luna.text("Content"),
   ])
   exp_set_inner_html(container, "<div>Content</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1209,7 +1281,7 @@ test "exp: apply_vattr with value attribute" {
   let logger = StringBuilder()
   let vnode = @luna.h("input", [("value", @luna.attr_static("test-value"))], [])
   exp_set_inner_html(container, "<input />")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1230,7 +1302,7 @@ test "exp: apply_vattr dynamic value" {
     [],
   )
   exp_set_inner_html(container, "<input />")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1254,7 +1326,7 @@ test "exp: apply_vattr dynamic className" {
     [@luna.text("Content")],
   )
   exp_set_inner_html(container, "<div>Content</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1288,7 +1360,7 @@ test "exp: apply_vattr dynamic __remove__" {
     [@luna.text("Content")],
   )
   exp_set_inner_html(container, "<div>Content</div>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1310,7 +1382,7 @@ test "exp: apply_vattr VAction skipped" {
     [@luna.text("Click")],
   )
   exp_set_inner_html(container, "<button>Click</button>")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1333,7 +1405,7 @@ test "exp: hydrate for with element items" {
   })
   // Has markers with element items
   exp_set_inner_html(container, "<!--f:0--><li>A</li><li>B</li><!--/f-->")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1353,7 +1425,7 @@ test "exp: hydrate for replacing text with element" {
   })
   // DOM has text node
   exp_set_inner_html(container, "<!--f:0-->Plain text<!--/f-->")
-  let result = experimental_hydrate(container, vnode, logger~)
+  let result = @repair.experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)
@@ -1369,7 +1441,7 @@ test "exp: experimental_hydrate without logger" {
   let vnode = @luna.text("Hello")
   exp_set_inner_html(container, "Wrong")
   // No logger - should use console
-  let result = experimental_hydrate(container, vnode)
+  let result = @repair.experimental_hydrate(container, vnode)
   match result {
     Clean => assert_true(true)
     Repaired(_) => assert_true(true)

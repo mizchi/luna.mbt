@@ -8,12 +8,24 @@ pub(all) enum PopoverMode {
 } derive(Eq, Debug)
 
 ///|
+pub extend PopoverMode with @debug.Debug::{to_repr}
+
+///|
+pub extend PopoverMode with Eq::{not_equal, equal}
+
+///|
 /// Native `popovertargetaction` values for controls targeting a popover.
 pub(all) enum PopoverTargetAction {
   Toggle
   Show
   Hide
 } derive(Eq, Debug)
+
+///|
+pub extend PopoverTargetAction with @debug.Debug::{to_repr}
+
+///|
+pub extend PopoverTargetAction with Eq::{not_equal, equal}
 
 ///|
 fn popover_mode_to_string(mode : PopoverMode) -> String {

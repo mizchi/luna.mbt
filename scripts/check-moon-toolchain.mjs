@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 
-// The updated moonbitlang/x dependency uses constructors unavailable in
-// older compilers. Check the compiler (moonc), not the date-based moon CLI.
-const minimum = [0, 10, 12];
+// The updated parser/lexer dependencies require Int32 support. Check the
+// compiler (moonc), not the date-based moon CLI.
+const minimum = [0, 10, 15];
 const result = spawnSync("moon", ["version", "--all"], { encoding: "utf8" });
 
 if (result.error || result.status !== 0) {

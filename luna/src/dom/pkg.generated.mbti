@@ -245,6 +245,7 @@ pub struct DomElement {
 }
 pub fn DomElement::from_dom(@mizchi/js_browser/dom.Element) -> Self
 pub fn DomElement::to_dom(Self) -> @mizchi/js_browser/dom.Element
+pub fn DomElement::to_dom_node(Self) -> DomNode
 pub fn DomElement::to_node(Self) -> DomNode
 pub impl ToDomNode for DomElement
 
@@ -255,6 +256,7 @@ pub enum DomNode {
   Static(@mizchi/js_browser/dom.Node)
 }
 pub fn DomNode::to_dom(Self) -> @mizchi/js_browser/dom.Node
+pub fn DomNode::to_dom_node(Self) -> Self
 pub impl ToDomNode for DomNode
 
 pub struct Element {
@@ -324,6 +326,7 @@ pub enum Node {
   Raw(@mizchi/js_browser/dom.Node)
 }
 pub fn Node::to_dom(Self) -> @mizchi/js_browser/dom.Node
+pub fn Node::to_node(Self) -> Self
 pub impl ToNode for Node
 
 // Type aliases

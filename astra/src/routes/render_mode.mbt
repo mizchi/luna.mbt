@@ -18,6 +18,12 @@ pub(all) enum RenderMode {
 } derive(Eq, Debug)
 
 ///|
+pub extend RenderMode with @debug.Debug::{to_repr}
+
+///|
+pub extend RenderMode with Eq::{not_equal, equal}
+
+///|
 /// Default render mode is SSR
 pub fn RenderMode::default() -> RenderMode {
   RenderMode::Ssr
@@ -56,6 +62,12 @@ pub(all) enum FallbackConfig {
   /// Fallback to SPA for specific prefix only
   SpaPrefix(prefix~ : String, entry~ : String)
 } derive(Eq, Debug)
+
+///|
+pub extend FallbackConfig with @debug.Debug::{to_repr}
+
+///|
+pub extend FallbackConfig with Eq::{not_equal, equal}
 
 ///|
 /// Default fallback is 404
@@ -97,6 +109,12 @@ pub(all) enum HttpMethod {
   Patch
   All
 } derive(Eq, Debug)
+
+///|
+pub extend HttpMethod with @debug.Debug::{to_repr}
+
+///|
+pub extend HttpMethod with Eq::{not_equal, equal}
 
 ///|
 /// Convert HTTP method to string
@@ -143,6 +161,12 @@ pub(all) enum FileType {
   /// Unknown file type
   Unknown
 } derive(Eq, Debug)
+
+///|
+pub extend FileType with @debug.Debug::{to_repr}
+
+///|
+pub extend FileType with Eq::{not_equal, equal}
 
 ///|
 /// Detect file type from a filename, honouring compound page extensions

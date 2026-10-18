@@ -69,6 +69,14 @@ async fn run_suite() -> Unit {
     failed,
     errors,
   )
+  run(
+    "wait for deferred browser state",
+    b => test_deferred_state(b),
+    browser,
+    passed,
+    failed,
+    errors,
+  )
 
   // === sol_app hydration tests (replaces sol-app-hydration.spec.ts) ===
   run(
@@ -341,6 +349,26 @@ async fn test_object_return(browser : @pw.Browser) -> Unit {
 // =============================================================================
 
 ///|
+// playwright 0.3.9 evaluates wait_for_function only once. Poll explicitly;
+// run() bounds this wait with the per-test timeout.
+async fn wait_until(page : @pw.Page, predicate : String) -> Unit {
+  while page.evaluate(predicate) != Json::boolean(true) {
+    @async.sleep(10)
+  }
+}
+
+///|
+async fn test_deferred_state(browser : @pw.Browser) -> Unit {
+  let page = browser.new_page()
+  let _ = page.evaluate(
+    "() => { window.__solTestReady = false; setTimeout(() => { window.__solTestReady = true; }, 200); }",
+  )
+  wait_until(page, "() => window.__solTestReady === true")
+  assert_eq(page.evaluate("() => window.__solTestReady"), Json::boolean(true))
+  page.close()
+}
+
+///|
 async fn test_home_ssr(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let resp = page.goto("\{base}/")
@@ -356,7 +384,8 @@ async fn test_home_ssr(browser : @pw.Browser) -> Unit {
 
 ///|
 async fn wait_hydrated(page : @pw.Page) -> Unit {
-  let _ = page.wait_for_function(
+  wait_until(
+    page,
     "() => Array.from(document.querySelectorAll('*')).filter(el => el.hasAttribute('luna:wc-url')).every(el => el.hasAttribute('data-sol-hydrated'))",
   )
 }
@@ -364,7 +393,8 @@ async fn wait_hydrated(page : @pw.Page) -> Unit {
 ///|
 async fn navigate(page : @pw.Page, path : String) -> Unit {
   page.locator("nav a[href=\"\{path}\"]").first().click()
-  let _ = page.wait_for_function(
+  wait_until(
+    page,
     "() => location.pathname === " + Json::string(path).stringify(),
   )
   wait_hydrated(page)
@@ -382,14 +412,16 @@ async fn increment_counter(
   let read_count = "Number(" +
     root +
     ".querySelector('.count-display').textContent)"
-  let initial = match page.evaluate("() => " + read_count) {
+  let value = page.evaluate("() => " + read_count)
+  let initial = match value {
     Number(n, ..) => n.to_int()
-    _ => fail("expected a numeric counter value")
+    _ => fail("expected a numeric counter value, got \{value.stringify()}")
   }
   let _ = page.evaluate(
     "() => " + root + ".querySelector('button.inc').click()",
   )
-  let _ = page.wait_for_function(
+  wait_until(
+    page,
     "() => " + read_count + " === " + (initial + 1).to_string(),
   )
 }
@@ -406,7 +438,8 @@ async fn fill_form(page : @pw.Page, name : String, email : String) -> Unit {
     " }; " +
     "for (const [key, value] of Object.entries(values)) { const el = root.querySelector('#' + key); el.value = value; el.dispatchEvent(new Event('input', { bubbles: true, composed: true })); } }",
   )
-  let _ = page.wait_for_function(
+  wait_until(
+    page,
     "() => document.querySelector('contact-form').shadowRoot.querySelector('.preview-name').textContent === " +
     Json::string(name).stringify(),
   )
@@ -416,7 +449,8 @@ async fn fill_form(page : @pw.Page, name : String, email : String) -> Unit {
 async fn test_counter_island_visible(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  let _ = page.wait_for_function(
+  wait_until(
+    page,
     "() => !!document.querySelector('luna-counter')?.shadowRoot?.querySelector('.counter')",
   )
   @pw.expect(page.shadow_text("luna-counter", ".count-display").length() > 0).to_be_truthy()
@@ -604,17 +638,23 @@ async fn test_admin_layout(browser : @pw.Browser) -> Unit {
 async fn test_admin_csr_nav(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/admin")
-  // Admin → Settings (via evaluate click + wait_for_content)
+  // Wait for the destination, since "Settings" is already in the sidebar.
   let _ = page.evaluate(
     "() => document.querySelector('.admin-sidebar a[href=\"/admin/settings\"]')?.click()",
   )
-  @pw.expect(page.wait_for_content("Settings")).to_be_truthy()
+  wait_until(
+    page,
+    "() => location.pathname === '/admin/settings' && document.querySelector('.admin-content h1')?.textContent === 'Admin Settings'",
+  )
   @pw.expect(page.content()).to_contain("admin-sidebar")
   // Settings → Users
   let _ = page.evaluate(
     "() => document.querySelector('.admin-sidebar a[href=\"/admin/users\"]')?.click()",
   )
-  @pw.expect(page.wait_for_content("User Management")).to_be_truthy()
+  wait_until(
+    page,
+    "() => location.pathname === '/admin/users' && document.querySelector('.admin-content h1')?.textContent === 'User Management'",
+  )
   page.close()
 }
 
