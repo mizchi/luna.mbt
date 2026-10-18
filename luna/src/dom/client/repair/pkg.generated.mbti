@@ -87,6 +87,8 @@ pub enum RepairType {
   ForItemCountMismatch
   ShowContentMissing
 } derive(Eq)
+pub fn RepairType::equal(Self, Self) -> Bool
+pub fn RepairType::not_equal(Self, Self) -> Bool
 
 pub enum SmartHydrateResult {
   Hydrated(ExperimentalHydrationResult)

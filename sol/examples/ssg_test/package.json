@@ -7,8 +7,8 @@
     "build:only": "node ../../../scripts/run-cli.mjs astra build"
   },
   "devDependencies": {
-    "shiki": "^4.4.3",
-    "tsx": "^4.23.13"
+    "shiki": "^4.5.0",
+    "tsx": "^4.23.15"
   },
   "private": true
 }

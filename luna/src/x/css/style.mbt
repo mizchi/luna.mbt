@@ -24,6 +24,12 @@ pub(all) struct StyleAttrs {
 } derive(Eq, Debug)
 
 ///|
+pub extend StyleAttrs with @debug.Debug::{to_repr}
+
+///|
+pub extend StyleAttrs with Eq::{not_equal, equal}
+
+///|
 pub suberror StyleError {
   InvalidCustomProperty(String)
 }

@@ -19,11 +19,23 @@ pub struct Schema {
 } derive(Eq, Debug)
 
 ///|
+pub extend Schema with @debug.Debug::{to_repr}
+
+///|
+pub extend Schema with Eq::{not_equal, equal}
+
+///|
 /// Source file metadata
 pub struct SourceInfo {
   file : String
   lang : SourceLang
 } derive(Eq, Debug)
+
+///|
+pub extend SourceInfo with @debug.Debug::{to_repr}
+
+///|
+pub extend SourceInfo with Eq::{not_equal, equal}
 
 ///|
 /// Supported source languages
@@ -34,6 +46,12 @@ pub enum SourceLang {
   Go
   Unknown(String)
 } derive(Eq, Debug)
+
+///|
+pub extend SourceLang with @debug.Debug::{to_repr}
+
+///|
+pub extend SourceLang with Eq::{not_equal, equal}
 
 // =============================================================================
 // Type Definitions
@@ -51,6 +69,12 @@ pub enum TypeDef {
 } derive(Eq, Debug)
 
 ///|
+pub extend TypeDef with @debug.Debug::{to_repr}
+
+///|
+pub extend TypeDef with Eq::{not_equal, equal}
+
+///|
 /// Struct definition
 pub struct StructDef {
   /// Type name
@@ -64,6 +88,12 @@ pub struct StructDef {
   /// Derive attributes (e.g., Serialize, Eq)
   derives : Array[String]
 } derive(Eq, Debug)
+
+///|
+pub extend StructDef with @debug.Debug::{to_repr}
+
+///|
+pub extend StructDef with Eq::{not_equal, equal}
 
 ///|
 /// Enum definition
@@ -81,6 +111,12 @@ pub struct EnumDef {
 } derive(Eq, Debug)
 
 ///|
+pub extend EnumDef with @debug.Debug::{to_repr}
+
+///|
+pub extend EnumDef with Eq::{not_equal, equal}
+
+///|
 /// Enum variant
 pub struct EnumVariant {
   /// Variant name
@@ -90,6 +126,12 @@ pub struct EnumVariant {
   /// Payload type (None for unit variants)
   payload : TypeRef?
 } derive(Eq, Debug)
+
+///|
+pub extend EnumVariant with @debug.Debug::{to_repr}
+
+///|
+pub extend EnumVariant with Eq::{not_equal, equal}
 
 ///|
 /// Type alias definition
@@ -103,6 +145,12 @@ pub struct AliasDef {
   /// Target type
   target : TypeRef
 } derive(Eq, Debug)
+
+///|
+pub extend AliasDef with @debug.Debug::{to_repr}
+
+///|
+pub extend AliasDef with Eq::{not_equal, equal}
 
 // =============================================================================
 // Fields
@@ -124,6 +172,12 @@ pub struct Field {
   /// Field attributes/annotations
   attrs : Map[String, String]
 } derive(Eq, Debug)
+
+///|
+pub extend Field with @debug.Debug::{to_repr}
+
+///|
+pub extend Field with Eq::{not_equal, equal}
 
 // =============================================================================
 // Type References
@@ -159,6 +213,15 @@ pub enum TypeRef {
 } derive(Eq, Debug)
 
 ///|
+pub extend TypeRef with @debug.Debug::{to_repr}
+
+///|
+pub extend TypeRef with Eq::{not_equal, equal}
+
+///|
+pub extend TypeRef with Show::{to_string, output}
+
+///|
 pub impl Show for TypeRef with fn output(self, logger) {
   logger.write_string(self.to_moonbit())
 }
@@ -177,6 +240,12 @@ pub enum PrimitiveType {
 } derive(Eq, Debug)
 
 ///|
+pub extend PrimitiveType with @debug.Debug::{to_repr}
+
+///|
+pub extend PrimitiveType with Eq::{not_equal, equal}
+
+///|
 /// Literal type values
 pub enum LiteralType {
   BoolLit(Bool)
@@ -185,11 +254,23 @@ pub enum LiteralType {
 } derive(Eq, Debug)
 
 ///|
+pub extend LiteralType with @debug.Debug::{to_repr}
+
+///|
+pub extend LiteralType with Eq::{not_equal, equal}
+
+///|
 /// Function type
 pub struct FunctionType {
   params : Array[TypeRef]
   return_ : TypeRef
 } derive(Eq, Debug)
+
+///|
+pub extend FunctionType with @debug.Debug::{to_repr}
+
+///|
+pub extend FunctionType with Eq::{not_equal, equal}
 
 // =============================================================================
 // Generics
@@ -206,6 +287,12 @@ pub struct TypeParam {
   default : TypeRef?
 } derive(Eq, Debug)
 
+///|
+pub extend TypeParam with @debug.Debug::{to_repr}
+
+///|
+pub extend TypeParam with Eq::{not_equal, equal}
+
 // =============================================================================
 // Annotations/Attributes
 // =============================================================================
@@ -218,6 +305,12 @@ pub struct Annotation {
   /// Annotation arguments
   args : Map[String, Json]
 } derive(Eq, Debug)
+
+///|
+pub extend Annotation with @debug.Debug::{to_repr}
+
+///|
+pub extend Annotation with Eq::{not_equal, equal}
 
 // =============================================================================
 // Constructors

@@ -72,6 +72,12 @@ pub enum RoutesKind {
 } derive(Eq, Debug)
 
 ///|
+pub extend RoutesKind with @debug.Debug::{to_repr}
+
+///|
+pub extend RoutesKind with Eq::{not_equal, equal}
+
+///|
 /// Match result
 pub struct RoutesMatch {
   route : CompiledRoutes

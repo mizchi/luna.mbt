@@ -38,6 +38,9 @@ fn generate_types_mbt(
       buf.write_string(s.raw_definition)
       buf.write_string(" derive(ToJson, FromJson)\n\n")
     }
+    buf.write_string(
+      generate_derived_method_extensions(s.name, s.raw_definition),
+    )
   }
   let emitted_struct_names = structs.map(fn(s) { s.name })
   for shape in route_info.contract_shapes {
@@ -47,6 +50,7 @@ fn generate_types_mbt(
     buf.write_string("///| Contract data shape \{shape.name}\n")
     buf.write_string(contract_data_shape_raw_definition(shape))
     buf.write_string(" derive(ToJson, FromJson)\n\n")
+    buf.write_string(generate_derived_method_extensions(shape.name, ""))
     emitted_struct_names.push(shape.name)
   }
 
@@ -129,6 +133,41 @@ fn generate_types_mbt(
 }
 
 ///|
+/// Preserve the method-style API of generated derives without implicit promotion.
+fn generate_derived_method_extensions(
+  name : String,
+  definition : String,
+) -> String {
+  let derives = match definition.find("derive(") {
+    Some(start) => {
+      let tail = definition[start + "derive(".length():]
+      match tail.find(")") {
+        Some(end) =>
+          tail[:end].split(",").map(t => t.trim().to_owned()).collect()
+        None => []
+      }
+    }
+    None => ["ToJson", "FromJson"]
+  }
+  let buf = StringBuilder()
+  for trait_name in derives {
+    let attachment = match trait_name {
+      "ToJson" => "ToJson::{to_json}"
+      "FromJson" | "@json.FromJson" => "@json.FromJson::{from_json}"
+      "Eq" => "Eq::{not_equal, equal}"
+      "Compare" => "Compare::{op_lt, op_le, op_ge, compare, op_gt}"
+      "Hash" => "Hash::{hash, hash_combine}"
+      "Debug" | "@debug.Debug" => "@debug.Debug::{to_repr}"
+      "Show" => "Show::{to_string, output}"
+      "Default" => "Default::{default}"
+      _ => continue
+    }
+    buf.write_string("///|\npub extend \{name} with \{attachment}\n\n")
+  }
+  buf.to_string()
+}
+
+///|
 /// Generate round-trip tests for all Props types.
 /// These tests verify that to_json → from_json produces identical values.
 fn generate_types_roundtrip_tests(
@@ -151,10 +190,10 @@ fn generate_types_roundtrip_tests(
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
+    buf.write_string("  let props : @types.\{s.name} = @json.from_json(json)\n")
     buf.write_string("  let roundtrip = props.to_json()\n")
     buf.write_string(
-      "  let restored : \{s.name} = @json.from_json(roundtrip)\n",
+      "  let restored : @types.\{s.name} = @json.from_json(roundtrip)\n",
     )
     buf.write_string(
       "  assert_eq(props.to_json().stringify(), restored.to_json().stringify())\n",
@@ -167,11 +206,11 @@ fn generate_types_roundtrip_tests(
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
+    buf.write_string("  let props : @types.\{s.name} = @json.from_json(json)\n")
     let factory_call = if external_client_bundle {
-      "\{component_name}_at(\"/static/\{component_name}.js\", props)"
+      "@types.\{component_name}_at(\"/static/\{component_name}.js\", props)"
     } else {
-      "\{component_name}(props)"
+      "@types.\{component_name}(props)"
     }
     buf.write_string("  let cref = \{factory_call}\n")
     buf.write_string(
@@ -277,6 +316,13 @@ fn generate_types_pkg(
   let imports : Array[String] = []
   if !structs.is_empty() || !contract_shapes.is_empty() {
     imports.push("  \"moonbitlang/core/json\",")
+  }
+  if structs.any(s => {
+      generate_derived_method_extensions(s.name, s.raw_definition).contains(
+        "@debug.Debug",
+      )
+    }) {
+    imports.push("  \"moonbitlang/core/debug\",")
   }
   if !structs.is_empty() {
     imports.push("  \"mizchi/luna\" @luna,")

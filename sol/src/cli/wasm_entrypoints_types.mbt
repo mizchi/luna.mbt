@@ -9,6 +9,15 @@ pub enum WasmEntrypointRuntime {
 } derive(Eq, Show, Debug)
 
 ///|
+pub extend WasmEntrypointRuntime with @debug.Debug::{to_repr}
+
+///|
+pub extend WasmEntrypointRuntime with Show::{to_string, output}
+
+///|
+pub extend WasmEntrypointRuntime with Eq::{not_equal, equal}
+
+///|
 /// Source kinds accepted by wasm entrypoint builder.
 pub enum WasmEntrypointSourceKind {
   MoonEntrypoint
@@ -17,12 +26,30 @@ pub enum WasmEntrypointSourceKind {
 } derive(Eq, Show, Debug)
 
 ///|
+pub extend WasmEntrypointSourceKind with @debug.Debug::{to_repr}
+
+///|
+pub extend WasmEntrypointSourceKind with Show::{to_string, output}
+
+///|
+pub extend WasmEntrypointSourceKind with Eq::{not_equal, equal}
+
+///|
 /// Build path used for final mounted wasm artifact.
 pub enum WasmBuildKind {
   MoonBuild
   DirectCopy
   WiteCompose
 } derive(Eq, Show, Debug)
+
+///|
+pub extend WasmBuildKind with @debug.Debug::{to_repr}
+
+///|
+pub extend WasmBuildKind with Show::{to_string, output}
+
+///|
+pub extend WasmBuildKind with Eq::{not_equal, equal}
 
 ///|
 /// Build options for wasm entrypoint facade API.

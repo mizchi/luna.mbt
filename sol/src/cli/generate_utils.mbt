@@ -30,6 +30,15 @@ pub enum AppMode {
 } derive(Eq, Show, Debug)
 
 ///|
+pub extend AppMode with @debug.Debug::{to_repr}
+
+///|
+pub extend AppMode with Show::{to_string, output}
+
+///|
+pub extend AppMode with Eq::{not_equal, equal}
+
+///|
 /// Detect app mode based on file extensions
 pub fn detect_app_mode(cwd : String, config : SolConfig) -> AppMode {
   let fs = @fs_adapter.NodeFsAdapter::new()

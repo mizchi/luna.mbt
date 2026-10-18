@@ -6,7 +6,7 @@
 
 ///|
 test "ChunkManifest::empty - default values" {
-  let manifest = ChunkManifest::empty()
+  let manifest = @routes.ChunkManifest::empty()
   inspect(manifest.routes.length(), content="0")
   inspect(manifest.chunks.length(), content="0")
   inspect(manifest.base, content="/_luna/")
@@ -14,13 +14,13 @@ test "ChunkManifest::empty - default values" {
 
 ///|
 test "ChunkManifest::new - default base" {
-  let manifest = ChunkManifest::new()
+  let manifest = @routes.ChunkManifest::new()
   inspect(manifest.base, content="/_luna/")
 }
 
 ///|
 test "ChunkManifest::new - custom base" {
-  let manifest = ChunkManifest::new(base="/assets/")
+  let manifest = @routes.ChunkManifest::new(base="/assets/")
   inspect(manifest.base, content="/assets/")
 }
 
@@ -30,27 +30,27 @@ test "ChunkManifest::new - custom base" {
 
 ///|
 test "route_manifest_to_chunk_manifest - empty manifest" {
-  let route_manifest = RouteManifest::empty()
-  let chunk_manifest = route_manifest_to_chunk_manifest(route_manifest)
+  let route_manifest = @routes.RouteManifest::empty()
+  let chunk_manifest = @routes.route_manifest_to_chunk_manifest(route_manifest)
   // Should have default wildcard route
   inspect(chunk_manifest.routes.contains("*"), content="true")
 }
 
 ///|
 test "route_manifest_to_chunk_manifest - static route without islands" {
-  let route_manifest = RouteManifest::{
+  let route_manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/about",
           source="about.md",
           output="about.html",
         ),
       ),
     ],
-    fallback: FallbackConfig::default(),
+    fallback: @routes.FallbackConfig::default(),
   }
-  let chunk_manifest = route_manifest_to_chunk_manifest(route_manifest)
+  let chunk_manifest = @routes.route_manifest_to_chunk_manifest(route_manifest)
   guard chunk_manifest.routes.get("/about") is Some(chunks) else {
     fail("Expected route entry")
   }
@@ -59,9 +59,9 @@ test "route_manifest_to_chunk_manifest - static route without islands" {
 
 ///|
 test "route_manifest_to_chunk_manifest - static route with islands" {
-  let route_manifest = RouteManifest::{
+  let route_manifest = @routes.RouteManifest::{
     routes: [
-      Static(StaticRouteEntry::{
+      Static(@routes.StaticRouteEntry::{
         path: "/about",
         source: "about.md",
         output: "about.html",
@@ -73,9 +73,9 @@ test "route_manifest_to_chunk_manifest - static route with islands" {
         generated_params: [],
       }),
     ],
-    fallback: FallbackConfig::default(),
+    fallback: @routes.FallbackConfig::default(),
   }
-  let chunk_manifest = route_manifest_to_chunk_manifest(route_manifest)
+  let chunk_manifest = @routes.route_manifest_to_chunk_manifest(route_manifest)
   guard chunk_manifest.routes.get("/about") is Some(chunks) else {
     fail("Expected route entry")
   }
@@ -88,23 +88,23 @@ test "route_manifest_to_chunk_manifest - static route with islands" {
 
 ///|
 test "route_manifest_to_chunk_manifest - dynamic route" {
-  let route_manifest = RouteManifest::{
+  let route_manifest = @routes.RouteManifest::{
     routes: [
-      Dynamic(DynamicRouteEntry::{
+      Dynamic(@routes.DynamicRouteEntry::{
         path: "/blog/:slug",
         pattern: "^/blog/([^/]+)$",
         param_names: ["slug"],
         source: "blog/[slug].md",
-        mode: RenderMode::Ssr,
+        mode: @routes.RenderMode::Ssr,
         layout: None,
         catch_all: None,
         title: None,
         islands: [],
       }),
     ],
-    fallback: FallbackConfig::default(),
+    fallback: @routes.FallbackConfig::default(),
   }
-  let chunk_manifest = route_manifest_to_chunk_manifest(route_manifest)
+  let chunk_manifest = @routes.route_manifest_to_chunk_manifest(route_manifest)
   guard chunk_manifest.routes.get("/blog/:slug") is Some(chunks) else {
     fail("Expected route entry")
   }
@@ -113,40 +113,40 @@ test "route_manifest_to_chunk_manifest - dynamic route" {
 
 ///|
 test "route_manifest_to_chunk_manifest - API route ignored" {
-  let route_manifest = RouteManifest::{
+  let route_manifest = @routes.RouteManifest::{
     routes: [
       Api(
-        ApiRouteEntry::new(
+        @routes.ApiRouteEntry::new(
           path="/api/posts",
           pattern="^/api/posts$",
-          http_method=HttpMethod::Get,
+          http_method=@routes.HttpMethod::Get,
           source="api/posts.mbt",
         ),
       ),
     ],
-    fallback: FallbackConfig::default(),
+    fallback: @routes.FallbackConfig::default(),
   }
-  let chunk_manifest = route_manifest_to_chunk_manifest(route_manifest)
+  let chunk_manifest = @routes.route_manifest_to_chunk_manifest(route_manifest)
   // API routes don't need client chunks, so path should be empty string (filtered out)
   inspect(chunk_manifest.routes.contains("/api/posts"), content="false")
 }
 
 ///|
 test "route_manifest_to_chunk_manifest - component route" {
-  let route_manifest = RouteManifest::{
+  let route_manifest = @routes.RouteManifest::{
     routes: [
       Component(
-        ComponentRouteEntry::new(
+        @routes.ComponentRouteEntry::new(
           path="/counter",
           source="counter/",
-          component_type=ComponentType::SsrComponent,
-          mode=RenderMode::Ssr,
+          component_type=@routes.ComponentType::SsrComponent,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
     ],
-    fallback: FallbackConfig::default(),
+    fallback: @routes.FallbackConfig::default(),
   }
-  let chunk_manifest = route_manifest_to_chunk_manifest(route_manifest)
+  let chunk_manifest = @routes.route_manifest_to_chunk_manifest(route_manifest)
   guard chunk_manifest.routes.get("/counter") is Some(chunks) else {
     fail("Expected route entry")
   }
@@ -157,11 +157,11 @@ test "route_manifest_to_chunk_manifest - component route" {
 
 ///|
 test "route_manifest_to_chunk_manifest - with chunk hashes" {
-  let route_manifest = RouteManifest::empty()
+  let route_manifest = @routes.RouteManifest::empty()
   let chunk_hashes : Map[String, String] = Map([])
   chunk_hashes["boot"] = "boot.abc123.js"
   chunk_hashes["hydrate"] = "hydrate.def456.js"
-  let chunk_manifest = route_manifest_to_chunk_manifest(
+  let chunk_manifest = @routes.route_manifest_to_chunk_manifest(
     route_manifest,
     chunk_hashes~,
   )
@@ -185,7 +185,7 @@ test "route_manifest_to_chunk_manifest - with chunk hashes" {
 
 ///|
 test "ChunkManifest::to_json - empty manifest" {
-  let manifest = ChunkManifest::empty()
+  let manifest = @routes.ChunkManifest::empty()
   let json = manifest.to_json()
   // Should contain valid JSON structure
   inspect(json.contains("\"routes\""), content="true")
@@ -196,7 +196,11 @@ test "ChunkManifest::to_json - empty manifest" {
 
 ///|
 test "ChunkManifest::to_json - with routes" {
-  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/", }
+  let manifest = @routes.ChunkManifest::{
+    routes: {},
+    chunks: {},
+    base: "/_luna/",
+  }
   manifest.routes["/about"] = ["boot", "hydrate"]
   let json = manifest.to_json()
   inspect(json.contains("\"/about\""), content="true")
@@ -206,7 +210,11 @@ test "ChunkManifest::to_json - with routes" {
 
 ///|
 test "ChunkManifest::to_json - escapes special characters" {
-  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/", }
+  let manifest = @routes.ChunkManifest::{
+    routes: {},
+    chunks: {},
+    base: "/_luna/",
+  }
   manifest.routes["/path/with\"quote"] = ["boot"]
   let json = manifest.to_json()
   // Should escape the quote
@@ -219,12 +227,12 @@ test "ChunkManifest::to_json - escapes special characters" {
 
 ///|
 test "build_chunk_manifest - with chunk files" {
-  let route_manifest = RouteManifest::empty()
+  let route_manifest = @routes.RouteManifest::empty()
   let chunk_files : Array[(String, String)] = [
     ("boot", "boot.a1b2c3.js"),
     ("hydrate", "hydrate.d4e5f6.js"),
   ]
-  let manifest = build_chunk_manifest(route_manifest, chunk_files~)
+  let manifest = @routes.build_chunk_manifest(route_manifest, chunk_files~)
   debug_inspect(
     manifest.chunks.get("boot"),
     content=(
@@ -241,8 +249,8 @@ test "build_chunk_manifest - with chunk files" {
 
 ///|
 test "build_chunk_manifest - custom base" {
-  let route_manifest = RouteManifest::empty()
-  let manifest = build_chunk_manifest(route_manifest, base="/static/")
+  let route_manifest = @routes.RouteManifest::empty()
+  let manifest = @routes.build_chunk_manifest(route_manifest, base="/static/")
   inspect(manifest.base, content="/static/")
 }
 
@@ -252,7 +260,7 @@ test "build_chunk_manifest - custom base" {
 
 ///|
 test "SegmentRef::to_json - basic" {
-  let seg_ref = SegmentRef::{
+  let seg_ref = @routes.SegmentRef::{
     path: "/docs",
     pattern: "^/docs",
     spa: false,
@@ -266,7 +274,7 @@ test "SegmentRef::to_json - basic" {
 
 ///|
 test "SegmentRef::to_json - with spa and preload" {
-  let seg_ref = SegmentRef::{
+  let seg_ref = @routes.SegmentRef::{
     path: "/app",
     pattern: "^/app",
     spa: true,
@@ -283,7 +291,7 @@ test "SegmentRef::to_json - with spa and preload" {
 
 ///|
 test "DynamicPattern::to_json - basic" {
-  let pattern = DynamicPattern::{
+  let pattern = @routes.DynamicPattern::{
     pattern: "/blog/:slug",
     regex: "^/blog/([^/]+)$",
     params: ["slug"],
@@ -298,7 +306,7 @@ test "DynamicPattern::to_json - basic" {
 
 ///|
 test "DynamicPattern::to_json - with catch_all" {
-  let pattern = DynamicPattern::{
+  let pattern = @routes.DynamicPattern::{
     pattern: "/docs/[...path]",
     regex: "^/docs/(.*)$",
     params: ["path"],
@@ -314,7 +322,7 @@ test "DynamicPattern::to_json - with catch_all" {
 
 ///|
 test "SegmentManifest::to_json - basic structure" {
-  let manifest = SegmentManifest::{
+  let manifest = @routes.SegmentManifest::{
     base: "/docs",
     routes: {},
     dynamic: [],
@@ -334,7 +342,7 @@ test "SegmentManifest::to_json - basic structure" {
 
 ///|
 test "HierarchicalManifest::to_json - basic structure" {
-  let manifest = HierarchicalManifest::{
+  let manifest = @routes.HierarchicalManifest::{
     version: 2,
     base: "/_luna/",
     segments: {},

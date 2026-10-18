@@ -752,6 +752,10 @@ fn generate_action_key_factories(
     buf.write_string("pub(all) struct \{type_name} {}\n\n")
     buf.write_string("///|\n")
     buf.write_string(
+      "pub extend \{type_name} with @action.ActionKey::{id, base_path}\n\n",
+    )
+    buf.write_string("///|\n")
+    buf.write_string(
       "pub impl @action.ActionKey for \{type_name} with id(_self) {\n",
     )
     buf.write_string("  \"\{id}\"\n")

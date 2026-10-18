@@ -75,7 +75,7 @@ test "hydrate simple text" {
   set_inner_html(container, html)
 
   // Hydrate
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Text should remain
   assert_eq(get_inner_html(container), "Hello")
@@ -89,7 +89,7 @@ test "hydrate element with text" {
   let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_eq(get_inner_html(container), "<div>Content</div>")
 }
 
@@ -103,7 +103,7 @@ test "hydrate element with class" {
   ])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_true(get_inner_html(container).contains("test-class"))
 }
 
@@ -115,7 +115,7 @@ test "hydrate nested elements" {
   let vnode = @luna.h("div", [], [@luna.h("span", [], [@luna.text("Nested")])])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_eq(get_inner_html(container), "<div><span>Nested</span></div>")
 }
 
@@ -137,7 +137,7 @@ test "hydrate dynamic text with hydration markers" {
   assert_true(html.contains("42"))
   assert_true(html.contains("<!--/t-->"))
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Update signal
   count.set(100)
@@ -161,7 +161,7 @@ test "hydrate element with click handler" {
   let html = @render.render_to_string_with_hydration(vnode)
   assert_true(html.contains("sol:hk=\"0\""))
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Button should have been found
   assert_true(get_inner_html(container).contains("Click me"))
@@ -191,7 +191,7 @@ test "hydrate dynamic class" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Initially inactive
   assert_true(get_inner_html(container).contains("inactive"))
@@ -216,7 +216,7 @@ test "hydrate static siblings with same tag" {
   ])
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Update second text; should update the second div
   second.set("Second+")
@@ -242,7 +242,7 @@ test "hydrate show when visible" {
   assert_true(html.contains("Visible content"))
   assert_true(html.contains("<!--/s-->"))
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_true(get_inner_html(container).contains("Visible content"))
 }
 
@@ -258,7 +258,7 @@ test "hydrate show when hidden" {
   let html = @render.render_to_string(vnode).html
   assert_eq(html, "<!--show-->")
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Should remain hidden
   assert_false(get_inner_html(container).contains("Hidden content"))
@@ -278,7 +278,7 @@ test "hydrate show attaches dynamic attrs" {
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Update dynamic class
   class_sig.set("off")
@@ -305,7 +305,7 @@ test "hydrate for loop" {
   assert_true(html.contains("<li>C</li>"))
   assert_true(html.contains("<!--/f-->"))
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // All items should be present
   let inner = get_inner_html(container)
@@ -334,7 +334,7 @@ test "hydrate for attaches dynamic attrs" {
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   class_sig.set("two")
   let inner = get_inner_html(container)
   assert_true(inner.contains("class=\"two\""))
@@ -357,7 +357,12 @@ test "hydrate detects missing dynamic text marker" {
   // Dynamic text without hydration markers
   set_inner_html(container, "42")
 
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let result = @client.hydrate(
+    container,
+    vnode,
+    recover_on_mismatch=false,
+    logger~,
+  )
   match result {
     Mismatch(msg) => assert_true(msg.contains("Dynamic text marker"))
     _ => assert_true(false)
@@ -376,7 +381,12 @@ test "hydrate detects missing show marker" {
   // Show content without s:id marker pair
   set_inner_html(container, "Visible")
 
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let result = @client.hydrate(
+    container,
+    vnode,
+    recover_on_mismatch=false,
+    logger~,
+  )
   match result {
     Mismatch(msg) => assert_true(msg.contains("Show marker"))
     _ => assert_true(false)
@@ -397,7 +407,12 @@ test "hydrate detects missing for marker" {
   // List content without f:id marker pair
   set_inner_html(container, "<li>A</li><li>B</li>")
 
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let result = @client.hydrate(
+    container,
+    vnode,
+    recover_on_mismatch=false,
+    logger~,
+  )
   match result {
     Mismatch(msg) => assert_true(msg.contains("For marker"))
     _ => assert_true(false)
@@ -422,7 +437,12 @@ test "hydrate detects missing element" {
   set_inner_html(container, "<span>Wrong element</span>")
 
   // Hydrate with strict options and logger to suppress console output
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let result = @client.hydrate(
+    container,
+    vnode,
+    recover_on_mismatch=false,
+    logger~,
+  )
 
   // Should detect mismatch
   match result {
@@ -450,7 +470,7 @@ test "hydrate recovers on mismatch" {
   set_inner_html(container, "<span>Wrong</span>")
 
   // Hydrate with recovery enabled and logger to suppress console output
-  let result = hydrate(container, vnode, logger~)
+  let result = @client.hydrate(container, vnode, logger~)
 
   // Should recover
   match result {
@@ -481,7 +501,7 @@ test "hydrate success on correct HTML" {
   // Correct SSR HTML
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let result = hydrate(container, vnode, recover_on_mismatch=false)
+  let result = @client.hydrate(container, vnode, recover_on_mismatch=false)
 
   // Should succeed
   match result {
@@ -520,7 +540,7 @@ test "hydrate complex page structure" {
   ])
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode, logger~)
+  let _ = @client.hydrate(container, vnode, logger~)
   let inner = get_inner_html(container)
   assert_true(inner.contains("Title"))
   assert_true(inner.contains("Count: 0"))
@@ -542,7 +562,7 @@ test "hydrate fragment" {
   let vnode = @luna.fragment([@luna.text("A"), @luna.text("B"), @luna.text("C")])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_eq(get_inner_html(container), "ABC")
 }
 
@@ -558,7 +578,7 @@ test "hydrate component" {
   let vnode = @luna.component(fn() { greeting("World") })
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_true(get_inner_html(container).contains("Hello, World!"))
 }
 
@@ -574,7 +594,7 @@ test "hydrate empty container" {
   let vnode = @luna.text("")
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_eq(get_inner_html(container), "")
 }
 
@@ -592,7 +612,7 @@ test "hydrate deeply nested structure" {
   ])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_true(get_inner_html(container).contains("Deep"))
 }
 
@@ -604,7 +624,7 @@ test "hydrate with escaped content" {
   let vnode = @luna.text("<script>alert('xss')</script>")
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
 
   // Content should be escaped
   let inner = get_inner_html(container)
@@ -634,7 +654,7 @@ test "hydrate with logger captures mismatch warning" {
   set_inner_html(container, "<span>Wrong</span>")
 
   // Hydrate with logger
-  let _ = hydrate(container, vnode, logger~)
+  let _ = @client.hydrate(container, vnode, logger~)
 
   // Logger should contain mismatch warning
   let log_output = logger.to_string()
@@ -655,7 +675,12 @@ test "hydrate with logger captures strict mode mismatch" {
     [@luna.text("Click")],
   )
   set_inner_html(container, "<div>Wrong</div>")
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let result = @client.hydrate(
+    container,
+    vnode,
+    recover_on_mismatch=false,
+    logger~,
+  )
 
   // Should return Mismatch
   match result {
@@ -679,7 +704,7 @@ test "hydrate with logger no output on success" {
   let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
-  let result = hydrate(container, vnode, logger~)
+  let result = @client.hydrate(container, vnode, logger~)
 
   // Should succeed
   match result {
@@ -704,7 +729,7 @@ test "hydrate logger contains element info" {
     [@luna.text("Submit")],
   )
   set_inner_html(container, "<input type=\"text\" />")
-  let _ = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let _ = @client.hydrate(container, vnode, recover_on_mismatch=false, logger~)
   let log_output = logger.to_string()
   // Should mention the expected element
   assert_true(log_output.contains("button"))
@@ -728,7 +753,7 @@ test "hydrate without logger outputs to console" {
   // Wrong HTML - will trigger mismatch without logger
   set_inner_html(container, "<span>Wrong</span>")
   // Hydrate without logger - should output to console
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   // Should recover
   match result {
     Recovered(_) => assert_true(true)
@@ -757,7 +782,12 @@ test "hydrate multiple mismatches joined with semicolon" {
   ])
   // Wrong HTML - neither button has sol:hk
   set_inner_html(container, "<div>Wrong</div>")
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let result = @client.hydrate(
+    container,
+    vnode,
+    recover_on_mismatch=false,
+    logger~,
+  )
   match result {
     Mismatch(msg) =>
       // Should contain both mismatches joined
@@ -780,7 +810,12 @@ test "hydrate tag mismatch with correct sol:hk" {
   )
   // HTML has a span with correct sol:hk but wrong tag
   set_inner_html(container, "<span sol:hk=\"0\">Wrong tag</span>")
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  let result = @client.hydrate(
+    container,
+    vnode,
+    recover_on_mismatch=false,
+    logger~,
+  )
   match result {
     Mismatch(msg) =>
       // Should mention tag mismatch
@@ -802,7 +837,7 @@ test "hydrate dynamic attribute value" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   // Update value
   value_sig.set("updated")
   // Value should be updated in DOM
@@ -823,7 +858,7 @@ test "hydrate dynamic attribute general" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   // Update title
   title_sig.set("Title 2")
   // DOM should be updated
@@ -854,7 +889,7 @@ test "hydrate dynamic attribute removal" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   // Remove title
   show_title.set(false)
   // Should still have the div
@@ -874,7 +909,7 @@ test "hydrate dynamic style" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   // Update color
   color_sig.set("blue")
   // Content should remain
@@ -890,7 +925,7 @@ test "render_vnode directly" {
     @luna.text("Direct render"),
   ])
   // Use render_vnode directly (not hydrate)
-  let _dispose = render_vnode(container, vnode)
+  let _dispose = @client.render_vnode(container, vnode)
   assert_true(get_inner_html(container).contains("Direct render"))
   assert_true(get_inner_html(container).contains("test"))
 }
@@ -902,7 +937,7 @@ test "render_vnode returns dispose and stops effects" {
   let container = create_container()
   let count = @resource.signal(0)
   let vnode = @luna.text_dyn(fn() { count.get().to_string() })
-  let dispose = render_vnode(container, vnode)
+  let dispose = @client.render_vnode(container, vnode)
   assert_eq(get_inner_html(container), "0")
   count.set(1)
   assert_eq(get_inner_html(container), "1")
@@ -917,7 +952,7 @@ test "render_vnode_to_dom with fragment" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.fragment([@luna.text("A"), @luna.text("B"), @luna.text("C")])
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_eq(get_inner_html(container), "ABC")
 }
@@ -928,7 +963,7 @@ test "render_vnode_to_dom with component" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.component(fn() { @luna.text("Component content") })
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_eq(get_inner_html(container), "Component content")
 }
@@ -940,7 +975,7 @@ test "render_vnode_to_dom with Show initially true" {
   let container = create_container()
   let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Visible") })
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // Show node returns a comment placeholder, content is inserted before it
   // The test verifies the node was created without error
@@ -956,7 +991,7 @@ test "render_vnode_to_dom with Show toggle" {
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.text("Toggle me")
   })
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // Initially hidden
   assert_false(get_inner_html(container).contains("Toggle me"))
@@ -977,7 +1012,7 @@ test "render_vnode_to_dom with For list" {
   let vnode = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.text(item) })
   })
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // For returns a document fragment, items are appended to it
   // Update list triggers effect
@@ -996,7 +1031,7 @@ test "render_vnode_to_dom For reuses nodes by reference" {
   let c = @luna.h("div", [("id", @luna.attr_static("c"))], [@luna.text("C")])
   let items = @resource.signal([a, b, c])
   let vnode = @luna.for_each(fn() { items.get() })
-  let dispose = render_vnode(container, vnode)
+  let dispose = @client.render_vnode(container, vnode)
   let nodes0 = container.as_node().childNodes()
   let node_a = nodes0[0]
   let node_b = nodes0[1]
@@ -1019,7 +1054,7 @@ test "render_vnode_to_dom For keeps duplicate references" {
   let item = @luna.h("div", [], [@luna.text("X")])
   let items = @resource.signal([item, item])
   let vnode = @luna.for_each(fn() { items.get() })
-  let dispose = render_vnode(container, vnode)
+  let dispose = @client.render_vnode(container, vnode)
   assert_eq(container.querySelectorAll("div").length(), 2)
   items.set([item, item, item])
   assert_eq(container.querySelectorAll("div").length(), 3)
@@ -1037,7 +1072,7 @@ test "render_vnode_to_dom For handles fragment items" {
     .get()
     .map(fn(item) { @luna.fragment([@luna.text(item), @luna.text("-")]) })
   })
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("A-B-"))
   items.set(["C"])
@@ -1076,7 +1111,7 @@ test "render_vnode_to_dom with static style" {
   let vnode = @luna.h("div", [("style", @luna.attr_style("color: red"))], [
     @luna.text("Styled"),
   ])
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Styled"))
 }
@@ -1097,7 +1132,7 @@ test "render_vnode_to_dom with dynamic style" {
     ],
     [@luna.text("Dynamic styled")],
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Dynamic styled"))
   // Update style
@@ -1116,7 +1151,7 @@ test "render_vnode_to_dom with VDynamic attribute" {
     [("href", @luna.attr_dynamic(fn() { href.get() }))],
     [@luna.text("Link")],
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Link"))
   // Update href
@@ -1130,7 +1165,7 @@ test "render_vnode_to_dom with static attribute value" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.h("input", [("value", @luna.attr_static("test-value"))], [])
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("input"))
 }
@@ -1146,7 +1181,7 @@ test "hydrate show toggle visibility" {
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   // Initially visible
   assert_true(get_inner_html(container).contains("Toggle content"))
   // Hide it
@@ -1163,7 +1198,7 @@ test "hydrate show toggle visibility" {
 
 ///|
 test "hydration_result_success factory" {
-  let result = hydration_result_success()
+  let result = @client.hydration_result_success()
   assert_true(result.is_success())
   assert_false(result.is_mismatch())
   assert_false(result.is_recovered())
@@ -1172,7 +1207,7 @@ test "hydration_result_success factory" {
 
 ///|
 test "hydration_result_mismatch factory" {
-  let result = hydration_result_mismatch("test mismatch")
+  let result = @client.hydration_result_mismatch("test mismatch")
   assert_false(result.is_success())
   assert_true(result.is_mismatch())
   assert_false(result.is_recovered())
@@ -1181,7 +1216,7 @@ test "hydration_result_mismatch factory" {
 
 ///|
 test "hydration_result_recovered factory" {
-  let result = hydration_result_recovered("recovered from error")
+  let result = @client.hydration_result_recovered("recovered from error")
   assert_false(result.is_success())
   assert_false(result.is_mismatch())
   assert_true(result.is_recovered())
@@ -1203,7 +1238,7 @@ test "hydrate async node renders fallback" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   // Async hydration should succeed
   assert_true(result.is_success())
   // Should show fallback
@@ -1225,7 +1260,7 @@ test "hydrate error_boundary success" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   assert_true(result.is_success())
   assert_true(get_inner_html(container).contains("Safe content"))
 }
@@ -1248,7 +1283,7 @@ test "hydrate switch first case matches" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   assert_true(result.is_success())
   assert_true(get_inner_html(container).contains("First"))
 }
@@ -1267,7 +1302,7 @@ test "hydrate switch second case matches" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   assert_true(result.is_success())
   assert_true(get_inner_html(container).contains("Second"))
 }
@@ -1285,7 +1320,7 @@ test "hydrate switch fallback" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   assert_true(result.is_success())
   assert_true(get_inner_html(container).contains("Fallback shown"))
 }
@@ -1300,7 +1335,7 @@ test "hydrate switch no fallback" {
   ])
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   assert_true(result.is_success())
 }
 
@@ -1317,7 +1352,7 @@ test "render_vnode_to_dom with Async renders fallback" {
     render=fn() { @luna.text("Async content") },
     fallback=fn() { @luna.text("Fallback content") },
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Fallback content"))
 }
@@ -1331,7 +1366,7 @@ test "render_vnode_to_dom with ErrorBoundary success" {
     children=fn() { @luna.text("Safe content") },
     fallback=fn(_err, _reset) { @luna.text("Error") },
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Safe content"))
 }
@@ -1356,7 +1391,7 @@ test "render_vnode_to_dom ErrorBoundary reset re-inserts" {
       @luna.text("Fallback")
     },
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Fallback"))
   should_throw.set(false)
@@ -1386,7 +1421,7 @@ test "render_vnode_to_dom with Switch" {
     ],
     fallback=Some(fn() { @luna.text("Fallback") }),
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Case 1"))
 }
@@ -1402,7 +1437,7 @@ test "render_vnode_to_dom Switch with fallback" {
     ],
     fallback=Some(fn() { @luna.text("Fallback rendered") }),
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Fallback rendered"))
 }
@@ -1415,7 +1450,7 @@ test "render_vnode_to_dom Switch no fallback" {
   let vnode : @luna.Node[@js.Any, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // Should only have the placeholder comment
   assert_true(true) // No error means success
@@ -1438,7 +1473,7 @@ test "render_vnode_to_dom Switch reactive update" {
     ],
     fallback=Some(fn() { @luna.text("Other") }),
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // Initial state
   assert_true(get_inner_html(container).contains("Zero"))
@@ -1466,7 +1501,7 @@ test "hydrate action attribute" {
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   // Actions are handled by action-based hydration, not standard hydration
   assert_true(result.is_success())
   assert_true(get_inner_html(container).contains("Click"))
@@ -1481,7 +1516,9 @@ test "bind_actions_from_dom" {
     container, "<button data-action-click=\"test-action\">Click</button>",
   )
   let dispatched : Array[String] = []
-  bind_actions_from_dom(container, fn(action) { dispatched.push(action) })
+  @client.bind_actions_from_dom(container, fn(action) {
+    dispatched.push(action)
+  })
   // Verify binding happened (we can't easily simulate click in jsdom)
   assert_true(get_inner_html(container).contains("data-action-click"))
 }
@@ -1506,7 +1543,7 @@ test "hydrate_with_actions" {
     }
   }
   // This should bind actions and set up re-rendering
-  hydrate_with_actions(container, 0, render_fn, update_fn)
+  @client.hydrate_with_actions(container, 0, render_fn, update_fn)
   // The hydration should work without error
   assert_true(true)
 }
@@ -1523,7 +1560,7 @@ test "apply_vattr static __remove__" {
   let vnode = @luna.h("div", [("data-test", @luna.attr_static("__remove__"))], [
     @luna.text("Content"),
   ])
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // __remove__ should not add the attribute
   assert_false(get_inner_html(container).contains("data-test"))
@@ -1535,7 +1572,7 @@ test "apply_vattr static boolean attribute" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.h("input", [("disabled", @luna.attr_static(""))], [])
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("disabled"))
 }
@@ -1562,7 +1599,7 @@ test "apply_vattr dynamic __remove__" {
     ],
     [@luna.text("Content")],
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // Initially has attribute
   assert_true(get_inner_html(container).contains("data-custom"))
@@ -1582,7 +1619,7 @@ test "apply_vattr VAction without dispatcher" {
     [("onclick", @luna.action(TestAction))],
     [@luna.text("Click")],
   )
-  let dom_node = render_vnode_to_dom(vnode)
+  let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   // VAction without dispatcher does nothing, but shouldn't error
   assert_true(get_inner_html(container).contains("Click"))
@@ -1608,7 +1645,7 @@ test "hydrate nested show in for" {
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   // Hydration should succeed (or recover)
   assert_true(result.is_success() || result.is_recovered())
 }
@@ -1626,7 +1663,7 @@ test "hydrate nested component in for" {
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = @client.hydrate(container, vnode)
   assert_true(get_inner_html(container).contains("Item: X"))
   assert_true(get_inner_html(container).contains("Item: Y"))
 }
@@ -1649,7 +1686,7 @@ test "hydrate show with fragment (multiple children)" {
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let result = hydrate(container, vnode)
+  let result = @client.hydrate(container, vnode)
   // Hydration should succeed
   assert_true(result.is_success() || result.is_recovered())
   assert_true(get_inner_html(container).contains("<div>A</div>"))

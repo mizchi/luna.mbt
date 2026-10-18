@@ -4,7 +4,7 @@ using @test {assert_eq}
 ///|
 /// Tests for ARIA helpers
 test "switch_aria returns correct attributes" {
-  let attrs = switch_aria(true, false)
+  let attrs = @aria.switch_aria(true, false)
   assert_true(attrs.contains(("role", "switch")))
   assert_true(attrs.contains(("aria-checked", "true")))
   assert_true(attrs.contains(("tabindex", "0")))
@@ -12,7 +12,7 @@ test "switch_aria returns correct attributes" {
 
 ///|
 test "switch_aria with disabled" {
-  let attrs = switch_aria(false, true)
+  let attrs = @aria.switch_aria(false, true)
   assert_true(attrs.contains(("aria-checked", "false")))
   assert_true(attrs.contains(("tabindex", "-1")))
   assert_true(attrs.contains(("aria-disabled", "true")))
@@ -20,20 +20,20 @@ test "switch_aria with disabled" {
 
 ///|
 test "checkbox_aria returns correct attributes" {
-  let attrs = checkbox_aria(true, false, false)
+  let attrs = @aria.checkbox_aria(true, false, false)
   assert_true(attrs.contains(("role", "checkbox")))
   assert_true(attrs.contains(("aria-checked", "true")))
 }
 
 ///|
 test "checkbox_aria indeterminate" {
-  let attrs = checkbox_aria(false, false, true)
+  let attrs = @aria.checkbox_aria(false, false, true)
   assert_true(attrs.contains(("aria-checked", "mixed")))
 }
 
 ///|
 test "radio_aria returns correct attributes" {
-  let attrs = radio_aria(true, false)
+  let attrs = @aria.radio_aria(true, false)
   assert_true(attrs.contains(("role", "radio")))
   assert_true(attrs.contains(("aria-checked", "true")))
   assert_true(attrs.contains(("tabindex", "0")))
@@ -41,7 +41,7 @@ test "radio_aria returns correct attributes" {
 
 ///|
 test "dialog_aria returns correct attributes" {
-  let attrs = dialog_aria("dialog-1", true, aria_label="Test dialog")
+  let attrs = @aria.dialog_aria("dialog-1", true, aria_label="Test dialog")
   assert_true(attrs.contains(("role", "dialog")))
   assert_true(attrs.contains(("id", "dialog-1")))
   assert_true(attrs.contains(("aria-modal", "true")))
@@ -50,7 +50,7 @@ test "dialog_aria returns correct attributes" {
 
 ///|
 test "tab_aria returns correct attributes" {
-  let attrs = tab_aria("tab-1", true, "panel-1")
+  let attrs = @aria.tab_aria("tab-1", true, "panel-1")
   assert_true(attrs.contains(("role", "tab")))
   assert_true(attrs.contains(("id", "tab-1")))
   assert_true(attrs.contains(("aria-selected", "true")))
@@ -60,7 +60,7 @@ test "tab_aria returns correct attributes" {
 
 ///|
 test "tabpanel_aria returns correct attributes" {
-  let attrs = tabpanel_aria("panel-1", "tab-1")
+  let attrs = @aria.tabpanel_aria("panel-1", "tab-1")
   assert_true(attrs.contains(("role", "tabpanel")))
   assert_true(attrs.contains(("id", "panel-1")))
   assert_true(attrs.contains(("aria-labelledby", "tab-1")))
@@ -68,23 +68,23 @@ test "tabpanel_aria returns correct attributes" {
 
 ///|
 test "is_toggle_key" {
-  assert_true(is_toggle_key(" "))
-  assert_true(is_toggle_key("Enter"))
-  assert_false(is_toggle_key("Tab"))
-  assert_false(is_toggle_key("Escape"))
+  assert_true(@aria.is_toggle_key(" "))
+  assert_true(@aria.is_toggle_key("Enter"))
+  assert_false(@aria.is_toggle_key("Tab"))
+  assert_false(@aria.is_toggle_key("Escape"))
 }
 
 ///|
 test "is_arrow_key" {
-  assert_true(is_arrow_key("ArrowUp"))
-  assert_true(is_arrow_key("ArrowDown"))
-  assert_true(is_arrow_key("ArrowLeft"))
-  assert_true(is_arrow_key("ArrowRight"))
-  assert_false(is_arrow_key("Enter"))
+  assert_true(@aria.is_arrow_key("ArrowUp"))
+  assert_true(@aria.is_arrow_key("ArrowDown"))
+  assert_true(@aria.is_arrow_key("ArrowLeft"))
+  assert_true(@aria.is_arrow_key("ArrowRight"))
+  assert_false(@aria.is_arrow_key("Enter"))
 }
 
 ///|
 test "bool_to_aria" {
-  assert_eq(bool_to_aria(true), "true")
-  assert_eq(bool_to_aria(false), "false")
+  assert_eq(@aria.bool_to_aria(true), "true")
+  assert_eq(@aria.bool_to_aria(false), "false")
 }

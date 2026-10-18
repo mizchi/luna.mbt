@@ -7,7 +7,7 @@ using @test {assert_eq}
 ///|
 test "CacheManager::with_fs - basic get/set" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  let cache = CacheManager::with_fs(fs, "/cache", "config-hash-123")
+  let cache = @cache.CacheManager::with_fs(fs, "/cache", "config-hash-123")
 
   // Initially empty
   let status = cache.get_with_hash("/page/", "hash-1")
@@ -28,7 +28,7 @@ test "CacheManager::with_fs - basic get/set" {
 ///|
 test "CacheManager::with_fs - hash mismatch returns miss" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  let cache = CacheManager::with_fs(fs, "/cache", "config-hash-123")
+  let cache = @cache.CacheManager::with_fs(fs, "/cache", "config-hash-123")
 
   // Set with one hash
   cache.set("/page/", "hash-1", "<html>v1</html>")
@@ -43,13 +43,13 @@ test "CacheManager::with_fs - save and reload" {
   let fs = @fs_adapter.MemFSAdapter::new()
 
   // Create and populate cache
-  let cache1 = CacheManager::with_fs(fs, "/cache", "config-hash-123")
+  let cache1 = @cache.CacheManager::with_fs(fs, "/cache", "config-hash-123")
   cache1.set("/page1/", "hash-a", "<html>page1</html>")
   cache1.set("/page2/", "hash-b", "<html>page2</html>")
   cache1.save()
 
   // Create new cache instance (simulating restart)
-  let cache2 = CacheManager::with_fs(fs, "/cache", "config-hash-123")
+  let cache2 = @cache.CacheManager::with_fs(fs, "/cache", "config-hash-123")
 
   // Should still find cached entries
   let status1 = cache2.get_with_hash("/page1/", "hash-a")
@@ -63,12 +63,12 @@ test "CacheManager::with_fs - config hash change invalidates cache" {
   let fs = @fs_adapter.MemFSAdapter::new()
 
   // Create and populate cache with one config
-  let cache1 = CacheManager::with_fs(fs, "/cache", "config-v1")
+  let cache1 = @cache.CacheManager::with_fs(fs, "/cache", "config-v1")
   cache1.set("/page/", "hash-1", "<html>old</html>")
   cache1.save()
 
   // Create new cache with different config hash
-  let cache2 = CacheManager::with_fs(fs, "/cache", "config-v2")
+  let cache2 = @cache.CacheManager::with_fs(fs, "/cache", "config-v2")
 
   // Should not find old cached entry (config changed)
   let status = cache2.get_with_hash("/page/", "hash-1")
@@ -78,7 +78,7 @@ test "CacheManager::with_fs - config hash change invalidates cache" {
 ///|
 test "CacheManager::with_fs - clear removes all" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  let cache = CacheManager::with_fs(fs, "/cache", "config-hash")
+  let cache = @cache.CacheManager::with_fs(fs, "/cache", "config-hash")
   cache.set("/page1/", "hash-1", "content1")
   cache.set("/page2/", "hash-2", "content2")
 
@@ -95,22 +95,22 @@ test "CacheManager::with_fs - clear removes all" {
 
 ///|
 test "fnv1a - consistent hashing" {
-  let hash1 = fnv1a("test content")
-  let hash2 = fnv1a("test content")
+  let hash1 = @cache.fnv1a("test content")
+  let hash2 = @cache.fnv1a("test content")
   assert_eq(hash1, hash2)
 
   // Different content produces different hash
-  let hash3 = fnv1a("different content")
+  let hash3 = @cache.fnv1a("different content")
   assert_true(hash1 != hash3)
 }
 
 ///|
 test "compute_page_hash - combines multiple inputs" {
-  let hash1 = compute_page_hash("source", "frontmatter", "config")
-  let hash2 = compute_page_hash("source", "frontmatter", "config")
+  let hash1 = @cache.compute_page_hash("source", "frontmatter", "config")
+  let hash2 = @cache.compute_page_hash("source", "frontmatter", "config")
   assert_eq(hash1, hash2)
 
   // Changing any part changes the hash
-  let hash3 = compute_page_hash("different", "frontmatter", "config")
+  let hash3 = @cache.compute_page_hash("different", "frontmatter", "config")
   assert_true(hash1 != hash3)
 }

@@ -101,14 +101,14 @@ fn generate_site_internal(
   }
 
   // Step 5: Create output directory
-  let output_dir = @path.join2(cwd, config.output_dir)
+  let output_dir = output_root(ctx)
   ensure_dir(output_dir)
 
   // Step 5: Generate each page
   for page in pages {
     match generate_page_with_highlight(ctx, page, highlighter) {
       Ok(_) => println("  Generated: \{page.url_path}")
-      Err(e) => println("  Error generating \{page.url_path}: \{e}")
+      Err(e) => return Err("Failed to render \{page.url_path}: \{e}")
     }
   }
 
@@ -127,7 +127,7 @@ fn generate_site_internal(
 
   // Step 10: Generate ISR manifest (if any pages have revalidate)
   let isr_manifest = build_isr_manifest(pages)
-  write_isr_manifest(isr_manifest, @path.join2(cwd, config.output_dir))
+  write_isr_manifest(isr_manifest, output_root(ctx))
 
   // Step 11: Run deploy adapter (generates platform-specific files)
   @adapters.run_adapter(ctx)
@@ -184,7 +184,7 @@ async fn generate_site_internal_async(
   }
 
   // Step 5: Create output directory
-  let output_dir = @path.join2(cwd, config.output_dir)
+  let output_dir = output_root(ctx)
   ensure_dir(output_dir)
 
   // Step 4.5: Initialize cache manager
@@ -197,21 +197,30 @@ async fn generate_site_internal_async(
     // Compute source hash for cache key
     let source_hash = compute_page_source_hash(ctx, page)
 
-    // Check cache
-    match cache_manager.get(page.url_path, source_hash) {
+    // Component modules can change through compiled/imported dependencies, so
+    // their directory path alone is not a safe HTML cache key.
+    let cacheable = match page.renderer_type {
+      @astra.RendererType::LunaRenderer
+      | @astra.RendererType::ReactRenderer
+      | @astra.RendererType::PreactRenderer => false
+      _ => true
+    }
+    let cached = if cacheable {
+      cache_manager.get(page.url_path, source_hash)
+    } else {
+      None
+    }
+    match cached {
       Some(cached_html) => {
         // Cache hit - write cached HTML directly
         let output_path = @path.join2(
-          @path.join2(ctx.cwd, ctx.config.output_dir),
+          output_root(ctx),
           @routes.url_to_output_path(page.url_path),
         )
         let parent_dir = @path.dirname(output_path)
         ensure_dir(parent_dir)
         @fs.writeFileSync(output_path, @js.any(cached_html)) catch {
-          e => {
-            println("  Error writing cached \{page.url_path}: \{e}")
-            continue
-          }
+          e => return Err("Failed to write cached \{page.url_path}: \{e}")
         }
         cache_hits = cache_hits + 1
         println("  Cached: \{page.url_path}")
@@ -220,11 +229,13 @@ async fn generate_site_internal_async(
         // Cache miss - generate and cache
         match generate_page_with_highlight_async(ctx, page, highlighter) {
           Ok(html) => {
-            cache_manager.set(page.url_path, source_hash, html)
+            if cacheable {
+              cache_manager.set(page.url_path, source_hash, html)
+            }
             cache_misses = cache_misses + 1
             println("  Generated: \{page.url_path}")
           }
-          Err(e) => println("  Error generating \{page.url_path}: \{e}")
+          Err(e) => return Err("Failed to render \{page.url_path}: \{e}")
         }
     }
   }
@@ -248,7 +259,7 @@ async fn generate_site_internal_async(
 
   // Step 10: Generate ISR manifest (if any pages have revalidate)
   let isr_manifest = build_isr_manifest(pages)
-  write_isr_manifest(isr_manifest, @path.join2(cwd, config.output_dir))
+  write_isr_manifest(isr_manifest, output_root(ctx))
 
   // Step 11: Run deploy adapter (generates platform-specific files)
   @adapters.run_adapter(ctx)
@@ -341,7 +352,7 @@ fn generate_page_with_highlight(
 
   // Write to output
   let output_path = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
+    output_root(ctx),
     @routes.url_to_output_path(page.url_path),
   )
 
@@ -452,31 +463,12 @@ pub fn render_page_html(
       // No TOC for HTML files
       (page.frontmatter, vnode, [])
     }
-    @astra.RendererType::LunaRenderer => {
-      // Luna component SSR - try to load and render the component
-      let component_name = get_component_name_from_path(page.source_path)
-      let vnode = match render_component_ssr(ctx.cwd, page.source_path) {
-        Some(node) => node
-        None => {
-          // Fallback to placeholder if component rendering fails
-          let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
-          @luna.raw_html(placeholder_html)
-        }
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.RendererType::ReactRenderer => {
-      // TSX component pages - sync version shows placeholder (use async for SSR)
-      let component_name = get_component_name_from_path(page.source_path)
-      let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"pending\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>Use async build for TSX SSR</p></div>"
-      (page.frontmatter, @luna.raw_html(placeholder_html), [])
-    }
-    @astra.RendererType::PreactRenderer => {
-      // Preact component pages - similar to React but with Preact runtime
-      let component_name = get_component_name_from_path(page.source_path)
-      let placeholder_html = "<div data-preact-component=\"\{component_name}\" data-ssr=\"pending\" class=\"preact-component-placeholder\"><p>Preact Component: \{component_name}</p><p>Use async build for Preact SSR</p></div>"
-      (page.frontmatter, @luna.raw_html(placeholder_html), [])
-    }
+    @astra.RendererType::LunaRenderer
+    | @astra.RendererType::ReactRenderer
+    | @astra.RendererType::PreactRenderer =>
+      return Err(
+        "Component SSR requires render_page_html_async: \{page.source_path}",
+      )
     @astra.RendererType::ClientOnlyRenderer => {
       // Client-only components - render placeholder that will be hydrated
       let component_name = get_component_name_from_path(page.source_path)
@@ -599,216 +591,14 @@ async fn generate_page_with_highlight_async(
   page : @astra.PageMeta,
   highlighter : @shiki.Highlighter?,
 ) -> Result[String, String] {
-  // Build available URLs list for link fallback checking
-  let available_urls : Array[String] = ctx.pages.map(fn(p) { p.url_path })
-
-  // Parse dynamic source path to get actual file path and params
-  let (actual_source, _params) = parse_dynamic_source_path(page.source_path)
-
-  // Build full source path
-  let source_path = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.docs_dir),
-    actual_source,
-  )
-
-  // Process based on renderer type
-  let (frontmatter, content_vnode, toc) = match page.renderer_type {
-    @astra.RendererType::MarkdownRenderer => {
-      // Read source file
-      let content : String = @fs.readFileSync(source_path).to_string() catch {
-        e => return Err("Failed to read \{source_path}: \{e}")
-      }
-      // Parse markdown
-      let (parsed_frontmatter, nodes) = @md_render.parse_markdown(content)
-
-      // Auto-generate description from first paragraph if not provided
-      let fm = if parsed_frontmatter.description is None {
-        match @md_render.extract_description(nodes) {
-          Some(desc) => { ..parsed_frontmatter, description: Some(desc), }
-          None => parsed_frontmatter
-        }
-      } else {
-        parsed_frontmatter
-      }
-
-      // Get islands base path from config
-      let islands_base_path = match ctx.config.islands {
-        Some(islands_config) => islands_config.base_path
-        None => "/static/"
-      }
-
-      // Convert to VNode with link resolution
-      let is_index = @astra.is_index_source(
-        page.source_path,
-        locale=page.locale,
-      )
-      // Get locale prefix for i18n link resolution
-      let locale_prefix = @astra.get_locale_url_prefix(
-        ctx.config.i18n,
-        page.locale,
-      )
-      let vnode = @md_render.md_nodes_to_vnode(
-        nodes,
-        islands_base_path~,
-        current_url_path=page.url_path,
-        is_index~,
-        locale_prefix~,
-        available_urls~,
-      )
-
-      // Extract TOC
-      let extracted_toc = @md_render.extract_toc(nodes)
-      (fm, vnode, extracted_toc)
-    }
-    @astra.RendererType::HtmlRenderer => {
-      // Read source file
-      let content : String = @fs.readFileSync(source_path).to_string() catch {
-        e => return Err("Failed to read \{source_path}: \{e}")
-      }
-      // For HTML files, use the content as raw HTML
-      let sanitized = if ctx.config.sanitize_html {
-        sanitize_html(content)
-      } else {
-        content
-      }
-      // Transform internal links (remove numeric prefixes like /00_intro/ -> /intro/)
-      let html_content = transform_internal_links(
-        sanitized,
-        ctx.config.trailing_slash,
-      )
-      let vnode = @luna.raw_html(html_content)
-      (page.frontmatter, vnode, [])
-    }
-    @astra.RendererType::LunaRenderer => {
-      // Luna component SSR (async)
-      let component_name = get_component_name_from_path(page.source_path)
-      let vnode = match render_component_ssr_async(ctx.cwd, page.source_path) {
-        Some(node) => node
-        None => {
-          // Fallback to placeholder if component rendering fails
-          let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
-          @luna.raw_html(placeholder_html)
-        }
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.RendererType::ReactRenderer => {
-      // TSX component SSR via React
-      let component_name = get_component_name_from_path(page.source_path)
-      let vnode = match
-        render_tsx_component_ssr_async(
-          ctx.cwd,
-          ctx.config.docs_dir,
-          page.source_path,
-        ) {
-        Some(node) => node
-        None => {
-          // Fallback to placeholder if SSR fails
-          let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"failed\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>SSR failed - check console for errors</p></div>"
-          @luna.raw_html(placeholder_html)
-        }
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.RendererType::PreactRenderer => {
-      // Preact component SSR - similar to React but with Preact runtime
-      let component_name = get_component_name_from_path(page.source_path)
-      // Preact SSR uses the same infrastructure as React (preact-render-to-string)
-      let vnode = match
-        render_tsx_component_ssr_async(
-          ctx.cwd,
-          ctx.config.docs_dir,
-          page.source_path,
-        ) {
-        Some(node) => node
-        None => {
-          let placeholder_html = "<div data-preact-component=\"\{component_name}\" data-ssr=\"failed\" class=\"preact-component-placeholder\"><p>Preact Component: \{component_name}</p><p>SSR failed - check console for errors</p></div>"
-          @luna.raw_html(placeholder_html)
-        }
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.RendererType::ClientOnlyRenderer => {
-      // Client-only components - render placeholder that will be hydrated
-      let component_name = get_component_name_from_path(page.source_path)
-      let vnode = match page.content_type {
-        @astra.ContentType::Component => {
-          let placeholder_html = "<div data-component=\"\{component_name}\" data-hydrate=\"true\" class=\"component-loading\"><p>Loading \{component_name}...</p></div>"
-          @luna.raw_html(placeholder_html)
-        }
-        @astra.ContentType::TsxComponent => {
-          let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-hydrate=\"true\" class=\"tsx-component-loading\"><p>Loading \{component_name}...</p></div>"
-          @luna.raw_html(placeholder_html)
-        }
-        _ =>
-          // Unexpected: should not reach here
-          @luna.raw_html(
-            "<div>Unexpected content type for ClientOnlyRenderer</div>",
-          )
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.RendererType::MdxRenderer => {
-      // MDX renderer (async) - parse MDX with JSX support
-      let content : String = @fs.readFileSync(source_path).to_string() catch {
-        e => return Err("Failed to read \{source_path}: \{e}")
-      }
-      // Parse using MDX parser (handles import/export/JSX)
-      let (parsed_frontmatter, nodes) = @mdx.parse_mdx(content)
-
-      // Auto-generate description from first paragraph if not provided
-      let fm = if parsed_frontmatter.description is None {
-        match @md_render.extract_description(nodes) {
-          Some(desc) => { ..parsed_frontmatter, description: Some(desc), }
-          None => parsed_frontmatter
-        }
-      } else {
-        parsed_frontmatter
-      }
-
-      // Get islands base path from config
-      let islands_base_path = match ctx.config.islands {
-        Some(islands_config) => islands_config.base_path
-        None => "/static/"
-      }
-
-      // Convert to VNode (JsxComponent nodes are handled in transformer)
-      let is_index = @astra.is_index_source(
-        page.source_path,
-        locale=page.locale,
-      )
-      // Get locale prefix for i18n link resolution
-      let locale_prefix = @astra.get_locale_url_prefix(
-        ctx.config.i18n,
-        page.locale,
-      )
-      let vnode = @md_render.md_nodes_to_vnode(
-        nodes,
-        islands_base_path~,
-        current_url_path=page.url_path,
-        is_index~,
-        locale_prefix~,
-        available_urls~,
-      )
-
-      // Extract TOC
-      let extracted_toc = @md_render.extract_toc(nodes)
-      (fm, vnode, extracted_toc)
-    }
-  }
-
-  // Build page HTML
-  let html = build_page_html(ctx, page, frontmatter, content_vnode, toc)
-
-  // Apply syntax highlighting if highlighter is available
-  let final_html = match highlighter {
-    Some(h) => apply_syntax_highlighting(html, h)
-    None => html
+  let final_html = match render_page_html_async(ctx, page, highlighter) {
+    Ok(html) => html
+    Err(e) => return Err(e)
   }
 
   // Write to output
   let output_path = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
+    output_root(ctx),
     @routes.url_to_output_path(page.url_path),
   )
 
@@ -821,4 +611,46 @@ async fn generate_page_with_highlight_async(
   } catch {
     e => Err("Failed to write \{output_path}: \{e}")
   }
+}
+
+///|
+/// Render component pages through their async SSR renderer. All other page
+/// types share the synchronous renderer, keeping build and HTTP output aligned.
+pub async fn render_page_html_async(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  highlighter : @shiki.Highlighter?,
+) -> Result[String, String] {
+  let content = match page.renderer_type {
+    @astra.RendererType::LunaRenderer =>
+      match
+        render_component_ssr_async(
+          ctx.cwd,
+          ctx.config.docs_dir,
+          page.source_path,
+        ) {
+        Some(node) => node
+        None =>
+          return Err("Failed to render MoonBit component: \{page.source_path}")
+      }
+    @astra.RendererType::ReactRenderer | @astra.RendererType::PreactRenderer =>
+      match
+        render_tsx_component_ssr_async(
+          ctx.cwd,
+          ctx.config.docs_dir,
+          page.source_path,
+        ) {
+        Some(node) => node
+        None =>
+          return Err("Failed to render TSX component: \{page.source_path}")
+      }
+    _ => return render_page_html(ctx, page, highlighter)
+  }
+  let html = build_page_html(ctx, page, page.frontmatter, content, [])
+  Ok(
+    match highlighter {
+      Some(h) => apply_syntax_highlighting(html, h)
+      None => html
+    },
+  )
 }

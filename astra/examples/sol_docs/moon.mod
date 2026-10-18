@@ -14,7 +14,7 @@ import {
   "moonbitlang/async@0.21.3",
 }
 
-source = "app"
+source = "."
 
 preferred_target = "js"
 

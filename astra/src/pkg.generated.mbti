@@ -90,6 +90,9 @@ pub(all) enum ContentType {
   TsxComponent
   Mdx
 } derive(Eq, @debug.Debug)
+pub fn ContentType::equal(Self, Self) -> Bool
+pub fn ContentType::not_equal(Self, Self) -> Bool
+pub fn ContentType::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CssUtilitiesConfig {
   enabled : Bool
@@ -109,6 +112,9 @@ pub(all) enum DeployTarget {
   Node
 } derive(Eq, @debug.Debug)
 pub fn DeployTarget::default() -> Self
+pub fn DeployTarget::equal(Self, Self) -> Bool
+pub fn DeployTarget::not_equal(Self, Self) -> Bool
+pub fn DeployTarget::to_repr(Self) -> @debug.Repr
 
 pub(all) struct DocumentTree {
   site : SiteInfo
@@ -125,6 +131,8 @@ pub(all) struct FooterColumn {
   title : String
   items : Array[FooterLink]
 } derive(ToJson, @json.FromJson)
+pub fn FooterColumn::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn FooterColumn::to_json(Self) -> Json
 
 pub(all) struct FooterConfig {
   message : String?
@@ -133,6 +141,8 @@ pub(all) struct FooterConfig {
   top : Array[FooterElement]
   bottom : Array[FooterElement]
 } derive(ToJson, @json.FromJson)
+pub fn FooterConfig::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn FooterConfig::to_json(Self) -> Json
 
 pub(all) enum FooterElement {
   Columns
@@ -141,11 +151,18 @@ pub(all) enum FooterElement {
   SocialLinks
   Custom(String)
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn FooterElement::equal(Self, Self) -> Bool
+pub fn FooterElement::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn FooterElement::not_equal(Self, Self) -> Bool
+pub fn FooterElement::to_json(Self) -> Json
+pub fn FooterElement::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FooterLink {
   label : String
   href : String
 } derive(ToJson, @json.FromJson)
+pub fn FooterLink::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn FooterLink::to_json(Self) -> Json
 
 pub(all) struct HeaderConfig {
   left : Array[HeaderElement]
@@ -154,6 +171,8 @@ pub(all) struct HeaderConfig {
   sticky : Bool
 } derive(ToJson, @json.FromJson)
 pub fn HeaderConfig::default() -> Self
+pub fn HeaderConfig::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn HeaderConfig::to_json(Self) -> Json
 
 pub(all) enum HeaderElement {
   Logo
@@ -165,6 +184,11 @@ pub(all) enum HeaderElement {
   Spacer
   Custom(String)
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn HeaderElement::equal(Self, Self) -> Bool
+pub fn HeaderElement::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn HeaderElement::not_equal(Self, Self) -> Bool
+pub fn HeaderElement::to_json(Self) -> Json
+pub fn HeaderElement::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Heading {
   level : Int
@@ -190,6 +214,8 @@ pub(all) struct LocaleConfig {
   label : String
   path : String
 } derive(ToJson, @json.FromJson)
+pub fn LocaleConfig::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn LocaleConfig::to_json(Self) -> Json
 
 pub(all) struct MetaFilesConfig {
   sitemap : Bool
@@ -204,7 +230,9 @@ pub(all) struct NavItem {
   icon : String?
   items : Array[NavItem]
 } derive(ToJson, @json.FromJson)
+pub fn NavItem::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn NavItem::new(String, String) -> Self
+pub fn NavItem::to_json(Self) -> Json
 
 pub(all) struct NavigationConfig {
   spa : Bool
@@ -212,6 +240,8 @@ pub(all) struct NavigationConfig {
   keyboard : Bool
 } derive(ToJson, @json.FromJson)
 pub fn NavigationConfig::default() -> Self
+pub fn NavigationConfig::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn NavigationConfig::to_json(Self) -> Json
 
 pub(all) struct OgpConfig {
   site_url : String?
@@ -261,6 +291,9 @@ pub(all) enum RendererType {
   MdxRenderer
 } derive(Eq, @debug.Debug)
 pub fn RendererType::default() -> Self
+pub fn RendererType::equal(Self, Self) -> Bool
+pub fn RendererType::not_equal(Self, Self) -> Bool
+pub fn RendererType::to_repr(Self) -> @debug.Repr
 
 pub(all) enum SidebarConfig {
   Auto
@@ -273,11 +306,15 @@ pub(all) struct SidebarGroup {
   collapsed : Bool
   items : Array[SidebarItem]
 } derive(ToJson, @json.FromJson)
+pub fn SidebarGroup::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SidebarGroup::to_json(Self) -> Json
 
 pub(all) enum SidebarItem {
   Link(text~ : String, link~ : String)
   Group(SidebarGroup)
 } derive(ToJson, @json.FromJson)
+pub fn SidebarItem::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SidebarItem::to_json(Self) -> Json
 
 pub(all) struct SiteInfo {
   title : String
@@ -292,6 +329,8 @@ pub(all) struct SocialLink {
   icon : String
   link : String
 } derive(ToJson, @json.FromJson)
+pub fn SocialLink::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SocialLink::to_json(Self) -> Json
 
 pub(all) struct SsgConfig {
   docs_dir : String

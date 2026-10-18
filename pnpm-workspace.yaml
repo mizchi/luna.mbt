@@ -13,17 +13,33 @@ packages:
   - "js/*"
   - "js/luna/examples"
   - "js/luna/examples_preact"
+  - "js/luna/examples-void"
   - "js/stella/examples/*"
 
 linkWorkspacePackages: true
 
-# Miniflare pins a sharp release affected by GHSA-rgj7-g3m4-5g8c.
-# Remove this override when Miniflare includes sharp >= 0.35.4.
+# Resolve optional test peers from the project that uses them. The root's
+# Vitest 5 is not a provider for Cloudflare CLI packages' unused test helpers.
+resolvePeersFromWorkspaceRoot: false
+
+# Miniflare pins sharp releases affected by GHSA-rgj7-g3m4-5g8c and
+# GHSA-wq5f-xc86-pv6w. Remove once all Miniflare versions include >= 0.35.5.
 overrides:
-  "miniflare>sharp": "^0.35.4"
+  "miniflare>sharp": "^0.35.5"
+  # drizzle-kit 0.31.11 loads TS schemas with tsx/cjs/api. Its old loader is
+  # unused and pulls in deprecated packages plus vulnerable esbuild 0.18.
+  # https://github.com/drizzle-team/drizzle-orm/issues/5304
+  "drizzle-kit@0.31.11>@esbuild-kit/esm-loader": "-"
+
+# better-sqlite3 13 ships N-API prebuilds for supported platforms directly in
+# the npm package, so its fallback compilation is unnecessary.
+ignoredBuiltDependencies:
+  - better-sqlite3
+  # ws works with its JS fallback and Node's built-in UTF-8 validation.
+  - bufferutil
+  - utf-8-validate
 
 onlyBuiltDependencies:
-  - better-sqlite3
   - esbuild
   - sharp
   - workerd

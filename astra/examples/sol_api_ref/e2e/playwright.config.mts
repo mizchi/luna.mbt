@@ -1,5 +1,5 @@
 // Playwright config for sol_api_ref. Mirrors sol_landing's VRT config
-// (chromium-only, http-server over `dist/`, screenshot diff with
+// (chromium-only, Vite preview over `dist/`, screenshot diff with
 // per-OS baselines under e2e/__screenshots__/{darwin,linux}/).
 import { defineConfig, devices } from "@playwright/test";
 import { dirname, resolve } from "node:path";
@@ -54,10 +54,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    // `pnpm dlx http-server` is undesirable in CI (each invocation hits
-    // the network). The dep is listed in package.json so `pnpm install`
-    // hydrates it once, then `npx --no-install` resolves it offline.
-    command: `npx --no-install http-server dist -p ${port} -s --cors -c-1`,
+    // Use the locked Vite CLI for offline static serving.
+    command: `pnpm exec vite preview --outDir dist --host 127.0.0.1 --port ${port} --strictPort`,
     cwd: exampleDir,
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,

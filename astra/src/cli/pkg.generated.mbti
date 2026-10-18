@@ -9,6 +9,8 @@ import {
 // Values
 pub fn build_to_disk(@middleware.Middleware, String) -> Unit
 
+pub async fn build_to_disk_async(@middleware.Middleware, String) -> Result[Unit, String]
+
 pub fn get_flag_value(Array[String], String) -> String?
 
 pub fn has_flag(Array[String], String) -> Bool

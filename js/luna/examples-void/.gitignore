@@ -1,0 +1,6 @@
+.void/
+.wrangler/
+.void-wrangler.jsonc
+.env*
+!.env.example
+playwright-report/

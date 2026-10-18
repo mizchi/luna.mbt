@@ -1,6 +1,6 @@
 ///|
 test "tooltip: role and id" {
-  let node : @luna.Node[Unit, String] = tooltip("tip-1", [
+  let node : @luna.Node[Unit, String] = @luna_components.tooltip("tip-1", [
     @luna.text("Help text"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -22,9 +22,11 @@ test "tooltip: role and id" {
 
 ///|
 test "tooltip_popup: hidden when not visible" {
-  let node : @luna.Node[Unit, String] = tooltip_popup("tip-2", false, [
-    @luna.text("Hidden"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.tooltip_popup(
+    "tip-2",
+    false,
+    [@luna.text("Hidden")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_hidden = false
   for attr in el.attrs {
@@ -37,9 +39,10 @@ test "tooltip_popup: hidden when not visible" {
 
 ///|
 test "tooltip_trigger: aria-describedby" {
-  let node : @luna.Node[Unit, String] = tooltip_trigger("my-tooltip", [
-    @luna.text("?"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.tooltip_trigger(
+    "my-tooltip",
+    [@luna.text("?")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="button")
   let mut has_describedby = false
@@ -54,7 +57,7 @@ test "tooltip_trigger: aria-describedby" {
 
 ///|
 test "tooltip_with_trigger: creates both elements" {
-  let node : @luna.Node[Unit, String] = tooltip_with_trigger(
+  let node : @luna.Node[Unit, String] = @luna_components.tooltip_with_trigger(
     "info",
     [@luna.text("?")],
     [@luna.text("More info")],

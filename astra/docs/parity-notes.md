@@ -152,18 +152,19 @@ These were diffs after T10 that T11 narrowed to byte-equivalent.
   consumed at request time. They're easy to add via a post-build hook in
   the cli; tracked in Phase C.
 
-### 11. `tsx_demo/index.html` -- TSX SSR placeholder
+### 11. Component SSR
 
-- **Status**: ACCEPTED INTENTIONAL. The fixture's `tsx_demo` page
-  references a TSX component that requires async SSR. Sol's SSG path
-  attempts the async render and writes `data-ssr="failed"` when the SSR
-  itself fails (the demo hooks aren't wired up in this fixture); astra's
-  middleware path doesn't attempt async TSX SSR at all and writes
-  `data-ssr="pending"`. Both are degenerate states. The "correct"
-  resolution is to enable async TSX SSR in middleware (`build_to_disk` is
-  already async-capable). Tracked alongside the CSS-utility deferral
-  above; the right place to fix it is in `render_page_html`'s component
-  hook, not in the middleware.
+- **Status**: FIXED. Both the HTTP handler and static crawler use
+  `render_url_async`, which delegates to `render_page_html_async` for
+  React and MoonBit SSR. Markdown/HTML use the existing shared renderer.
+  Compiled MoonBit modules are found from their manifest name and source
+  root in either a standalone or ancestor workspace build. React's TSX
+  path is resolved before loading npm dependencies. SSR failure returns
+  HTTP 500 and a nonzero build exit rather than a successful placeholder.
+- `build_dev_parity.test.js` asserts actual component HTML in dev and both
+  static build modes, concurrent React requests, and failed-SSR behavior.
+  The components demo's Playwright tests also cover visible SSR content,
+  sidebar keyboard navigation, and counter clicks.
 
 ## Asset-byte equality (post-T11)
 

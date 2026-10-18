@@ -1,6 +1,6 @@
 ///|
 test "switch: on state" {
-  let node : @luna.Node[Unit, String] = switch(true, [
+  let node : @luna.Node[Unit, String] = @luna_components.switch(true, [
     @luna.text("Notifications"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -23,7 +23,9 @@ test "switch: on state" {
 
 ///|
 test "switch: off state" {
-  let node : @luna.Node[Unit, String] = switch(false, [@luna.text("Dark mode")])
+  let node : @luna.Node[Unit, String] = @luna_components.switch(false, [
+    @luna.text("Dark mode"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut checked_val = ""
   for attr in el.attrs {
@@ -38,7 +40,9 @@ test "switch: off state" {
 ///|
 test "switch_dyn: dynamic state" {
   let on = @resource.signal(false)
-  let node : @luna.Node[Unit, String] = switch_dyn(on, [@luna.text("Toggle")])
+  let node : @luna.Node[Unit, String] = @luna_components.switch_dyn(on, [
+    @luna.text("Toggle"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut dynamic_attr : (() -> String)? = None
   for attr in el.attrs {
@@ -55,9 +59,11 @@ test "switch_dyn: dynamic state" {
 
 ///|
 test "switch_native: creates checkbox with role=switch" {
-  let node : @luna.Node[Unit, String] = switch_native("wifi", true, [
-    @luna.text("WiFi"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.switch_native(
+    "wifi",
+    true,
+    [@luna.text("WiFi")],
+  )
   guard node is @core.Fragment(children) else { fail("expected Fragment") }
   guard children[0] is @core.Element(input) else { fail("expected input") }
   let mut has_role = false

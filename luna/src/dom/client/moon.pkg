@@ -1,13 +1,11 @@
 import {
   "mizchi/luna/core",
-  "mizchi/signals",
   "mizchi/luna",
   "mizchi/luna/js/resource",
   "mizchi/luna/core/render",
   "mizchi/luna/dom" @element,
   "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
-  "mizchi/js_web/event",
   "mizchi/js_builtin/global",
   "moonbitlang/core/hashmap",
 }

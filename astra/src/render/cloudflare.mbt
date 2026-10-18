@@ -148,10 +148,7 @@ pub fn write_routes_json(ctx : @astra.BuildContext) -> Unit {
   // Only generate for Cloudflare target
   guard ctx.config.deploy_target == @astra.Cloudflare else { return }
   let content = generate_routes_json(ctx.pages)
-  let output_path = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    "_routes.json",
-  )
+  let output_path = @path.join2(output_root(ctx), "_routes.json")
   @fs.writeFileSync(output_path, @js.any(content)) catch {
     err => println("Warning: Failed to write _routes.json: \{err}")
   }

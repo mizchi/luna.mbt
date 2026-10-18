@@ -27,7 +27,7 @@ test "static_content: SSR and CSR produce identical output" {
 
   // CSR: What inject_static produces
   let container = doc.createElement("div")
-  inject_static(container, vnode)
+  @client.inject_static(container, vnode)
   let csr_html = get_inner_html(container)
 
   // They should be identical
@@ -57,7 +57,7 @@ test "static_content: nested elements render correctly" {
   ])
   let ssr_html = @render.render_to_string(vnode).html
   let container = doc.createElement("div")
-  inject_static(container, vnode)
+  @client.inject_static(container, vnode)
   assert_eq(ssr_html, get_inner_html(container))
 }
 
@@ -86,7 +86,7 @@ test "static_content: void elements handled correctly" {
   ])
   let ssr_html = @render.render_to_string(vnode).html
   let container = doc.createElement("div")
-  inject_static(container, vnode)
+  @client.inject_static(container, vnode)
 
   // Both should contain self-closing void elements
   assert_true(ssr_html.contains("<img "))
@@ -117,7 +117,7 @@ test "static_block: creates wrapper with innerHTML" {
     @luna.h("li", [], [@luna.text("Item 1")]),
     @luna.h("li", [], [@luna.text("Item 2")]),
   ])
-  let block = static_block("section", vnode)
+  let block = @client.static_block("section", vnode)
   let dom_node = block.to_dom()
 
   // Should create a section wrapper
@@ -134,7 +134,7 @@ test "static_block: creates wrapper with innerHTML" {
 test "static_div: convenience wrapper works" {
   @global_jsdom.register()
   let vnode : @luna.Node[Unit, String] = @luna.text("Hello")
-  let block = static_div(vnode)
+  let block = @client.static_div(vnode)
   assert_eq(block.to_dom().nodeName(), "DIV")
 }
 
@@ -142,7 +142,7 @@ test "static_div: convenience wrapper works" {
 test "static_span: convenience wrapper works" {
   @global_jsdom.register()
   let vnode : @luna.Node[Unit, String] = @luna.text("Hello")
-  let block = static_span(vnode)
+  let block = @client.static_span(vnode)
   assert_eq(block.to_dom().nodeName(), "SPAN")
 }
 
@@ -154,7 +154,7 @@ test "inject_static_html: raw HTML injection" {
   // Simulating pre-rendered HTML from SSR
   let ssr_html = "<div class=\"header\"><h1>Welcome</h1></div>"
   let container = doc.createElement("div")
-  inject_static_html(container, ssr_html)
+  @client.inject_static_html(container, ssr_html)
   assert_eq(get_inner_html(container), ssr_html)
 }
 
@@ -168,7 +168,7 @@ test "static_content: Fragment renders correctly" {
   ])
   let ssr_html = @render.render_to_string(vnode).html
   let container = doc.createElement("div")
-  inject_static(container, vnode)
+  @client.inject_static(container, vnode)
 
   // Fragment should render children directly
   assert_eq(ssr_html, "<span>First</span><span>Second</span>")
@@ -188,7 +188,7 @@ test "static_content: large list renders efficiently" {
   let vnode : @luna.Node[Unit, String] = @luna.h("ul", [], items)
   let ssr_html = @render.render_to_string(vnode).html
   let container = doc.createElement("div")
-  inject_static(container, vnode)
+  @client.inject_static(container, vnode)
 
   // Verify content matches
   assert_eq(ssr_html, get_inner_html(container))
@@ -228,7 +228,7 @@ test "sol_pattern: static header with Island placeholder" {
 
   // Client injects static header
   let header_container = doc.createElement("div")
-  inject_static(header_container, header)
+  @client.inject_static(header_container, header)
 
   // Verify identical
   assert_eq(ssr_html, get_inner_html(header_container))
@@ -264,7 +264,7 @@ test "sol_pattern: sol-link navigation (static content)" {
   ])
   let ssr_html = @render.render_to_string(nav).html
   let container = doc.createElement("div")
-  inject_static(container, nav)
+  @client.inject_static(container, nav)
 
   // sol-link attribute should be preserved
   // Note: SSR outputs `sol-link` (no value), browser innerHTML outputs `sol-link=""`
@@ -298,7 +298,7 @@ test "sol_pattern: pre-cached SSR fragment injection" {
 
   // On subsequent requests, inject cached HTML directly
   let container = doc.createElement("div")
-  inject_static_html(container, cached_html)
+  @client.inject_static_html(container, cached_html)
   assert_eq(get_inner_html(container), cached_html)
   assert_true(get_inner_html(container).contains("Cached Section"))
 }
@@ -336,7 +336,7 @@ test "ssg_pattern: markdown document structure" {
   )
   let ssr_html = @render.render_to_string(doc_page).html
   let container = doc.createElement("div")
-  inject_static(container, doc_page)
+  @client.inject_static(container, doc_page)
 
   // Content should match exactly
   assert_eq(ssr_html, get_inner_html(container))
@@ -392,7 +392,7 @@ test "ssg_pattern: navigation sidebar" {
   )
   let ssr_html = @render.render_to_string(sidebar).html
   let container = doc.createElement("div")
-  inject_static(container, sidebar)
+  @client.inject_static(container, sidebar)
   assert_eq(ssr_html, get_inner_html(container))
 }
 
@@ -434,7 +434,7 @@ test "ssg_pattern: i18n language switcher" {
   )
   let ssr_html = @render.render_to_string(lang_switcher).html
   let container = doc.createElement("div")
-  inject_static(container, lang_switcher)
+  @client.inject_static(container, lang_switcher)
   assert_eq(ssr_html, get_inner_html(container))
 
   // Japanese characters should be preserved

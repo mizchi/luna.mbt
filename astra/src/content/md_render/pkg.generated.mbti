@@ -47,6 +47,8 @@ pub struct AccordionDemoItem {
   content : String
   open : Bool
 } derive(Eq)
+pub fn AccordionDemoItem::equal(Self, Self) -> Bool
+pub fn AccordionDemoItem::not_equal(Self, Self) -> Bool
 
 // Type aliases
 pub using @toc {type TocItem}

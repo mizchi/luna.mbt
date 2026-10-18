@@ -117,6 +117,22 @@ fn copy_static_assets_internal(
     _ => ()
   }
 
+  // Shared sidebar hydration is required even when a site has no islands
+  // directory. Include it in the full SSG path as well as the URL crawler.
+  match @assets.lookup_asset("/components/sidebar-disclosure.js", ctx.config) {
+    Some(asset) => {
+      let components_dir = @path.join2(output_root(ctx), "components")
+      ensure_dir(components_dir)
+      @fs.writeFileSync(
+        @path.join2(components_dir, "sidebar-disclosure.js"),
+        @js.any(asset.body),
+      ) catch {
+        _ => ()
+      }
+    }
+    None => ()
+  }
+
   // Copy public directory if it exists
   copy_public_dir(ctx)
 

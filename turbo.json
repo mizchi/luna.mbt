@@ -49,7 +49,7 @@
       "inputs": [
         "js/**/*.ts",
         "js/**/*.test.ts",
-        "luna/vitest.config.ts"
+        "luna/vitest.config.mts"
       ],
       "outputs": []
     },

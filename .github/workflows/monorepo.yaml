@@ -53,7 +53,7 @@ jobs:
           mkdir -p _build/js/debug/test
           echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
       - name: moon check (workspace — libraries + docs + examples)
-        run: moon check --target js
+        run: moon check --target js --deny-warn
       - name: Build workspace packages
         run: |
           cd js/wcr && pnpm build

@@ -6,7 +6,7 @@
 //     page, `dist/pagefind/` is already populated and `<search-box>`
 //     can dynamic-import the index without falling back to its empty
 //     state.
-//   - `webServer` serves `dist/` over `http-server` on a fixed port
+//   - `webServer` serves `dist/` over `Vite preview` on a fixed port
 //     (5560 by default). We use a static server rather than `astra dev`
 //     because dev mode does not run PageFind.
 import { defineConfig, devices } from "@playwright/test";
@@ -62,7 +62,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npx --no-install http-server dist -p ${port} -s --cors -c-1`,
+    command: `pnpm exec vite preview --outDir dist --host 127.0.0.1 --port ${port} --strictPort`,
     cwd: exampleDir,
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,

@@ -71,6 +71,12 @@ pub(all) enum Pseudo {
 } derive(Eq, Debug)
 
 ///|
+pub extend Pseudo with @debug.Debug::{to_repr}
+
+///|
+pub extend Pseudo with Eq::{not_equal, equal}
+
+///|
 pub fn Pseudo::css_selector(self : Pseudo) -> String {
   match self {
     Active => ":active"

@@ -58,6 +58,9 @@ pub(all) struct Rect {
   width : Double
   height : Double
 } derive(Eq, @debug.Debug)
+pub fn Rect::equal(Self, Self) -> Bool
+pub fn Rect::not_equal(Self, Self) -> Bool
+pub fn Rect::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

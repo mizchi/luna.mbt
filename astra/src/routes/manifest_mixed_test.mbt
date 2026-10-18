@@ -8,14 +8,18 @@
 
 ///|
 test "RouteManifest - can contain both Static and Dynamic routes" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       // Static routes (SSG)
       Static(
-        StaticRouteEntry::new(path="/", source="index.md", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.md",
+          output="index.html",
+        ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/about",
           source="about.md",
           output="about/index.html",
@@ -23,26 +27,26 @@ test "RouteManifest - can contain both Static and Dynamic routes" {
       ),
       // Dynamic routes (SSR)
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/blog/:slug",
           pattern="^/blog/([^/]+)$",
           param_names=["slug"],
           source="blog/[slug].md",
-          mode=RenderMode::Ssr,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
       // Dynamic routes (ISR)
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/docs/:...path",
           pattern="^/docs/(.*)$",
           param_names=["path"],
           source="docs/[...path].md",
-          mode=RenderMode::Isr(revalidate=3600),
+          mode=@routes.RenderMode::Isr(revalidate=3600),
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   // Verify route counts
   let static_count = manifest.routes.filter(fn(r) { r.is_static() }).length()
@@ -54,16 +58,20 @@ test "RouteManifest - can contain both Static and Dynamic routes" {
 
 ///|
 test "RouteEntry::is_static - correctly identifies static routes" {
-  let static_entry : RouteEntry = Static(
-    StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+  let static_entry : @routes.RouteEntry = Static(
+    @routes.StaticRouteEntry::new(
+      path="/about",
+      source="about.md",
+      output="about.html",
+    ),
   )
-  let dynamic_entry : RouteEntry = Dynamic(
-    DynamicRouteEntry::new(
+  let dynamic_entry : @routes.RouteEntry = Dynamic(
+    @routes.DynamicRouteEntry::new(
       path="/blog/:slug",
       pattern="^/blog/([^/]+)$",
       param_names=["slug"],
       source="blog/[slug].md",
-      mode=RenderMode::Ssr,
+      mode=@routes.RenderMode::Ssr,
     ),
   )
   inspect(static_entry.is_static(), content="true")
@@ -74,23 +82,27 @@ test "RouteEntry::is_static - correctly identifies static routes" {
 
 ///|
 test "RouteEntry::path - returns path for all route types" {
-  let static_entry : RouteEntry = Static(
-    StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+  let static_entry : @routes.RouteEntry = Static(
+    @routes.StaticRouteEntry::new(
+      path="/about",
+      source="about.md",
+      output="about.html",
+    ),
   )
-  let dynamic_entry : RouteEntry = Dynamic(
-    DynamicRouteEntry::new(
+  let dynamic_entry : @routes.RouteEntry = Dynamic(
+    @routes.DynamicRouteEntry::new(
       path="/blog/:slug",
       pattern="^/blog/([^/]+)$",
       param_names=["slug"],
       source="blog/[slug].md",
-      mode=RenderMode::Ssr,
+      mode=@routes.RenderMode::Ssr,
     ),
   )
-  let api_entry : RouteEntry = Api(
-    ApiRouteEntry::new(
+  let api_entry : @routes.RouteEntry = Api(
+    @routes.ApiRouteEntry::new(
       path="/api/posts",
       pattern="^/api/posts$",
-      http_method=HttpMethod::Get,
+      http_method=@routes.HttpMethod::Get,
       source="api/posts.mbt",
     ),
   )
@@ -105,29 +117,29 @@ test "RouteEntry::path - returns path for all route types" {
 
 ///|
 test "RenderMode - SSR mode" {
-  let mode = RenderMode::Ssr
+  let mode = @routes.RenderMode::Ssr
   inspect(mode.requires_server(), content="true")
   debug_inspect(mode.revalidate_seconds(), content="None")
 }
 
 ///|
 test "RenderMode - ISR mode with revalidation" {
-  let mode = RenderMode::Isr(revalidate=3600)
+  let mode = @routes.RenderMode::Isr(revalidate=3600)
   inspect(mode.requires_server(), content="true")
   debug_inspect(mode.revalidate_seconds(), content="Some(3600)")
 }
 
 ///|
 test "RenderMode - SPA mode" {
-  let mode = RenderMode::Spa
+  let mode = @routes.RenderMode::Spa
   inspect(mode.requires_server(), content="false")
   debug_inspect(mode.revalidate_seconds(), content="None")
 }
 
 ///|
 test "RenderMode::default - returns SSR" {
-  let mode = RenderMode::default()
-  inspect(mode == RenderMode::Ssr, content="true")
+  let mode = @routes.RenderMode::default()
+  inspect(mode == @routes.RenderMode::Ssr, content="true")
 }
 
 // =============================================================================
@@ -140,21 +152,25 @@ test "Mixed manifest - documentation site scenario" {
   // - Static pages for main content
   // - Dynamic routes for blog posts
   // - ISR routes for API-backed content
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       // Home and static pages
       Static(
-        StaticRouteEntry::new(path="/", source="index.md", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.md",
+          output="index.html",
+        ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/guide/intro",
           source="guide/intro.md",
           output="guide/intro/index.html",
         ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/guide/setup",
           source="guide/setup.md",
           output="guide/setup/index.html",
@@ -162,35 +178,35 @@ test "Mixed manifest - documentation site scenario" {
       ),
       // Dynamic blog (SSR - always fresh)
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/blog/:slug",
           pattern="^/blog/([^/]+)$",
           param_names=["slug"],
           source="blog/[slug].md",
-          mode=RenderMode::Ssr,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
       // API reference (ISR - cached for 1 hour)
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/api-ref/:module",
           pattern="^/api-ref/([^/]+)$",
           param_names=["module"],
           source="api-ref/[module].md",
-          mode=RenderMode::Isr(revalidate=3600),
+          mode=@routes.RenderMode::Isr(revalidate=3600),
         ),
       ),
       // API endpoints
       Api(
-        ApiRouteEntry::new(
+        @routes.ApiRouteEntry::new(
           path="/api/search",
           pattern="^/api/search$",
-          http_method=HttpMethod::Get,
+          http_method=@routes.HttpMethod::Get,
           source="api/search.mbt",
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   // Count by type
   let static_routes = manifest.routes.filter(fn(r) { r.is_static() })
@@ -220,40 +236,44 @@ test "Mixed manifest - e-commerce scenario with catch-all" {
   // - Static category pages
   // - Dynamic product pages (ISR)
   // - Catch-all for legacy URLs
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/", source="index.md", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.md",
+          output="index.html",
+        ),
       ),
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/categories",
           source="categories.md",
           output="categories/index.html",
         ),
       ),
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/products/:id",
           pattern="^/products/([^/]+)$",
           param_names=["id"],
           source="products/[id].md",
-          mode=RenderMode::Isr(revalidate=300), // 5 minutes
+          mode=@routes.RenderMode::Isr(revalidate=300), // 5 minutes
         ),
       ),
-      Dynamic(DynamicRouteEntry::{
+      Dynamic(@routes.DynamicRouteEntry::{
         path: "/legacy/:...path",
         pattern: "^/legacy/(.*)$",
         param_names: ["path"],
         source: "legacy/[...path].md",
-        mode: RenderMode::Ssr,
+        mode: @routes.RenderMode::Ssr,
         layout: None,
-        catch_all: Some(CatchAllInfo::{ name: "path", optional: false, }),
+        catch_all: Some(@routes.CatchAllInfo::{ name: "path", optional: false, }),
         title: None,
         islands: [],
       }),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   // Verify catch-all route exists
   let catch_all_routes = manifest.routes.filter(fn(r) {
@@ -280,14 +300,14 @@ test "Mixed manifest - e-commerce scenario with catch-all" {
 
 ///|
 test "FallbackConfig - NotFound" {
-  let config = FallbackConfig::NotFound(path="/404.html")
+  let config = @routes.FallbackConfig::NotFound(path="/404.html")
   inspect(config.is_spa(), content="false")
   debug_inspect(config.spa_entry(), content="None")
 }
 
 ///|
 test "FallbackConfig - SPA" {
-  let config = FallbackConfig::Spa(entry="/index.html")
+  let config = @routes.FallbackConfig::Spa(entry="/index.html")
   inspect(config.is_spa(), content="true")
   debug_inspect(
     config.spa_entry(),
@@ -299,7 +319,10 @@ test "FallbackConfig - SPA" {
 
 ///|
 test "FallbackConfig - SpaPrefix" {
-  let config = FallbackConfig::SpaPrefix(prefix="/app", entry="/app/index.html")
+  let config = @routes.FallbackConfig::SpaPrefix(
+    prefix="/app",
+    entry="/app/index.html",
+  )
   inspect(config.is_spa(), content="true")
   debug_inspect(
     config.spa_entry(),
@@ -315,14 +338,14 @@ test "FallbackConfig - SpaPrefix" {
 
 ///|
 test "extract_url_pattern - static path" {
-  let (pattern, params) = extract_url_pattern("/about")
+  let (pattern, params) = @routes.extract_url_pattern("/about")
   inspect(pattern, content="^/about$")
   inspect(params.length(), content="0")
 }
 
 ///|
 test "extract_url_pattern - single dynamic segment" {
-  let (pattern, params) = extract_url_pattern("/blog/:slug")
+  let (pattern, params) = @routes.extract_url_pattern("/blog/:slug")
   inspect(pattern, content="^/blog/([^/]+)$")
   debug_inspect(
     params,
@@ -334,7 +357,9 @@ test "extract_url_pattern - single dynamic segment" {
 
 ///|
 test "extract_url_pattern - multiple dynamic segments" {
-  let (pattern, params) = extract_url_pattern("/users/:id/posts/:postId")
+  let (pattern, params) = @routes.extract_url_pattern(
+    "/users/:id/posts/:postId",
+  )
   inspect(pattern, content="^/users/([^/]+)/posts/([^/]+)$")
   debug_inspect(
     params,
@@ -346,7 +371,7 @@ test "extract_url_pattern - multiple dynamic segments" {
 
 ///|
 test "extract_url_pattern - Next.js style brackets" {
-  let (pattern, params) = extract_url_pattern("/blog/[slug]")
+  let (pattern, params) = @routes.extract_url_pattern("/blog/[slug]")
   inspect(pattern, content="^/blog/([^/]+)$")
   debug_inspect(
     params,
@@ -358,7 +383,7 @@ test "extract_url_pattern - Next.js style brackets" {
 
 ///|
 test "extract_url_pattern - catch-all pattern" {
-  let (pattern, params) = extract_url_pattern("/docs/[...path]")
+  let (pattern, params) = @routes.extract_url_pattern("/docs/[...path]")
   inspect(pattern, content="^/docs/(.*)$")
   debug_inspect(
     params,
@@ -376,26 +401,26 @@ test "extract_url_pattern - catch-all pattern" {
 test "Static and Dynamic can coexist in same manifest" {
   // When /blog/about exists as static and /blog/:slug as dynamic,
   // both routes can coexist in the manifest
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(
+        @routes.StaticRouteEntry::new(
           path="/blog/about",
           source="blog/about.md",
           output="blog/about/index.html",
         ),
       ),
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/blog/:slug",
           pattern="^/blog/([^/]+)$",
           param_names=["slug"],
           source="blog/[slug].md",
-          mode=RenderMode::Ssr,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   // Both routes exist in the manifest
   inspect(manifest.routes.length(), content="2")
@@ -410,50 +435,54 @@ test "Static and Dynamic can coexist in same manifest" {
 
 ///|
 test "Multiple RenderModes in same manifest" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       // Static (build-time)
       Static(
-        StaticRouteEntry::new(path="/", source="index.md", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.md",
+          output="index.html",
+        ),
       ),
       // SSR (per-request)
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/live/:id",
           pattern="^/live/([^/]+)$",
           param_names=["id"],
           source="live/[id].md",
-          mode=RenderMode::Ssr,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
       // ISR (cached)
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/cached/:id",
           pattern="^/cached/([^/]+)$",
           param_names=["id"],
           source="cached/[id].md",
-          mode=RenderMode::Isr(revalidate=60),
+          mode=@routes.RenderMode::Isr(revalidate=60),
         ),
       ),
       // SPA (client-only)
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/app/:...path",
           pattern="^/app/(.*)$",
           param_names=["path"],
           source="app/[...path].md",
-          mode=RenderMode::Spa,
+          mode=@routes.RenderMode::Spa,
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   // Count by render mode
   let ssr_count = manifest.routes
     .filter(fn(r) {
       match r {
-        Dynamic(e) => e.mode == RenderMode::Ssr
+        Dynamic(e) => e.mode == @routes.RenderMode::Ssr
         _ => false
       }
     })
@@ -473,7 +502,7 @@ test "Multiple RenderModes in same manifest" {
   let spa_count = manifest.routes
     .filter(fn(r) {
       match r {
-        Dynamic(e) => e.mode == RenderMode::Spa
+        Dynamic(e) => e.mode == @routes.RenderMode::Spa
         _ => false
       }
     })
@@ -485,30 +514,34 @@ test "Multiple RenderModes in same manifest" {
 
 ///|
 test "ComponentRouteEntry coexists with Static and Dynamic" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/", source="index.md", output="index.html"),
+        @routes.StaticRouteEntry::new(
+          path="/",
+          source="index.md",
+          output="index.html",
+        ),
       ),
       Dynamic(
-        DynamicRouteEntry::new(
+        @routes.DynamicRouteEntry::new(
           path="/blog/:slug",
           pattern="^/blog/([^/]+)$",
           param_names=["slug"],
           source="blog/[slug].md",
-          mode=RenderMode::Ssr,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
       Component(
-        ComponentRouteEntry::new(
+        @routes.ComponentRouteEntry::new(
           path="/counter",
           source="counter/",
-          component_type=ComponentType::SsrComponent,
-          mode=RenderMode::Ssr,
+          component_type=@routes.ComponentType::SsrComponent,
+          mode=@routes.RenderMode::Ssr,
         ),
       ),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   inspect(manifest.routes.filter(fn(r) { r.is_static() }).length(), content="1")
   inspect(

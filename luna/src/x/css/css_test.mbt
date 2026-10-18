@@ -5,43 +5,43 @@ using @test {assert_eq}
 
 ///|
 test "css() returns class name with underscore prefix" {
-  reset_all()
-  let cls = css("display", "flex")
+  @css.reset_all()
+  let cls = @css.css("display", "flex")
   // Class name starts with underscore
   assert_true(cls.has_prefix("_"))
 }
 
 ///|
 test "css() deduplicates same declarations" {
-  reset_all()
-  let cls1 = css("test-prop-dedup", "value1")
-  let cls2 = css("test-prop-dedup", "value1")
+  @css.reset_all()
+  let cls1 = @css.css("test-prop-dedup", "value1")
+  let cls2 = @css.css("test-prop-dedup", "value1")
   assert_eq(cls1, cls2)
 }
 
 ///|
 test "css() generates different classes for different declarations" {
-  reset_all()
-  let cls1 = css("test-prop-diff1", "value1")
-  let cls2 = css("test-prop-diff2", "value2")
+  @css.reset_all()
+  let cls1 = @css.css("test-prop-diff1", "value1")
+  let cls2 = @css.css("test-prop-diff2", "value2")
   // Different declarations get different classes
   assert_true(cls1 != cls2)
 }
 
 ///|
 test "styles() returns space-separated class names" {
-  reset_all()
-  let classes = styles([("test-style1", "val1"), ("test-style2", "val2")])
+  @css.reset_all()
+  let classes = @css.styles([("test-style1", "val1"), ("test-style2", "val2")])
   // Should contain a space (multiple classes)
   assert_true(classes.contains(" "))
 }
 
 ///|
 test "combine() joins class names with space" {
-  reset_all()
-  let flex = css("test-combine1", "val1")
-  let center = css("test-combine2", "val2")
-  let combined = combine([flex, center])
+  @css.reset_all()
+  let flex = @css.css("test-combine1", "val1")
+  let center = @css.css("test-combine2", "val2")
+  let combined = @css.combine([flex, center])
   assert_true(combined.contains(" "))
   assert_true(combined.contains(flex))
   assert_true(combined.contains(center))
@@ -49,10 +49,10 @@ test "combine() joins class names with space" {
 
 ///|
 test "generate_css() outputs declarations in CSS format" {
-  reset_all()
-  let cls1 = css("test-gen-display", "flex")
-  let cls2 = css("test-gen-align", "center")
-  let output = generate_css()
+  @css.reset_all()
+  let cls1 = @css.css("test-gen-display", "flex")
+  let cls2 = @css.css("test-gen-align", "center")
+  let output = @css.generate_css()
   // Output should contain the class and declaration
   assert_true(output.contains("." + cls1 + "{test-gen-display:flex}"))
   assert_true(output.contains("." + cls2 + "{test-gen-align:center}"))
@@ -60,54 +60,54 @@ test "generate_css() outputs declarations in CSS format" {
 
 ///|
 test "hover() returns class name with _ prefix" {
-  reset_all()
-  let cls = hover("test-hover-bg", "#2563eb")
+  @css.reset_all()
+  let cls = @css.hover("test-hover-bg", "#2563eb")
   assert_true(cls.has_prefix("_"))
 }
 
 ///|
 test "hover() deduplicates same declarations" {
-  reset_all()
-  let cls1 = hover("test-hover-dedup", "#2563eb")
-  let cls2 = hover("test-hover-dedup", "#2563eb")
+  @css.reset_all()
+  let cls1 = @css.hover("test-hover-dedup", "#2563eb")
+  let cls2 = @css.hover("test-hover-dedup", "#2563eb")
   assert_eq(cls1, cls2)
 }
 
 ///|
 test "focus() returns class name with _ prefix" {
-  reset_all()
-  let cls = focus("test-focus-outline", "2px solid blue")
+  @css.reset_all()
+  let cls = @css.focus("test-focus-outline", "2px solid blue")
   assert_true(cls.has_prefix("_"))
 }
 
 ///|
 test "active() returns class name with _ prefix" {
-  reset_all()
-  let cls = active("test-active-transform", "scale(0.98)")
+  @css.reset_all()
+  let cls = @css.active("test-active-transform", "scale(0.98)")
   assert_true(cls.has_prefix("_"))
 }
 
 ///|
 test "at_md() returns class name with hash prefix" {
-  reset_all()
-  let cls = at_md("test-md-padding", "2rem")
+  @css.reset_all()
+  let cls = @css.at_md("test-md-padding", "2rem")
   assert_true(cls.has_prefix("_"))
 }
 
 ///|
 test "dark() returns class name with hash prefix" {
-  reset_all()
-  let cls = dark("test-dark-bg", "#1a1a1a")
+  @css.reset_all()
+  let cls = @css.dark("test-dark-bg", "#1a1a1a")
   assert_true(cls.has_prefix("_"))
 }
 
 ///|
 test "generate_full_css() includes base, pseudo, and media" {
-  reset_all()
-  let base_cls = css("test-full-display", "flex")
-  let hover_cls = hover("test-full-hover-bg", "#2563eb")
-  let media_cls = at_md("test-full-md-padding", "2rem")
-  let output = generate_full_css()
+  @css.reset_all()
+  let base_cls = @css.css("test-full-display", "flex")
+  let hover_cls = @css.hover("test-full-hover-bg", "#2563eb")
+  let media_cls = @css.at_md("test-full-md-padding", "2rem")
+  let output = @css.generate_full_css()
 
   // Check base style
   assert_true(output.contains("." + base_cls + "{test-full-display:flex}"))
@@ -125,10 +125,10 @@ test "generate_full_css() includes base, pseudo, and media" {
 
 ///|
 test "class names increment correctly" {
-  reset_all()
-  let cls1 = css("test-incr1", "val1")
-  let cls2 = css("test-incr2", "val2")
-  let cls3 = css("test-incr3", "val3")
+  @css.reset_all()
+  let cls1 = @css.css("test-incr1", "val1")
+  let cls2 = @css.css("test-incr2", "val2")
+  let cls3 = @css.css("test-incr3", "val3")
 
   // All should be different
   assert_true(cls1 != cls2)
@@ -138,11 +138,11 @@ test "class names increment correctly" {
 
 ///|
 test "media queries are grouped by condition" {
-  reset_all()
-  let md1 = at_md("test-group-padding", "1rem")
-  let _ = at_lg("test-group-lg-padding", "2rem")
-  let md2 = at_md("test-group-font-size", "1.25rem") // Same condition as first
-  let output = generate_full_css()
+  @css.reset_all()
+  let md1 = @css.at_md("test-group-padding", "1rem")
+  let _ = @css.at_lg("test-group-lg-padding", "2rem")
+  let md2 = @css.at_md("test-group-font-size", "1.25rem") // Same condition as first
+  let output = @css.generate_full_css()
 
   // Should have two @media blocks (md and lg)
   assert_true(output.contains("@media(min-width:768px){"))
@@ -154,13 +154,13 @@ test "media queries are grouped by condition" {
 
 ///|
 test "media class names match static extraction and ignore registration order" {
-  reset_all()
-  let first = at_md("padding", "2rem")
+  @css.reset_all()
+  let first = @css.at_md("padding", "2rem")
   // Same DJB2 input used by both static extractors.
   assert_eq(first, "_m2bz")
-  reset_all()
-  ignore(at_lg("display", "flex"))
-  assert_eq(at_md("padding", "2rem"), first)
+  @css.reset_all()
+  ignore(@css.at_lg("display", "flex"))
+  assert_eq(@css.at_md("padding", "2rem"), first)
 }
 
 // =============================================================================
@@ -169,11 +169,11 @@ test "media class names match static extraction and ignore registration order" {
 
 ///|
 test "edge: CSS values with special characters" {
-  reset_all()
-  let _ = css("box-shadow", "0 1px 3px rgba(0,0,0,0.1)")
-  let _ = css("background", "linear-gradient(to right, #fff, #000)")
-  let _ = css("transform", "translateX(-50%)")
-  let output = generate_css()
+  @css.reset_all()
+  let _ = @css.css("box-shadow", "0 1px 3px rgba(0,0,0,0.1)")
+  let _ = @css.css("background", "linear-gradient(to right, #fff, #000)")
+  let _ = @css.css("transform", "translateX(-50%)")
+  let output = @css.generate_css()
   assert_true(output.contains("box-shadow:0 1px 3px rgba(0,0,0,0.1)"))
   assert_true(output.contains("linear-gradient(to right, #fff, #000)"))
   assert_true(output.contains("translateX(-50%)"))
@@ -181,9 +181,9 @@ test "edge: CSS values with special characters" {
 
 ///|
 test "edge: empty property or value" {
-  reset_all()
-  let empty_val = css("display", "")
-  let output = generate_css()
+  @css.reset_all()
+  let empty_val = @css.css("display", "")
+  let output = @css.generate_css()
   // Should still generate a class, even with empty value
   assert_true(empty_val.has_prefix("_"))
   assert_true(output.contains("display:"))
@@ -191,56 +191,56 @@ test "edge: empty property or value" {
 
 ///|
 test "edge: at_sm breakpoint" {
-  reset_all()
-  let _ = at_sm("display", "block")
-  let output = generate_full_css()
+  @css.reset_all()
+  let _ = @css.at_sm("display", "block")
+  let output = @css.generate_full_css()
   assert_true(output.contains("@media(min-width:640px)"))
   assert_true(output.contains("display:block"))
 }
 
 ///|
 test "edge: at_xl breakpoint" {
-  reset_all()
-  let _ = at_xl("max-width", "1200px")
-  let output = generate_full_css()
+  @css.reset_all()
+  let _ = @css.at_xl("max-width", "1200px")
+  let output = @css.generate_full_css()
   assert_true(output.contains("@media(min-width:1280px)"))
   assert_true(output.contains("max-width:1200px"))
 }
 
 ///|
 test "edge: on() with pseudo-class" {
-  reset_all()
-  let _ = on(":first-child", "margin-top", "0")
-  let _ = on(":last-child", "margin-bottom", "0")
-  let output = generate_full_css()
+  @css.reset_all()
+  let _ = @css.on(":first-child", "margin-top", "0")
+  let _ = @css.on(":last-child", "margin-bottom", "0")
+  let output = @css.generate_full_css()
   assert_true(output.contains(":first-child{margin-top:0}"))
   assert_true(output.contains(":last-child{margin-bottom:0}"))
 }
 
 ///|
 test "edge: on() with pseudo-element" {
-  reset_all()
-  let _ = on("::before", "content", "''")
-  let _ = on("::after", "display", "block")
-  let output = generate_full_css()
+  @css.reset_all()
+  let _ = @css.on("::before", "content", "''")
+  let _ = @css.on("::after", "display", "block")
+  let output = @css.generate_full_css()
   assert_true(output.contains("::before{content:''}"))
   assert_true(output.contains("::after{display:block}"))
 }
 
 ///|
 test "edge: media() with custom condition" {
-  reset_all()
-  let _ = media("min-width: 1440px", "max-width", "1200px")
-  let output = generate_full_css()
+  @css.reset_all()
+  let _ = @css.media("min-width: 1440px", "max-width", "1200px")
+  let output = @css.generate_full_css()
   assert_true(output.contains("@media(min-width: 1440px)"))
   assert_true(output.contains("max-width:1200px"))
 }
 
 ///|
 test "edge: styles() with single item" {
-  reset_all()
-  let cls = styles([("display", "flex")])
-  let output = generate_css()
+  @css.reset_all()
+  let cls = @css.styles([("display", "flex")])
+  let output = @css.generate_css()
   // Should not contain space (only one class)
   assert_false(cls.contains(" "))
   assert_true(output.contains("display:flex"))
@@ -248,74 +248,74 @@ test "edge: styles() with single item" {
 
 ///|
 test "edge: styles() with empty array" {
-  reset_all()
-  let cls = styles([])
+  @css.reset_all()
+  let cls = @css.styles([])
   // Should return empty string for empty array
   assert_eq(cls, "")
 }
 
 ///|
 test "edge: combine() with single class" {
-  reset_all()
-  let flex = css("display", "flex")
-  let combined = combine([flex])
+  @css.reset_all()
+  let flex = @css.css("display", "flex")
+  let combined = @css.combine([flex])
   assert_eq(combined, flex)
 }
 
 ///|
 test "edge: combine() with empty array" {
-  reset_all()
-  let combined = combine([])
+  @css.reset_all()
+  let combined = @css.combine([])
   assert_eq(combined, "")
 }
 
 ///|
 test "edge: many declarations do not overflow" {
-  reset_all()
+  @css.reset_all()
   // Generate 100 unique declarations
   for i in 0..<100 {
-    let _ = css("prop" + i.to_string(), "val" + i.to_string())
+    let _ = @css.css("prop" + i.to_string(), "val" + i.to_string())
   }
-  let output = generate_css()
+  let output = @css.generate_css()
   // Should contain all 100 declarations
   assert_true(output.contains("prop99:val99"))
 }
 
 ///|
 test "edge: reset_all clears registries" {
-  let _ = css("before-reset", "value")
-  reset_all()
-  let output = generate_css()
+  let _ = @css.css("before-reset", "value")
+  @css.reset_all()
+  let output = @css.generate_css()
   // Should not contain the declaration made before reset
   assert_false(output.contains("before-reset"))
 }
 
 ///|
 test "edge: focus deduplication" {
-  reset_all()
-  let f1 = focus("outline", "2px solid blue")
-  let f2 = focus("outline", "2px solid blue")
-  let f3 = focus("outline", "none") // Different value
+  @css.reset_all()
+  let f1 = @css.focus("outline", "2px solid blue")
+  let f2 = @css.focus("outline", "2px solid blue")
+  let f3 = @css.focus("outline", "none") // Different value
   assert_eq(f1, f2)
   assert_true(f1 != f3)
 }
 
 ///|
 test "edge: active deduplication" {
-  reset_all()
-  let a1 = active("transform", "scale(0.98)")
-  let a2 = active("transform", "scale(0.98)")
-  let a3 = active("opacity", "0.8") // Different property
+  @css.reset_all()
+  let a1 = @css.active("transform", "scale(0.98)")
+  let a2 = @css.active("transform", "scale(0.98)")
+  let a3 = @css.active("opacity", "0.8") // Different property
   assert_eq(a1, a2)
   assert_true(a1 != a3)
 }
 
 ///|
 test "edge: dark mode deduplication" {
-  reset_all()
-  let d1 = dark("background", "#1a1a1a")
-  let d2 = dark("background", "#1a1a1a")
-  let d3 = dark("color", "white") // Different property
+  @css.reset_all()
+  let d1 = @css.dark("background", "#1a1a1a")
+  let d2 = @css.dark("background", "#1a1a1a")
+  let d3 = @css.dark("color", "white") // Different property
   assert_eq(d1, d2)
   assert_true(d1 != d3)
 }

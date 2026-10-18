@@ -10,6 +10,21 @@ pub fn NodeFsAdapter::new() -> NodeFsAdapter {
 }
 
 ///|
+pub extend NodeFsAdapter with @env.FileSystem::{
+  read_file_sync,
+  readdir_sync,
+  unlink_sync,
+  write_file_sync,
+  exists_sync,
+  mkdir_sync,
+  is_file_sync,
+  stat_sync,
+  rmdir_sync,
+  cp_sync,
+  is_directory_sync,
+}
+
+///|
 pub impl @env.FileSystem for NodeFsAdapter with fn read_file_sync(self, path) {
   let _ = self
   @node_fs.read_file_as_string(path, encoding="utf8")

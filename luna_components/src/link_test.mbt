@@ -1,8 +1,9 @@
 ///|
 test "link: basic attributes" {
-  let node : @luna.Node[Unit, String] = link("https://example.com", [
-    @luna.text("Example"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.link(
+    "https://example.com",
+    [@luna.text("Example")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="a")
   guard el.attrs[0] is ("href", @core.VStatic("https://example.com")) else {
@@ -12,9 +13,11 @@ test "link: basic attributes" {
 
 ///|
 test "link: with target blank" {
-  let node : @luna.Node[Unit, String] = link("/page", target=Blank, [
-    @luna.text("New Tab"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.link(
+    "/page",
+    target=Blank,
+    [@luna.text("New Tab")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_target = false
   for attr in el.attrs {
@@ -30,7 +33,7 @@ test "link: with target blank" {
 
 ///|
 test "link: with aria-label for icon-only" {
-  let node : @luna.Node[Unit, String] = link(
+  let node : @luna.Node[Unit, String] = @luna_components.link(
     "/home",
     aria_label="Go to home page",
     [@luna.text("🏠")],
@@ -50,9 +53,11 @@ test "link: with aria-label for icon-only" {
 
 ///|
 test "link: disabled state" {
-  let node : @luna.Node[Unit, String] = link("/action", disabled=true, [
-    @luna.text("Disabled"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.link(
+    "/action",
+    disabled=true,
+    [@luna.text("Disabled")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_aria_disabled = false
   let mut has_tabindex = false
@@ -75,7 +80,7 @@ test "link: disabled state" {
 ///|
 test "link_button: role and tabindex" {
   let handler = @luna.handler(fn(_x : Unit) { () })
-  let node : @luna.Node[Unit, String] = link_button(handler, [
+  let node : @luna.Node[Unit, String] = @luna_components.link_button(handler, [
     @luna.text("Click"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }

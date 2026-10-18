@@ -86,6 +86,9 @@ pub impl ToNode for @js_dom.Text with fn to_node(self) {
 }
 
 ///|
+pub extend Node with ToNode::{to_node}
+
+///|
 /// Node -> Node (identity)
 pub impl ToNode for Node with fn to_node(self) {
   self

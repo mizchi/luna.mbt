@@ -6,10 +6,10 @@
 /// Counts effect runs behind a derived value that collapses many distinct
 /// inputs onto an equal, freshly allocated result.
 fn count_effect_runs_behind(wrap : (() -> String) -> () -> String) -> Int {
-  let src = signal(0)
+  let src = @resource.signal(0)
   let collapsed = wrap(() => "bucket \{src.get() / 100}")
   let runs = Ref(0)
-  let _ = render_effect(() => {
+  let _ = @resource.render_effect(() => {
     let _ = collapsed()
     runs.val += 1
   })
@@ -22,18 +22,24 @@ fn count_effect_runs_behind(wrap : (() -> String) -> () -> String) -> Int {
 
 ///|
 test "memo_eq cuts off on Eq, memo does not" {
-  assert_eq(count_effect_runs_behind((f : () -> String) => memo_eq(f)), 0)
+  assert_eq(
+    count_effect_runs_behind((f : () -> String) => @resource.memo_eq(f)),
+    0,
+  )
   // The contrast is the whole point of the function: `memo` allocates a new
   // String on each recomputation, so identity cutoff never fires.
-  assert_eq(count_effect_runs_behind((f : () -> String) => memo(f)), 5)
+  assert_eq(
+    count_effect_runs_behind((f : () -> String) => @resource.memo(f)),
+    5,
+  )
 }
 
 ///|
 test "memo_eq still propagates when the value really changes" {
-  let src = signal(0)
-  let bucket = memo_eq(() => src.get() / 100)
+  let src = @resource.signal(0)
+  let bucket = @resource.memo_eq(() => src.get() / 100)
   let seen : Array[Int] = []
-  let _ = render_effect(() => seen.push(bucket()))
+  let _ = @resource.render_effect(() => seen.push(bucket()))
   for i in [50, 99, 100, 150, 200] {
     src.set(i)
   }
@@ -43,8 +49,8 @@ test "memo_eq still propagates when the value really changes" {
 
 ///|
 test "memo_eq reads are current without an explicit flush" {
-  let src = signal(0)
-  let doubled = memo_eq(() => src.get() * 2)
+  let src = @resource.signal(0)
+  let doubled = @resource.memo_eq(() => src.get() * 2)
   assert_eq(doubled(), 0)
   src.set(21)
   assert_eq(doubled(), 42)
@@ -52,9 +58,9 @@ test "memo_eq reads are current without an explicit flush" {
 
 ///|
 test "memo_eq runs compute once per source change" {
-  let src = signal(0)
+  let src = @resource.signal(0)
   let evals = Ref(0)
-  let m = memo_eq(() => {
+  let m = @resource.memo_eq(() => {
     evals.val += 1
     src.get() / 100
   })
@@ -71,13 +77,13 @@ test "memo_eq runs compute once per source change" {
 
 ///|
 test "memo_eq created inside an effect does not leak deps to it" {
-  let hidden = signal(0)
+  let hidden = @resource.signal(0)
   let outer_runs = Ref(0)
-  let _ = render_effect(() => {
+  let _ = @resource.render_effect(() => {
     outer_runs.val += 1
     // The enclosing effect never reads `hidden` itself; creating a memo_eq
     // over it must not subscribe the effect to it.
-    let _ = memo_eq(() => hidden.get() * 2)
+    let _ = @resource.memo_eq(() => hidden.get() * 2)
   })
   let base = outer_runs.val
   for i in 1..<=3 {
@@ -88,10 +94,10 @@ test "memo_eq created inside an effect does not leak deps to it" {
 
 ///|
 test "memo_eq stops recomputing when its owner is disposed" {
-  let src = signal(0)
+  let src = @resource.signal(0)
   let evals = Ref(0)
-  let (value, dispose) = create_root_with_dispose(() => {
-    memo_eq(() => {
+  let (value, dispose) = @resource.create_root_with_dispose(() => {
+    @resource.memo_eq(() => {
       evals.val += 1
       src.get()
     })

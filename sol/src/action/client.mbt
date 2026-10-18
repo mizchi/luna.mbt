@@ -89,6 +89,12 @@ pub enum ActionPhase {
 } derive(Eq, Debug)
 
 ///|
+pub extend ActionPhase with @debug.Debug::{to_repr}
+
+///|
+pub extend ActionPhase with Eq::{not_equal, equal}
+
+///|
 /// UI-facing action state for pending/error/success controls
 pub struct ActionState {
   phase : ActionPhase

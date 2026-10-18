@@ -43,6 +43,15 @@ pub(all) enum KeyCode {
 } derive(Eq, Debug)
 
 ///|
+pub extend KeyCode with @debug.Debug::{to_repr}
+
+///|
+pub extend KeyCode with Eq::{not_equal, equal}
+
+///|
+pub extend KeyCode with Show::{to_string, output}
+
+///|
 pub impl Show for KeyCode with fn output(self, logger) {
   logger.write_string(
     match self {

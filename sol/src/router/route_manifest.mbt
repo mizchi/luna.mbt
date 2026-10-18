@@ -11,6 +11,12 @@ pub(all) enum RouteManifestMethod {
 } derive(Eq, Debug)
 
 ///|
+pub extend RouteManifestMethod with @debug.Debug::{to_repr}
+
+///|
+pub extend RouteManifestMethod with Eq::{not_equal, equal}
+
+///|
 pub(all) enum RouteManifestOwner {
   SolPage
   SolApi
@@ -20,11 +26,23 @@ pub(all) enum RouteManifestOwner {
 } derive(Eq, Debug)
 
 ///|
+pub extend RouteManifestOwner with @debug.Debug::{to_repr}
+
+///|
+pub extend RouteManifestOwner with Eq::{not_equal, equal}
+
+///|
 pub(all) enum RouteManifestMatchKind {
   Exact
   Pattern
   Prefix
 } derive(Eq, Debug)
+
+///|
+pub extend RouteManifestMatchKind with @debug.Debug::{to_repr}
+
+///|
+pub extend RouteManifestMatchKind with Eq::{not_equal, equal}
 
 ///|
 pub struct RouteManifestEntry {

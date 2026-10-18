@@ -9,38 +9,40 @@
 
 ///|
 test "RendererType::default - returns RendererType::MarkdownRenderer" {
-  let default = RendererType::default()
-  inspect(default == RendererType::MarkdownRenderer, content="true")
+  let default = @astra.RendererType::default()
+  inspect(default == @astra.RendererType::MarkdownRenderer, content="true")
 }
 
 ///|
 test "RendererType - equality comparison" {
   inspect(
-    RendererType::MarkdownRenderer == RendererType::MarkdownRenderer,
+    @astra.RendererType::MarkdownRenderer ==
+    @astra.RendererType::MarkdownRenderer,
     content="true",
   )
   inspect(
-    RendererType::HtmlRenderer == RendererType::HtmlRenderer,
+    @astra.RendererType::HtmlRenderer == @astra.RendererType::HtmlRenderer,
     content="true",
   )
   inspect(
-    RendererType::LunaRenderer == RendererType::LunaRenderer,
+    @astra.RendererType::LunaRenderer == @astra.RendererType::LunaRenderer,
     content="true",
   )
   inspect(
-    RendererType::ReactRenderer == RendererType::ReactRenderer,
+    @astra.RendererType::ReactRenderer == @astra.RendererType::ReactRenderer,
     content="true",
   )
   inspect(
-    RendererType::PreactRenderer == RendererType::PreactRenderer,
+    @astra.RendererType::PreactRenderer == @astra.RendererType::PreactRenderer,
     content="true",
   )
   inspect(
-    RendererType::ClientOnlyRenderer == RendererType::ClientOnlyRenderer,
+    @astra.RendererType::ClientOnlyRenderer ==
+    @astra.RendererType::ClientOnlyRenderer,
     content="true",
   )
   inspect(
-    RendererType::MdxRenderer == RendererType::MdxRenderer,
+    @astra.RendererType::MdxRenderer == @astra.RendererType::MdxRenderer,
     content="true",
   )
 }
@@ -48,15 +50,15 @@ test "RendererType - equality comparison" {
 ///|
 test "RendererType - inequality comparison" {
   inspect(
-    RendererType::MarkdownRenderer == RendererType::HtmlRenderer,
+    @astra.RendererType::MarkdownRenderer == @astra.RendererType::HtmlRenderer,
     content="false",
   )
   inspect(
-    RendererType::LunaRenderer == RendererType::ReactRenderer,
+    @astra.RendererType::LunaRenderer == @astra.RendererType::ReactRenderer,
     content="false",
   )
   inspect(
-    RendererType::MdxRenderer == RendererType::ClientOnlyRenderer,
+    @astra.RendererType::MdxRenderer == @astra.RendererType::ClientOnlyRenderer,
     content="false",
   )
 }
@@ -67,32 +69,38 @@ test "RendererType - inequality comparison" {
 
 ///|
 test "RendererType - Debug for RendererType::MarkdownRenderer" {
-  debug_inspect(RendererType::MarkdownRenderer, content="MarkdownRenderer")
+  debug_inspect(
+    @astra.RendererType::MarkdownRenderer,
+    content="MarkdownRenderer",
+  )
 }
 
 ///|
 test "RendererType - Debug for RendererType::HtmlRenderer" {
-  debug_inspect(RendererType::HtmlRenderer, content="HtmlRenderer")
+  debug_inspect(@astra.RendererType::HtmlRenderer, content="HtmlRenderer")
 }
 
 ///|
 test "RendererType - Debug for RendererType::LunaRenderer" {
-  debug_inspect(RendererType::LunaRenderer, content="LunaRenderer")
+  debug_inspect(@astra.RendererType::LunaRenderer, content="LunaRenderer")
 }
 
 ///|
 test "RendererType - Debug for RendererType::ReactRenderer" {
-  debug_inspect(RendererType::ReactRenderer, content="ReactRenderer")
+  debug_inspect(@astra.RendererType::ReactRenderer, content="ReactRenderer")
 }
 
 ///|
 test "RendererType - Debug for RendererType::ClientOnlyRenderer" {
-  debug_inspect(RendererType::ClientOnlyRenderer, content="ClientOnlyRenderer")
+  debug_inspect(
+    @astra.RendererType::ClientOnlyRenderer,
+    content="ClientOnlyRenderer",
+  )
 }
 
 ///|
 test "RendererType - Debug for RendererType::MdxRenderer" {
-  debug_inspect(RendererType::MdxRenderer, content="MdxRenderer")
+  debug_inspect(@astra.RendererType::MdxRenderer, content="MdxRenderer")
 }
 
 // =============================================================================
@@ -101,25 +109,31 @@ test "RendererType - Debug for RendererType::MdxRenderer" {
 
 ///|
 test "RendererType - pattern matching all variants" {
-  fn check_variant(r : RendererType) -> String {
+  fn check_variant(r : @astra.RendererType) -> String {
     match r {
-      RendererType::MarkdownRenderer => "markdown"
-      RendererType::HtmlRenderer => "html"
-      RendererType::LunaRenderer => "luna"
-      RendererType::ReactRenderer => "react"
-      RendererType::PreactRenderer => "preact"
-      RendererType::ClientOnlyRenderer => "client"
-      RendererType::MdxRenderer => "mdx"
+      @astra.RendererType::MarkdownRenderer => "markdown"
+      @astra.RendererType::HtmlRenderer => "html"
+      @astra.RendererType::LunaRenderer => "luna"
+      @astra.RendererType::ReactRenderer => "react"
+      @astra.RendererType::PreactRenderer => "preact"
+      @astra.RendererType::ClientOnlyRenderer => "client"
+      @astra.RendererType::MdxRenderer => "mdx"
     }
   }
 
-  inspect(check_variant(RendererType::MarkdownRenderer), content="markdown")
-  inspect(check_variant(RendererType::HtmlRenderer), content="html")
-  inspect(check_variant(RendererType::LunaRenderer), content="luna")
-  inspect(check_variant(RendererType::ReactRenderer), content="react")
-  inspect(check_variant(RendererType::PreactRenderer), content="preact")
-  inspect(check_variant(RendererType::ClientOnlyRenderer), content="client")
-  inspect(check_variant(RendererType::MdxRenderer), content="mdx")
+  inspect(
+    check_variant(@astra.RendererType::MarkdownRenderer),
+    content="markdown",
+  )
+  inspect(check_variant(@astra.RendererType::HtmlRenderer), content="html")
+  inspect(check_variant(@astra.RendererType::LunaRenderer), content="luna")
+  inspect(check_variant(@astra.RendererType::ReactRenderer), content="react")
+  inspect(check_variant(@astra.RendererType::PreactRenderer), content="preact")
+  inspect(
+    check_variant(@astra.RendererType::ClientOnlyRenderer),
+    content="client",
+  )
+  inspect(check_variant(@astra.RendererType::MdxRenderer), content="mdx")
 }
 
 // =============================================================================
@@ -128,28 +142,40 @@ test "RendererType - pattern matching all variants" {
 
 ///|
 test "ContentType - equality comparison" {
-  inspect(ContentType::Markdown == ContentType::Markdown, content="true")
-  inspect(ContentType::Html == ContentType::Html, content="true")
-  inspect(ContentType::Component == ContentType::Component, content="true")
   inspect(
-    ContentType::TsxComponent == ContentType::TsxComponent,
+    @astra.ContentType::Markdown == @astra.ContentType::Markdown,
     content="true",
   )
-  inspect(ContentType::Mdx == ContentType::Mdx, content="true")
+  inspect(@astra.ContentType::Html == @astra.ContentType::Html, content="true")
+  inspect(
+    @astra.ContentType::Component == @astra.ContentType::Component,
+    content="true",
+  )
+  inspect(
+    @astra.ContentType::TsxComponent == @astra.ContentType::TsxComponent,
+    content="true",
+  )
+  inspect(@astra.ContentType::Mdx == @astra.ContentType::Mdx, content="true")
 }
 
 ///|
 test "ContentType - inequality comparison" {
-  inspect(ContentType::Markdown == ContentType::Html, content="false")
-  inspect(ContentType::Component == ContentType::TsxComponent, content="false")
+  inspect(
+    @astra.ContentType::Markdown == @astra.ContentType::Html,
+    content="false",
+  )
+  inspect(
+    @astra.ContentType::Component == @astra.ContentType::TsxComponent,
+    content="false",
+  )
 }
 
 ///|
 test "ContentType - Debug representation" {
-  debug_inspect(ContentType::Markdown, content="Markdown")
-  debug_inspect(ContentType::Html, content="Html")
-  debug_inspect(ContentType::Component, content="Component")
-  debug_inspect(ContentType::Mdx, content="Mdx")
+  debug_inspect(@astra.ContentType::Markdown, content="Markdown")
+  debug_inspect(@astra.ContentType::Html, content="Html")
+  debug_inspect(@astra.ContentType::Component, content="Component")
+  debug_inspect(@astra.ContentType::Mdx, content="Mdx")
 }
 
 // =============================================================================
@@ -158,49 +184,55 @@ test "ContentType - Debug representation" {
 
 ///|
 test "PageMeta::new - basic creation" {
-  let page = PageMeta::new("docs/intro.md", "/intro/")
+  let page = @astra.PageMeta::new("docs/intro.md", "/intro/")
   inspect(page.source_path, content="docs/intro.md")
   inspect(page.url_path, content="/intro/")
-  inspect(page.content_type == ContentType::Markdown, content="true")
-  inspect(page.renderer_type == RendererType::MarkdownRenderer, content="true")
+  inspect(page.content_type == @astra.ContentType::Markdown, content="true")
+  inspect(
+    page.renderer_type == @astra.RendererType::MarkdownRenderer,
+    content="true",
+  )
   inspect(page.locale, content="en")
 }
 
 ///|
 test "PageMeta::new - with custom content_type" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "docs/page.html",
     "/page/",
-    content_type=ContentType::Html,
+    content_type=@astra.ContentType::Html,
   )
-  inspect(page.content_type == ContentType::Html, content="true")
+  inspect(page.content_type == @astra.ContentType::Html, content="true")
 }
 
 ///|
 test "PageMeta::new - with custom renderer_type" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "docs/component/index.tsx",
     "/component/",
-    renderer_type=RendererType::ReactRenderer,
+    renderer_type=@astra.RendererType::ReactRenderer,
   )
-  inspect(page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    page.renderer_type == @astra.RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "PageMeta::new - with custom locale" {
-  let page = PageMeta::new("ja/docs/intro.md", "/ja/intro/", locale="ja")
+  let page = @astra.PageMeta::new("ja/docs/intro.md", "/ja/intro/", locale="ja")
   inspect(page.locale, content="ja")
 }
 
 ///|
 test "PageMeta::new - canonical_path defaults to url_path" {
-  let page = PageMeta::new("docs/intro.md", "/intro/")
+  let page = @astra.PageMeta::new("docs/intro.md", "/intro/")
   inspect(page.canonical_path, content="/intro/")
 }
 
 ///|
 test "PageMeta::new - with custom canonical_path" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "ja/docs/intro.md",
     "/ja/intro/",
     canonical_path="/intro/",
@@ -210,13 +242,13 @@ test "PageMeta::new - with custom canonical_path" {
 
 ///|
 test "PageMeta::new - sort_key defaults to source_path" {
-  let page = PageMeta::new("01_guide/02_intro.md", "/guide/intro/")
+  let page = @astra.PageMeta::new("01_guide/02_intro.md", "/guide/intro/")
   inspect(page.sort_key, content="01_guide/02_intro.md")
 }
 
 ///|
 test "PageMeta::new - with custom sort_key" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "guide/intro.md",
     "/guide/intro/",
     sort_key="01_guide/01_intro",
@@ -226,7 +258,7 @@ test "PageMeta::new - with custom sort_key" {
 
 ///|
 test "PageMeta::with_frontmatter - updates frontmatter" {
-  let page = PageMeta::new("docs/intro.md", "/intro/")
+  let page = @astra.PageMeta::new("docs/intro.md", "/intro/")
   let fm = @frontmatter.Frontmatter::{
     ..@frontmatter.Frontmatter::default(),
     title: Some("Introduction"),
@@ -244,57 +276,72 @@ test "PageMeta::with_frontmatter - updates frontmatter" {
 
 ///|
 test "RendererType selection - .md files use RendererType::MarkdownRenderer" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "docs/intro.md",
     "/intro/",
-    content_type=ContentType::Markdown,
-    renderer_type=RendererType::MarkdownRenderer,
+    content_type=@astra.ContentType::Markdown,
+    renderer_type=@astra.RendererType::MarkdownRenderer,
   )
-  inspect(page.renderer_type == RendererType::MarkdownRenderer, content="true")
+  inspect(
+    page.renderer_type == @astra.RendererType::MarkdownRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "RendererType selection - .html files use RendererType::HtmlRenderer" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "docs/page.html",
     "/page/",
-    content_type=ContentType::Html,
-    renderer_type=RendererType::HtmlRenderer,
+    content_type=@astra.ContentType::Html,
+    renderer_type=@astra.RendererType::HtmlRenderer,
   )
-  inspect(page.renderer_type == RendererType::HtmlRenderer, content="true")
+  inspect(
+    page.renderer_type == @astra.RendererType::HtmlRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "RendererType selection - .tsx files use RendererType::ReactRenderer" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "components/counter.tsx",
     "/counter/",
-    content_type=ContentType::TsxComponent,
-    renderer_type=RendererType::ReactRenderer,
+    content_type=@astra.ContentType::TsxComponent,
+    renderer_type=@astra.RendererType::ReactRenderer,
   )
-  inspect(page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    page.renderer_type == @astra.RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "RendererType selection - moon.pkg.json uses RendererType::LunaRenderer" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "components/button/moon.pkg.json",
     "/button/",
-    content_type=ContentType::Component,
-    renderer_type=RendererType::LunaRenderer,
+    content_type=@astra.ContentType::Component,
+    renderer_type=@astra.RendererType::LunaRenderer,
   )
-  inspect(page.renderer_type == RendererType::LunaRenderer, content="true")
+  inspect(
+    page.renderer_type == @astra.RendererType::LunaRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "RendererType selection - .mdx files use RendererType::MdxRenderer" {
-  let page = PageMeta::new(
+  let page = @astra.PageMeta::new(
     "docs/interactive.mdx",
     "/interactive/",
-    content_type=ContentType::Mdx,
-    renderer_type=RendererType::MdxRenderer,
+    content_type=@astra.ContentType::Mdx,
+    renderer_type=@astra.RendererType::MdxRenderer,
   )
-  inspect(page.renderer_type == RendererType::MdxRenderer, content="true")
+  inspect(
+    page.renderer_type == @astra.RendererType::MdxRenderer,
+    content="true",
+  )
 }
 
 // =============================================================================
@@ -303,29 +350,29 @@ test "RendererType selection - .mdx files use RendererType::MdxRenderer" {
 
 ///|
 test "DeployTarget::default - returns Static" {
-  let default = DeployTarget::default()
-  inspect(default == DeployTarget::Static, content="true")
+  let default = @astra.DeployTarget::default()
+  inspect(default == @astra.DeployTarget::Static, content="true")
 }
 
 ///|
 test "DeployTarget - all variants" {
   let targets = [
-    DeployTarget::Static,
-    DeployTarget::Cloudflare,
-    DeployTarget::GithubPages,
-    DeployTarget::Vercel,
-    DeployTarget::Netlify,
-    DeployTarget::Deno,
-    DeployTarget::Node,
+    @astra.DeployTarget::Static,
+    @astra.DeployTarget::Cloudflare,
+    @astra.DeployTarget::GithubPages,
+    @astra.DeployTarget::Vercel,
+    @astra.DeployTarget::Netlify,
+    @astra.DeployTarget::Deno,
+    @astra.DeployTarget::Node,
   ]
   inspect(targets.length(), content="7")
 }
 
 ///|
 test "DeployTarget - Debug representation" {
-  debug_inspect(DeployTarget::Static, content="Static")
-  debug_inspect(DeployTarget::Cloudflare, content="Cloudflare")
-  debug_inspect(DeployTarget::Node, content="Node")
+  debug_inspect(@astra.DeployTarget::Static, content="Static")
+  debug_inspect(@astra.DeployTarget::Cloudflare, content="Cloudflare")
+  debug_inspect(@astra.DeployTarget::Node, content="Node")
 }
 
 // =============================================================================
@@ -334,7 +381,7 @@ test "DeployTarget - Debug representation" {
 
 ///|
 test "SsgConfig::default - has expected values" {
-  let config = SsgConfig::default()
+  let config = @astra.SsgConfig::default()
   inspect(config.docs_dir, content="docs")
   inspect(config.output_dir, content="dist")
   inspect(config.title, content="Documentation")
@@ -345,26 +392,26 @@ test "SsgConfig::default - has expected values" {
 
 ///|
 test "SsgConfig::default - deploy_target is Static" {
-  let config = SsgConfig::default()
-  inspect(config.deploy_target == DeployTarget::Static, content="true")
+  let config = @astra.SsgConfig::default()
+  inspect(config.deploy_target == @astra.DeployTarget::Static, content="true")
 }
 
 ///|
 test "SsgConfig::default - sidebar is Auto" {
-  let config = SsgConfig::default()
-  inspect(config.sidebar is SidebarConfig::Auto, content="true")
+  let config = @astra.SsgConfig::default()
+  inspect(config.sidebar is @astra.SidebarConfig::Auto, content="true")
 }
 
 ///|
 test "SsgConfig::default - i18n is English" {
-  let config = SsgConfig::default()
+  let config = @astra.SsgConfig::default()
   inspect(config.i18n.default_locale, content="en")
   inspect(config.i18n.locales.length(), content="1")
 }
 
 ///|
 test "SsgConfig::default - meta_files has sitemap enabled" {
-  let config = SsgConfig::default()
+  let config = @astra.SsgConfig::default()
   inspect(config.meta_files.sitemap, content="true")
   inspect(config.meta_files.feed, content="false")
   inspect(config.meta_files.llms_txt, content="false")
@@ -376,7 +423,7 @@ test "SsgConfig::default - meta_files has sitemap enabled" {
 
 ///|
 test "I18nConfig::default - has English locale" {
-  let i18n = I18nConfig::default()
+  let i18n = @astra.I18nConfig::default()
   inspect(i18n.default_locale, content="en")
   inspect(i18n.locales.length(), content="1")
   inspect(i18n.locales[0].code, content="en")
@@ -390,7 +437,7 @@ test "I18nConfig::default - has English locale" {
 
 ///|
 test "NavigationConfig::default - has expected values" {
-  let nav = NavigationConfig::default()
+  let nav = @astra.NavigationConfig::default()
   inspect(nav.spa, content="false")
   inspect(nav.view_transitions, content="true")
   inspect(nav.keyboard, content="true")
@@ -402,7 +449,7 @@ test "NavigationConfig::default - has expected values" {
 
 ///|
 test "ThemeConfig::default - colors are None by default" {
-  let theme = ThemeConfig::default()
+  let theme = @astra.ThemeConfig::default()
   // Default theme has no explicit colors (uses CSS theme defaults)
   debug_inspect(theme.primary_color, content="None")
   debug_inspect(theme.secondary_color, content="None")
@@ -415,9 +462,9 @@ test "ThemeConfig::default - colors are None by default" {
 
 ///|
 test "HeaderConfig::default - has expected elements" {
-  let header = HeaderConfig::default()
+  let header = @astra.HeaderConfig::default()
   inspect(header.left.length(), content="1")
-  inspect(header.left[0] == HeaderElement::Logo, content="true")
+  inspect(header.left[0] == @astra.HeaderElement::Logo, content="true")
   inspect(header.center.length(), content="0")
   inspect(header.right.length(), content="4")
   inspect(header.sticky, content="false")
@@ -429,8 +476,8 @@ test "HeaderConfig::default - has expected elements" {
 
 ///|
 test "BuildContext::new - creates with config and cwd" {
-  let config = SsgConfig::default()
-  let ctx = BuildContext::new(config, "/project")
+  let config = @astra.SsgConfig::default()
+  let ctx = @astra.BuildContext::new(config, "/project")
   inspect(ctx.cwd, content="/project")
   inspect(ctx.pages.length(), content="0")
   inspect(ctx.sidebar.length(), content="0")
@@ -444,57 +491,69 @@ test "BuildContext::new - creates with config and cwd" {
 
 ///|
 test "RendererType - can represent React integration" {
-  let react_page = PageMeta::new(
+  let react_page = @astra.PageMeta::new(
     "app/components/Counter.tsx",
     "/components/counter/",
-    content_type=ContentType::TsxComponent,
-    renderer_type=RendererType::ReactRenderer,
+    content_type=@astra.ContentType::TsxComponent,
+    renderer_type=@astra.RendererType::ReactRenderer,
   )
   // React components can be integrated as islands
   inspect(
-    react_page.renderer_type == RendererType::ReactRenderer,
+    react_page.renderer_type == @astra.RendererType::ReactRenderer,
     content="true",
   )
-  inspect(react_page.content_type == ContentType::TsxComponent, content="true")
+  inspect(
+    react_page.content_type == @astra.ContentType::TsxComponent,
+    content="true",
+  )
 }
 
 ///|
 test "RendererType - can represent Luna/MoonBit integration" {
-  let luna_page = PageMeta::new(
+  let luna_page = @astra.PageMeta::new(
     "app/islands/counter/moon.pkg.json",
     "/islands/counter/",
-    content_type=ContentType::Component,
-    renderer_type=RendererType::LunaRenderer,
+    content_type=@astra.ContentType::Component,
+    renderer_type=@astra.RendererType::LunaRenderer,
   )
   // Luna components use MoonBit SSR
-  inspect(luna_page.renderer_type == RendererType::LunaRenderer, content="true")
-  inspect(luna_page.content_type == ContentType::Component, content="true")
+  inspect(
+    luna_page.renderer_type == @astra.RendererType::LunaRenderer,
+    content="true",
+  )
+  inspect(
+    luna_page.content_type == @astra.ContentType::Component,
+    content="true",
+  )
 }
 
 ///|
 test "RendererType - RendererType::ClientOnlyRenderer for no SSR" {
-  let client_page = PageMeta::new(
+  let client_page = @astra.PageMeta::new(
     "app/widgets/chart.tsx",
     "/widgets/chart/",
-    content_type=ContentType::TsxComponent,
-    renderer_type=RendererType::ClientOnlyRenderer,
+    content_type=@astra.ContentType::TsxComponent,
+    renderer_type=@astra.RendererType::ClientOnlyRenderer,
   )
   // Some components only render on client (e.g., canvas-based charts)
   inspect(
-    client_page.renderer_type == RendererType::ClientOnlyRenderer,
+    client_page.renderer_type == @astra.RendererType::ClientOnlyRenderer,
     content="true",
   )
 }
 
 ///|
 test "RendererType - RendererType::MdxRenderer for interactive docs" {
-  let mdx_page = PageMeta::new(
+  let mdx_page = @astra.PageMeta::new(
     "docs/interactive-demo.mdx",
     "/docs/interactive-demo/",
-    content_type=ContentType::Mdx,
-    renderer_type=RendererType::MdxRenderer,
+    content_type=@astra.ContentType::Mdx,
+    renderer_type=@astra.RendererType::MdxRenderer,
   )
   // MDX combines markdown with JSX components
-  inspect(mdx_page.renderer_type == RendererType::MdxRenderer, content="true")
-  inspect(mdx_page.content_type == ContentType::Mdx, content="true")
+  inspect(
+    mdx_page.renderer_type == @astra.RendererType::MdxRenderer,
+    content="true",
+  )
+  inspect(mdx_page.content_type == @astra.ContentType::Mdx, content="true")
 }

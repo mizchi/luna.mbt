@@ -11,10 +11,10 @@ import {
   "mizchi/js@0.13.0",
   "mizchi/js_browser@0.13.0",
   "mizchi/npm_typed@0.1.16",
-  "moonbitlang/parser@0.3.19",
+  "moonbitlang/parser@0.4.4",
   "mizchi/signals@0.6.5",
   "mizchi/x@0.6.1",
-  "moonbitlang/lexer@0.3.16",
+  "moonbitlang/lexer@0.4.2",
 }
 
 readme = "README.md"

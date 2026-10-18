@@ -9,10 +9,10 @@
 ///
 /// ```mbt check
 /// test {
-///   reset_all()
-///   let cls1 = css("display", "flex")
+///   @css.reset_all()
+///   let cls1 = @css.css("display", "flex")
 ///   inspect(cls1.has_prefix("_"), content="true")
-///   let cls2 = css("display", "flex") // same declaration
+///   let cls2 = @css.css("display", "flex") // same declaration
 ///   inspect(cls1 == cls2, content="true") // deduplicated
 /// }
 /// ```
@@ -27,8 +27,8 @@ pub fn css(property : String, value : String) -> String {
 ///
 /// ```mbt check
 /// test {
-///   reset_all()
-///   let cls = styles([("display", "flex"), ("padding", "1rem")])
+///   @css.reset_all()
+///   let cls = @css.styles([("display", "flex"), ("padding", "1rem")])
 ///   inspect(cls.contains(" "), content="true") // multiple classes
 /// }
 /// ```
@@ -48,10 +48,10 @@ pub fn styles(props : Array[(String, String)]) -> String {
 ///
 /// ```mbt check
 /// test {
-///   reset_all()
-///   let flex = css("display", "flex")
-///   let center = css("align-items", "center")
-///   let combined = combine([flex, center])
+///   @css.reset_all()
+///   let flex = @css.css("display", "flex")
+///   let center = @css.css("align-items", "center")
+///   let combined = @css.combine([flex, center])
 ///   inspect(combined.contains(flex), content="true")
 ///   inspect(combined.contains(center), content="true")
 /// }

@@ -26,6 +26,12 @@ pub(all) enum DiagnosticSeverity {
 } derive(Eq, Debug)
 
 ///|
+pub extend DiagnosticSeverity with @debug.Debug::{to_repr}
+
+///|
+pub extend DiagnosticSeverity with Eq::{not_equal, equal}
+
+///|
 pub fn PropsDiagnostic::to_string(self : PropsDiagnostic) -> String {
   let prefix = match self.severity {
     Error => "error"

@@ -1,11 +1,30 @@
-import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
+
+// Observe the router's cancellation before blocking jsdom's unsupported
+// navigation (and javascript: execution) at the end of the event dispatch.
+function dispatchLinkClick(link: HTMLAnchorElement): boolean {
+  const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+  let notCanceled = true;
+  document.addEventListener("click", (click) => {
+    notCanceled = !click.defaultPrevented;
+    click.preventDefault();
+  }, { once: true });
+  link.dispatchEvent(event);
+  return notCanceled;
+}
 
 describe("sol-nav security", () => {
   const fetchMock = vi.fn();
 
   beforeAll(async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => {});
     vi.stubGlobal("fetch", fetchMock);
     await import("./src/sol-nav.ts");
+  });
+
+  afterAll(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   beforeEach(() => {
@@ -28,21 +47,18 @@ describe("sol-nav security", () => {
   test("internal link is intercepted", async () => {
     document.body.innerHTML = `<div id="app"></div><a id="link" data-sol-link href="/next">Next</a>`;
     const link = document.getElementById("link") as HTMLAnchorElement;
-    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
-
-    const notCanceled = link.dispatchEvent(event);
+    const notCanceled = dispatchLinkClick(link);
 
     expect(notCanceled).toBe(false);
     expect(fetchMock).toHaveBeenCalledWith("/next", { headers: { "X-Sol-Fragment": "true" } });
+    await vi.waitFor(() => expect(window.scrollTo).toHaveBeenCalledWith(0, 0));
   });
 
   test("javascript: link is not intercepted", () => {
     document.body.innerHTML =
       `<div id="app"></div><a id="link" data-sol-link href="javascript:alert(1)">X</a>`;
     const link = document.getElementById("link") as HTMLAnchorElement;
-    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
-
-    const notCanceled = link.dispatchEvent(event);
+    const notCanceled = dispatchLinkClick(link);
 
     expect(notCanceled).toBe(true);
     expect(fetchMock).not.toHaveBeenCalled();
@@ -52,9 +68,7 @@ describe("sol-nav security", () => {
     document.body.innerHTML =
       `<div id="app"></div><a id="link" data-sol-link href="data:text/html,<h1>x</h1>">X</a>`;
     const link = document.getElementById("link") as HTMLAnchorElement;
-    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
-
-    const notCanceled = link.dispatchEvent(event);
+    const notCanceled = dispatchLinkClick(link);
 
     expect(notCanceled).toBe(true);
     expect(fetchMock).not.toHaveBeenCalled();

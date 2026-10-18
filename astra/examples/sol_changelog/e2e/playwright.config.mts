@@ -3,7 +3,7 @@
 // Strategy:
 // 1. `astra build` is run via the `pretest:e2e` npm hook (see package.json).
 // 2. This config's `webServer` then serves the resulting `dist/` over
-//    `http-server` on a fixed port. We deliberately use a static server
+//    `Vite preview` on a fixed port. We deliberately use a static server
 //    rather than `astra dev` here because dev mode renders some
 //    non-deterministic prefetch hints that would invalidate baselines.
 // 3. Each spec navigates the served URL, disables animations, and
@@ -73,10 +73,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    // `pnpm dlx http-server` is undesirable in CI (each invocation hits
-    // the network). The dep is listed in package.json so `pnpm install`
-    // hydrates it once, then `npx --no-install` resolves it offline.
-    command: `npx --no-install http-server dist -p ${port} -s --cors -c-1`,
+    // Use the locked Vite CLI for offline static serving.
+    command: `pnpm exec vite preview --outDir dist --host 127.0.0.1 --port ${port} --strictPort`,
     cwd: exampleDir,
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,

@@ -39,8 +39,8 @@ fn register_media(
 ///
 /// ```mbt check
 /// test {
-///   reset_media_registry()
-///   let cls = media("min-width:768px", "padding", "2rem")
+///   @css.reset_media_registry()
+///   let cls = @css.media("min-width:768px", "padding", "2rem")
 ///   inspect(cls.has_prefix("_"), content="true")
 /// }
 /// ```

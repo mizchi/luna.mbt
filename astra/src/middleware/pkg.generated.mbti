@@ -25,6 +25,7 @@ pub fn Middleware::asset_urls(Self) -> Array[String]
 pub fn Middleware::handler(Self) -> @mars.Handler
 pub fn Middleware::list_urls(Self) -> Array[String]
 pub fn Middleware::render_url(Self, String) -> RenderedResponse
+pub async fn Middleware::render_url_async(Self, String) -> RenderedResponse
 
 pub(all) struct RenderedResponse {
   status : Int

@@ -25,6 +25,12 @@ pub struct ParseError {
   message : String
 } derive(Debug, Eq)
 
+///|
+pub extend ParseError with Eq::{not_equal, equal}
+
+///|
+pub extend ParseError with @debug.Debug::{to_repr}
+
 // =============================================================================
 // Main Parser
 // =============================================================================

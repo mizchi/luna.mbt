@@ -1,6 +1,9 @@
 ///|
 test "tablist: role and aria-label" {
-  let node : @luna.Node[Unit, String] = tablist(aria_label="Content tabs", [])
+  let node : @luna.Node[Unit, String] = @luna_components.tablist(
+    aria_label="Content tabs",
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("role", @core.VStatic("tablist")) else {
     fail("expected role=tablist")
@@ -9,7 +12,10 @@ test "tablist: role and aria-label" {
 
 ///|
 test "tablist: vertical orientation" {
-  let node : @luna.Node[Unit, String] = tablist(orientation=Vertical, [])
+  let node : @luna.Node[Unit, String] = @luna_components.tablist(
+    orientation=Vertical,
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_orientation = false
   for attr in el.attrs {
@@ -23,9 +29,12 @@ test "tablist: vertical orientation" {
 
 ///|
 test "tab: selected state" {
-  let node : @luna.Node[Unit, String] = tab("tab-1", true, "panel-1", [
-    @luna.text("Tab 1"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.tab(
+    "tab-1",
+    true,
+    "panel-1",
+    [@luna.text("Tab 1")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="button")
   let mut has_selected = false
@@ -46,9 +55,12 @@ test "tab: selected state" {
 
 ///|
 test "tab: unselected state" {
-  let node : @luna.Node[Unit, String] = tab("tab-2", false, "panel-2", [
-    @luna.text("Tab 2"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.tab(
+    "tab-2",
+    false,
+    "panel-2",
+    [@luna.text("Tab 2")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut selected_val = ""
   let mut tabindex_val = ""
@@ -68,9 +80,12 @@ test "tab: unselected state" {
 
 ///|
 test "tabpanel: role and labelledby" {
-  let node : @luna.Node[Unit, String] = tabpanel("panel-1", "tab-1", false, [
-    @luna.text("Content"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.tabpanel(
+    "panel-1",
+    "tab-1",
+    false,
+    [@luna.text("Content")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="div")
   let mut has_role = false
@@ -91,11 +106,15 @@ test "tabpanel: role and labelledby" {
 
 ///|
 test "tabs: builds complete structure" {
-  let items : Array[TabItem[Unit]] = [
-    tab_item("first", "First", [@luna.text("Panel 1")]),
-    tab_item("second", "Second", [@luna.text("Panel 2")]),
+  let items : Array[@luna_components.TabItem[Unit]] = [
+    @luna_components.tab_item("first", "First", [@luna.text("Panel 1")]),
+    @luna_components.tab_item("second", "Second", [@luna.text("Panel 2")]),
   ]
-  let node : @luna.Node[Unit, String] = tabs(items, 0, aria_label="Demo")
+  let node : @luna.Node[Unit, String] = @luna_components.tabs(
+    items,
+    0,
+    aria_label="Demo",
+  )
   guard node is @core.Fragment(children) else { fail("expected Fragment") }
   // First child is tablist, rest are panels
   inspect(children.length(), content="3")

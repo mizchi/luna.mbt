@@ -11,7 +11,7 @@ pub fn generate_meta_files(
   ctx : @astra.BuildContext,
   doc_tree : @astra.DocumentTree,
 ) -> Unit {
-  let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
+  let output_dir = output_root(ctx)
   let meta_config = ctx.config.meta_files
 
   // Generate sitemap.xml (enabled by default)
@@ -63,10 +63,7 @@ pub fn generate_client_manifest(ctx : @astra.BuildContext) -> Unit {
   let has_spa_segments = has_spa_config(page_configs)
 
   // Output directory
-  let luna_dir = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    "_luna",
-  )
+  let luna_dir = @path.join2(output_root(ctx), "_luna")
   ensure_dir(luna_dir)
   if has_spa_segments {
     // Generate v2 hierarchical manifest
@@ -251,10 +248,7 @@ pub fn generate_404_page(ctx : @astra.BuildContext) -> Unit {
     html5 +
     content +
     html6
-  let output_path = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    "404.html",
-  )
+  let output_path = @path.join2(output_root(ctx), "404.html")
   @fs.writeFileSync(output_path, @js.any(full_html)) catch {
     e => println("  Warning: Failed to generate 404.html: \{e}")
   }

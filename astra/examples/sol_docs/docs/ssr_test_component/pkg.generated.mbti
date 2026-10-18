@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "example/astra-app/ssr_test_component"
+package "example/sol-docs/docs/ssr_test_component"
 
-import(
-  "mizchi/luna"
-)
+import {
+  "mizchi/luna/core",
+}
 
 // Values
-pub fn render() -> @luna.Node[Unit]
+pub fn render() -> @core.Node[Unit, String]
 
 // Errors
 
@@ -15,4 +15,3 @@ pub fn render() -> @luna.Node[Unit]
 // Type aliases
 
 // Traits
-

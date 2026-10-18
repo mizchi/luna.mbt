@@ -52,8 +52,8 @@ fn register_pseudo(
 ///
 /// ```mbt check
 /// test {
-///   reset_pseudo_registry()
-///   let cls = on(":hover", "background", "#2563eb")
+///   @css.reset_pseudo_registry()
+///   let cls = @css.on(":hover", "background", "#2563eb")
 ///   inspect(cls.has_prefix("_"), content="true")
 /// }
 /// ```

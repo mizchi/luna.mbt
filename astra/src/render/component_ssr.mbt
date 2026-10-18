@@ -9,6 +9,7 @@
 /// Returns Some(vnode) if successful, None if component cannot be loaded
 async fn render_component_ssr_async(
   cwd : String,
+  docs_dir : String,
   source_path : String,
 ) -> @luna.Node[Unit, String]? {
   let component_name = get_component_name_from_path(source_path)
@@ -55,10 +56,10 @@ async fn render_component_ssr_async(
     ),
   ]
 
-  // Find first existing module
-  let mut module_path : String? = None
+  // Namespaced artifacts may live in this module or an ancestor workspace.
+  let mut module_path = ffi_find_compiled_component(cwd, docs_dir, source_path).wait()
   for path in possible_paths {
-    if @fs.existsSync(path) {
+    if module_path is None && @fs.existsSync(path) {
       module_path = Some(path)
       break
     }
@@ -108,7 +109,9 @@ extern "js" fn ffi_load_component_render(
   #| async (modulePath) => {
   #|   try {
   #|     // Use file:// URL for Node.js dynamic import
-  #|     const fileUrl = 'file://' + modulePath;
+  #|     const { pathToFileURL } = await import('node:url');
+  #|     const { resolve } = await import('node:path');
+  #|     const fileUrl = pathToFileURL(resolve(modulePath)).href;
   #|     const mod = await import(fileUrl);
   #|     if (typeof mod.render === 'function') {
   #|       return mod.render();
@@ -119,18 +122,6 @@ extern "js" fn ffi_load_component_render(
   #|     return undefined;
   #|   }
   #| }
-
-///|
-/// Synchronous wrapper for component SSR (for backwards compatibility)
-/// Falls back to placeholder if async loading is not available
-fn render_component_ssr(
-  _cwd : String,
-  source_path : String,
-) -> @luna.Node[Unit, String]? {
-  let component_name = get_component_name_from_path(source_path)
-  println("  Info: Component '\{component_name}' - use async build for SSR")
-  None
-}
 
 // =============================================================================
 // TSX Component SSR
@@ -197,6 +188,9 @@ extern "js" fn ffi_render_tsx_component(
   #|     const fs = await import('fs');
   #|     const path = await import('path');
   #|     const { createRequire } = await import('module');
+  #|     const { pathToFileURL } = await import('node:url');
+  #|     const { randomUUID } = await import('node:crypto');
+  #|     tsxPath = path.resolve(tsxPath);
   #|
   #|     // Find workspace root by looking for pnpm-workspace.yaml or package.json
   #|     const findWorkspaceRoot = (startDir) => {
@@ -231,11 +225,11 @@ extern "js" fn ffi_render_tsx_component(
   #|
   #|     // Write to temp file and import
   #|     const tempDir = path.dirname(tsxPath);
-  #|     const tempFile = path.join(tempDir, '.tsx_temp_' + Date.now() + '.mjs');
+  #|     const tempFile = path.join(tempDir, '.tsx_temp_' + randomUUID() + '.mjs');
   #|     fs.writeFileSync(tempFile, result.code);
   #|
   #|     try {
-  #|       const mod = await import('file://' + tempFile);
+  #|       const mod = await import(pathToFileURL(tempFile).href);
   #|       const Component = mod.default;
   #|       if (!Component) {
   #|         console.error('  TSX: No default export found');
@@ -290,3 +284,49 @@ fn get_component_name_from_path(source_path : String) -> String {
     path
   }
 }
+
+///|
+/// Locate Moon's namespaced JS artifact without assuming a fixed repository
+/// depth. Module names and source directories come from its own manifest.
+extern "js" fn ffi_find_compiled_component(
+  cwd : String,
+  docs_dir : String,
+  source_path : String,
+) -> @js.Promise[String?] =
+  #| async (cwd, docsDir, sourcePath) => {
+  #|   const fs = await import('node:fs');
+  #|   const path = await import('node:path');
+  #|   const project = path.resolve(cwd);
+  #|   try {
+  #|     let manifest;
+  #|     const modern = path.join(project, 'moon.mod');
+  #|     if (fs.existsSync(modern)) {
+  #|       const text = fs.readFileSync(modern, 'utf8');
+  #|       const field = (pattern) => {
+  #|         const match = text.match(pattern);
+  #|         return match ? JSON.parse(match[1]) : undefined;
+  #|       };
+  #|       manifest = {
+  #|         name: field(/^name\s*=\s*("(?:[^"\\]|\\.)*")/m),
+  #|         source: field(/^source\s*=\s*("(?:[^"\\]|\\.)*")/m),
+  #|       };
+  #|     } else {
+  #|       manifest = JSON.parse(fs.readFileSync(path.join(project, 'moon.mod.json'), 'utf8'));
+  #|     }
+  #|     if (!manifest.name) return undefined;
+  #|     const sourceRoot = path.resolve(project, manifest.source || '.');
+  #|     const packageDir = path.resolve(project, docsDir, sourcePath);
+  #|     const relative = path.relative(sourceRoot, packageDir);
+  #|     if (relative.startsWith('..') || path.isAbsolute(relative)) return undefined;
+  #|     const entry = path.join(relative, path.basename(packageDir) + '.js');
+  #|     for (let dir = project; ; dir = path.dirname(dir)) {
+  #|       const base = path.join(dir, '_build/js/release/build');
+  #|       for (const candidate of [path.join(base, manifest.name, entry), path.join(base, entry)]) {
+  #|         if (fs.existsSync(candidate)) return candidate;
+  #|       }
+  #|       if (dir === path.dirname(dir)) return undefined;
+  #|     }
+  #|   } catch {
+  #|     return undefined;
+  #|   }
+  #| }

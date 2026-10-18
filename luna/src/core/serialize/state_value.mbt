@@ -16,6 +16,15 @@ pub enum StateValue {
 } derive(Debug, Eq)
 
 ///|
+pub extend StateValue with Eq::{not_equal, equal}
+
+///|
+pub extend StateValue with @debug.Debug::{to_repr}
+
+///|
+pub extend StateValue with Show::{to_string, output}
+
+///|
 pub impl Show for StateValue with fn output(self, logger) {
   logger.write_string(state_value_to_json(self))
 }

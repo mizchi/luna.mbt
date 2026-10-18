@@ -2,20 +2,28 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig([
   {
-    entry: [
-      "src/index.ts",
-      "src/animation.ts",
-      "src/easing.ts",
-      "src/signals.ts",
-      "src/signals-shared.ts",
-      "src/resource.ts",
-      "src/router-lite.ts",
-      "src/raw.ts",
-      "src/event-utils.ts",
-      "src/jsx-runtime.ts",
-      "src/jsx-dev-runtime.ts",
-    ],
+    entry: {
+      ...Object.fromEntries(
+        [
+          "src/index.ts",
+          "src/animation.ts",
+          "src/easing.ts",
+          "src/signals.ts",
+          "src/signals-shared.ts",
+          "src/resource.ts",
+          "src/router-lite.ts",
+          "src/raw.ts",
+          "src/event-utils.ts",
+          "src/jsx-runtime.ts",
+          "src/jsx-dev-runtime.ts",
+        ].map((path) => [path.replace(/^src\//, "").replace(/\.ts$/, ""), path]),
+      ),
+      void: "src/void/plugin.ts",
+      "void/client": "src/void/client.ts",
+      "void/server": "src/void/server.ts",
+    },
     format: ["esm"],
+    // Declarations use this package's TypeScript 6 API; the workspace CLI uses 7.
     dts: true,
     outDir: "dist",
     clean: true,
@@ -25,7 +33,10 @@ export default defineConfig([
       return { js: ".js", dts: ".d.ts" };
     },
     // Bundle the MoonBit output into the package
-    noExternal: [/\.\.\/\.\.\/\.\.\/_build/],
+    deps: {
+      alwaysBundle: [/\.\.\/\.\.\/\.\.\/_build/],
+      neverBundle: [/^void($|\/)/, /^vite($|\/)/],
+    },
   },
   {
     entry: ["src/css/index.ts"],
@@ -54,8 +65,8 @@ export default defineConfig([
     outDir: "dist",
     minify: false,
     // Bundle CSS module into plugin
-    noExternal: [/\.\/css/],
     deps: {
+      alwaysBundle: [/\.\/css/],
       neverBundle: [/^vite($|\/)/],
       dts: {
         neverBundle: [/^vite($|\/)/, /^postcss($|\/)/, /^esbuild($|\/)/],
@@ -72,6 +83,6 @@ export default defineConfig([
     dts: false,
     minify: false,
     // CLI needs CSS module bundled
-    noExternal: [/\.\.\/src\/css/],
+    deps: { alwaysBundle: [/\.\.\/src\/css/] },
   },
 ]);

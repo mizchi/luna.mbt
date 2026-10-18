@@ -33,6 +33,49 @@ test "generate_types_mbt: auto bundle keeps default and url-injected factories" 
 }
 
 ///|
+test "generate_types_mbt: explicitly attaches derived methods" {
+  let content = generate_types_mbt([sample_counter_props()])
+  assert_true(
+    content.contains("pub extend CounterProps with ToJson::{to_json}"),
+  )
+  assert_true(
+    content.contains("pub extend CounterProps with @json.FromJson::{from_json}"),
+  )
+  let props = sample_counter_props()
+  let content = generate_types_mbt([
+    {
+      ..props,
+      raw_definition: props.raw_definition +
+      " derive(ToJson, FromJson, Eq, Debug)",
+    },
+  ])
+  assert_true(
+    content.contains("pub extend CounterProps with Eq::{not_equal, equal}"),
+  )
+  assert_true(
+    content.contains("pub extend CounterProps with @debug.Debug::{to_repr}"),
+  )
+  let pkg = generate_types_pkg([
+    { ..props, raw_definition: props.raw_definition + " derive(Debug)", },
+  ])
+  assert_true(pkg.contains("\"moonbitlang/core/debug\""))
+}
+
+///|
+test "generate_types_roundtrip_tests: qualifies generated package references" {
+  for external_client_bundle in [false, true] {
+    let content = generate_types_roundtrip_tests(
+      [sample_counter_props()],
+      external_client_bundle~,
+    )
+    assert_true(content.contains("let props : @types.CounterProps"))
+    assert_true(content.contains("let restored : @types.CounterProps"))
+    let factory = if external_client_bundle { "counter_at" } else { "counter" }
+    assert_true(content.contains("let cref = @types.\{factory}("))
+  }
+}
+
+///|
 test "generate_types_mbt: external bundle requires explicit component URL" {
   let content = generate_types_mbt(
     [sample_counter_props()],

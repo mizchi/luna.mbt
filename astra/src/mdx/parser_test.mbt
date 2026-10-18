@@ -4,7 +4,7 @@
 ///|
 test "mdx preserves Markdown extension blocks" {
   let source = "> [!NOTE]\n> Keep this note.\n"
-  let (_, nodes) = parse_mdx(source)
+  let (_, nodes) = @mdx.parse_mdx(source)
   assert_eq(nodes.length(), 1)
   match nodes[0] {
     @astra.MdNode::Html(html) => assert_eq(html, @md_parser.md_to_html(source))
@@ -20,7 +20,7 @@ test "parse mdx with custom element containing BEM classes" {
     #|    <span class="checkbox__icon--check"></span>
     #|  </div>
     #|</styled-checkbox-demo>
-  let (_, nodes) = parse_mdx(content)
+  let (_, nodes) = @mdx.parse_mdx(content)
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @astra.MdNode::JsxComponent(embed) => {
@@ -36,7 +36,7 @@ test "parse mdx with custom element containing BEM classes" {
 ///|
 test "parse mdx single line with BEM classes" {
   let content = "<my-demo><span class=\"switch__thumb\"></span></my-demo>\n"
-  let (_, nodes) = parse_mdx(content)
+  let (_, nodes) = @mdx.parse_mdx(content)
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @astra.MdNode::JsxComponent(embed) => {
@@ -59,7 +59,7 @@ test "parse mdx with markdown content before custom element" {
     #|## Demo
     #|
     #|<styled-checkbox-demo><div class="checkbox__control"><span class="checkbox__icon"></span></div></styled-checkbox-demo>
-  let (_, nodes) = parse_mdx(content)
+  let (_, nodes) = @mdx.parse_mdx(content)
   // Find the JsxComponent node
   let mut found_jsx = false
   let mut children_has_bem = false
@@ -81,7 +81,7 @@ test "parse mdx with markdown content before custom element" {
 test "parse actual checkbox mdx content" {
   // Actual content from checkbox.mdx (simplified)
   let content = "---\ntitle: Checkbox\n---\n\n# Checkbox\n\nCheckbox input.\n\nBased on [APG Checkbox Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/).\n\n## Demo\n\n<styled-checkbox-demo luna:trigger=\"visible\"><div class=\"checkbox-group\" role=\"group\"><div class=\"checkbox\" data-checked=\"true\"><input type=\"checkbox\" class=\"checkbox__input\"><span class=\"checkbox__control\"><span class=\"checkbox__icon checkbox__icon--check\"></span></span><span class=\"checkbox__label\">Checked option</span></div></div></styled-checkbox-demo>\n"
-  let (_, nodes) = parse_mdx(content)
+  let (_, nodes) = @mdx.parse_mdx(content)
   // Find and check the JsxComponent
   for node in nodes {
     match node {
@@ -112,7 +112,7 @@ test "parse mdx with plain div HTML block (alert style)" {
     #|    <div class="alert__title">Error</div>
     #|  </div>
     #|</div>
-  let (_, nodes) = parse_mdx(content)
+  let (_, nodes) = @mdx.parse_mdx(content)
   println("Total nodes: \{nodes.length()}")
   let mut found_html = false
   for i, node in nodes {
@@ -160,7 +160,7 @@ test "parse actual alert.mdx content" {
     #|</div>
     #|
     #|## Usage
-  let (_, nodes) = parse_mdx(content)
+  let (_, nodes) = @mdx.parse_mdx(content)
   println("=== Alert MDX Parse Result ===")
   println("Total nodes: \{nodes.length()}")
   let mut found_html_with_alert = false

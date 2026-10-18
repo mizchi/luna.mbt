@@ -90,7 +90,7 @@ test "build_document_tree_with_fs - builds tree from PageMeta" {
   ]
   // Build DocumentTree
   let config = create_test_config()
-  let tree = build_document_tree_with_fs(fs, config, pages, "/project")
+  let tree = @tree.build_document_tree_with_fs(fs, config, pages, "/project")
   // Verify tree structure
   inspect(tree.site.title, content="Test Documentation")
   inspect(tree.pages.length(), content="2")
@@ -118,7 +118,7 @@ test "build_document_tree_with_fs - generates valid sitemap" {
     create_page_meta("index.md", "/", "Home", "2024-12-22T12:00:00.000Z"),
   ]
   let config = create_test_config()
-  let tree = build_document_tree_with_fs(fs, config, pages, "/project")
+  let tree = @tree.build_document_tree_with_fs(fs, config, pages, "/project")
   // Generate sitemap
   let sitemap = @astra.generate_sitemap(tree)
   // Verify sitemap content
@@ -141,7 +141,7 @@ test "build_document_tree_with_fs - generates valid rss" {
     create_page_meta("index.md", "/", "Home", "2024-12-22T12:00:00.000Z"),
   ]
   let config = create_test_config()
-  let tree = build_document_tree_with_fs(fs, config, pages, "/project")
+  let tree = @tree.build_document_tree_with_fs(fs, config, pages, "/project")
   // Generate RSS
   let rss = @astra.generate_rss(tree)
   // Verify RSS content
@@ -159,7 +159,7 @@ test "build_document_tree_with_fs - generates valid llms.txt" {
     create_page_meta("index.md", "/", "Home", "2024-12-22T12:00:00.000Z"),
   ]
   let config = create_test_config()
-  let tree = build_document_tree_with_fs(fs, config, pages, "/project")
+  let tree = @tree.build_document_tree_with_fs(fs, config, pages, "/project")
   // Generate llms.txt
   let llms = @astra.generate_llms_txt(tree)
   // Verify llms.txt content (content_md is empty since files are not read)
@@ -179,7 +179,7 @@ test "build_document_tree_with_fs - handles missing files gracefully" {
     ),
   ]
   let config = create_test_config()
-  let tree = build_document_tree_with_fs(fs, config, pages, "/project")
+  let tree = @tree.build_document_tree_with_fs(fs, config, pages, "/project")
   // Should still build tree with empty content
   inspect(tree.pages.length(), content="1")
   let page = tree.get_page("missing")
@@ -213,7 +213,7 @@ test "build_document_tree_with_fs - multiple pages with nested structure" {
     ),
   ]
   let config = create_test_config()
-  let tree = build_document_tree_with_fs(fs, config, pages, "/project")
+  let tree = @tree.build_document_tree_with_fs(fs, config, pages, "/project")
   // Verify all pages
   inspect(tree.pages.length(), content="3")
   // Verify tree structure

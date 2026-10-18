@@ -120,6 +120,8 @@ pub(all) struct LocalFileProvider {
   exclude : Array[String]
   mut cached_state : String?
 }
+pub fn LocalFileProvider::describe_state(Self) -> String
+pub fn LocalFileProvider::get_content_state(Self) -> String
 pub fn LocalFileProvider::new(String, String, Array[String]) -> Self
 pub impl BuildStateProvider for LocalFileProvider
 

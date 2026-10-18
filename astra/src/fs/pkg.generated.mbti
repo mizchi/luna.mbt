@@ -15,15 +15,37 @@ pub struct MemFSAdapter {
   fs : @memfs.MemFS
   vol : @memfs.Volume
 }
+pub fn MemFSAdapter::cp_sync(Self, String, String, Bool) -> Unit raise
+pub fn MemFSAdapter::exists_sync(Self, String) -> Bool
 pub fn MemFSAdapter::from_memfs(@memfs.Volume, @memfs.MemFS) -> Self
+pub fn MemFSAdapter::is_directory_sync(Self, String) -> Bool raise
+pub fn MemFSAdapter::is_file_sync(Self, String) -> Bool raise
 pub fn MemFSAdapter::memfs(Self) -> @memfs.MemFS
+pub fn MemFSAdapter::mkdir_sync(Self, String, Bool) -> Unit raise
 pub fn MemFSAdapter::new() -> Self
+pub fn MemFSAdapter::read_file_sync(Self, String) -> String raise
+pub fn MemFSAdapter::readdir_sync(Self, String) -> Array[String] raise
+pub fn MemFSAdapter::rmdir_sync(Self, String, Bool) -> Unit raise
+pub fn MemFSAdapter::stat_sync(Self, String) -> @env.StatInfo raise
+pub fn MemFSAdapter::unlink_sync(Self, String) -> Unit raise
 pub fn MemFSAdapter::volume(Self) -> @memfs.Volume
+pub fn MemFSAdapter::write_file_sync(Self, String, String) -> Unit raise
 pub impl @env.FileSystem for MemFSAdapter
 
 pub struct NodeFsAdapter {
 }
+pub fn NodeFsAdapter::cp_sync(Self, String, String, Bool) -> Unit raise
+pub fn NodeFsAdapter::exists_sync(Self, String) -> Bool
+pub fn NodeFsAdapter::is_directory_sync(Self, String) -> Bool raise
+pub fn NodeFsAdapter::is_file_sync(Self, String) -> Bool raise
+pub fn NodeFsAdapter::mkdir_sync(Self, String, Bool) -> Unit raise
 pub fn NodeFsAdapter::new() -> Self
+pub fn NodeFsAdapter::read_file_sync(Self, String) -> String raise
+pub fn NodeFsAdapter::readdir_sync(Self, String) -> Array[String] raise
+pub fn NodeFsAdapter::rmdir_sync(Self, String, Bool) -> Unit raise
+pub fn NodeFsAdapter::stat_sync(Self, String) -> @env.StatInfo raise
+pub fn NodeFsAdapter::unlink_sync(Self, String) -> Unit raise
+pub fn NodeFsAdapter::write_file_sync(Self, String, String) -> Unit raise
 pub impl @env.FileSystem for NodeFsAdapter
 
 // Type aliases

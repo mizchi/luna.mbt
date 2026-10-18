@@ -35,6 +35,21 @@ pub fn MemFSAdapter::memfs(self : MemFSAdapter) -> @memfs.MemFS {
 }
 
 ///|
+pub extend MemFSAdapter with @env.FileSystem::{
+  read_file_sync,
+  readdir_sync,
+  unlink_sync,
+  write_file_sync,
+  exists_sync,
+  mkdir_sync,
+  is_file_sync,
+  stat_sync,
+  rmdir_sync,
+  cp_sync,
+  is_directory_sync,
+}
+
+///|
 pub impl @env.FileSystem for MemFSAdapter with fn read_file_sync(self, path) {
   @js.throwable(fn() { self.fs.readFileSync(path) })
 }

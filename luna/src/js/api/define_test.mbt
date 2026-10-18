@@ -6,7 +6,7 @@ test "register: basic custom element" {
   @global_jsdom.register()
 
   // Register a simple counter component
-  register("test-counter-1", fn(_host) {
+  @api.register("test-counter-1", fn(_host) {
     let count = @resource.signal(0)
     @luna.h("div", [], [
       @luna.h("span", [], [@luna.text_dyn(fn() { count.get().to_string() })]),
@@ -32,7 +32,7 @@ test "register: basic custom element" {
 test "register: dispose on disconnect" {
   @global_jsdom.register()
   let disposed : Ref[Bool] = Ref(false)
-  register("test-dispose-1", fn(_host) {
+  @api.register("test-dispose-1", fn(_host) {
     @resource.on_cleanup(fn() { disposed.val = true })
     @luna.h("div", [], [@luna.text("bye")])
   })
@@ -55,7 +55,7 @@ test "register_with_attrs: observed attributes become signals" {
   @global_jsdom.register()
 
   // Register component with observed attributes
-  register_with_attrs("test-greeter-1", ["name"], fn(_host, attrs) {
+  @api.register_with_attrs("test-greeter-1", ["name"], fn(_host, attrs) {
     let name_sig = match attrs.get("name") {
       Some(s) => s
       None => @resource.signal("")

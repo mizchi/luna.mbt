@@ -33,6 +33,9 @@ pub enum RepairType {
 } derive(Eq)
 
 ///|
+pub extend RepairType with Eq::{not_equal, equal}
+
+///|
 /// Detailed information about a single repair operation
 pub struct RepairInfo {
   /// Type of repair performed

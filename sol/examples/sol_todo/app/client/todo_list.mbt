@@ -10,6 +10,12 @@ pub(all) struct TodoListProps {
 } derive(ToJson, FromJson)
 
 ///|
+pub extend TodoListProps with @json.FromJson::{from_json}
+
+///|
+pub extend TodoListProps with ToJson::{to_json}
+
+///|
 /// Todo stats island - shows count with live updates
 pub fn todo_list(props : TodoListProps) -> DomNode {
   let total = @signal.signal(props.total)

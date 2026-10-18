@@ -30,6 +30,15 @@ pub enum PropertyCategory {
 } derive(Eq, Compare, Debug)
 
 ///|
+pub extend PropertyCategory with @debug.Debug::{to_repr}
+
+///|
+pub extend PropertyCategory with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+pub extend PropertyCategory with Eq::{not_equal, equal}
+
+///|
 /// Get property category for ordering
 pub fn get_property_category(property : String) -> PropertyCategory {
   // Position

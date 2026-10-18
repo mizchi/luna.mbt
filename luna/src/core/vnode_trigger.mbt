@@ -2,14 +2,14 @@
 /// Convert TriggerType to attribute value.
 /// ```mbt check
 /// test {
-///   inspect(TriggerType::Load.to_string(), content="load")
-///   inspect(TriggerType::Idle.to_string(), content="idle")
-///   inspect(TriggerType::Visible.to_string(), content="visible")
+///   inspect(@core.TriggerType::Load.to_string(), content="load")
+///   inspect(@core.TriggerType::Idle.to_string(), content="idle")
+///   inspect(@core.TriggerType::Visible.to_string(), content="visible")
 ///   inspect(
-///     TriggerType::Media("(max-width: 768px)").to_string(),
+///     @core.TriggerType::Media("(max-width: 768px)").to_string(),
 ///     content="media:(max-width: 768px)",
 ///   )
-///   inspect(TriggerType::None.to_string(), content="none")
+///   inspect(@core.TriggerType::None.to_string(), content="none")
 /// }
 /// ```
 pub fn TriggerType::to_string(self : TriggerType) -> String {
@@ -27,12 +27,12 @@ pub fn TriggerType::to_string(self : TriggerType) -> String {
 /// ```mbt check
 /// test {
 ///   // Round-trip test: parse then to_string
-///   inspect(TriggerType::parse("load").to_string(), content="load")
-///   inspect(TriggerType::parse("idle").to_string(), content="idle")
-///   inspect(TriggerType::parse("visible").to_string(), content="visible")
-///   inspect(TriggerType::parse("none").to_string(), content="none")
+///   inspect(@core.TriggerType::parse("load").to_string(), content="load")
+///   inspect(@core.TriggerType::parse("idle").to_string(), content="idle")
+///   inspect(@core.TriggerType::parse("visible").to_string(), content="visible")
+///   inspect(@core.TriggerType::parse("none").to_string(), content="none")
 ///   inspect(
-///     TriggerType::parse("media:(min-width: 1024px)").to_string(),
+///     @core.TriggerType::parse("media:(min-width: 1024px)").to_string(),
 ///     content="media:(min-width: 1024px)",
 ///   )
 /// }

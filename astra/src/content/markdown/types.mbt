@@ -124,6 +124,12 @@ pub(all) enum MdxAttrValue {
 } derive(Eq, Debug)
 
 ///|
+pub extend MdxAttrValue with @debug.Debug::{to_repr}
+
+///|
+pub extend MdxAttrValue with Eq::{not_equal, equal}
+
+///|
 /// CLS (Cumulative Layout Shift) optimization hints
 /// Used to prevent layout shifts when components load
 pub(all) struct ClsHints {
@@ -132,6 +138,12 @@ pub(all) struct ClsHints {
   /// Expected height (CSS value, e.g., "100px", "auto")
   height : String?
 } derive(Eq, Debug)
+
+///|
+pub extend ClsHints with @debug.Debug::{to_repr}
+
+///|
+pub extend ClsHints with Eq::{not_equal, equal}
 
 ///|
 /// Default CLS hints (no hints)

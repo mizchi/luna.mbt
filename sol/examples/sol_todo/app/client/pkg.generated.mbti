@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "example/sol-todo/client"
+
+import {
+  "mizchi/luna/dom",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn todo_list(TodoListProps) -> @dom.DomNode
+
+// Errors
+
+// Types and methods
+pub(all) struct TodoListProps {
+  total : Int
+  completed : Int
+} derive(ToJson, @json.FromJson)
+pub fn TodoListProps::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TodoListProps::to_json(Self) -> Json
+
+// Type aliases
+
+// Traits

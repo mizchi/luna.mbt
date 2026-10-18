@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "example/sol-components-demo/docs/info_box"
+
+import {
+  "mizchi/luna/core",
+}
+
+// Values
+pub fn render() -> @core.Node[Unit, String]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

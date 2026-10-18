@@ -14,7 +14,10 @@ test "Component with HTML children renders as raw HTML" {
   let node = @markdown.MdNode::Component(embed)
 
   // Convert to VNode
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
 
   // Render to HTML string
   let result = @render.render_to_string(vnode)
@@ -38,7 +41,7 @@ test "Component with nested HTML children" {
     trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/static/")
+  let vnode = @md_render.md_node_to_vnode(node, islands_base_path="/static/")
   let result = @render.render_to_string(vnode)
 
   // Verify nested HTML is preserved
@@ -63,7 +66,10 @@ test "Component with empty content" {
     trigger: @luna.TriggerType::Load,
   }
   let node = @markdown.MdNode::Component(embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
   let result = @render.render_to_string(vnode)
 
   // Should produce self-closing or empty element
@@ -97,7 +103,10 @@ test "Radix accordion SSR structure" {
     trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
   let result = @render.render_to_string(vnode)
 
   // Verify data attributes are preserved (critical for hydration)
@@ -125,7 +134,10 @@ test "Component content with special chars not double-escaped" {
     trigger: @luna.TriggerType::Load,
   }
   let node = @markdown.MdNode::Component(embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
   let result = @render.render_to_string(vnode)
 
   // The &amp; should be preserved as-is (already escaped in source)
@@ -148,7 +160,10 @@ test "Radix switch SSR structure" {
     trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
   let result = @render.render_to_string(vnode)
 
   // Verify accessibility attributes preserved
@@ -175,7 +190,10 @@ test "Radix tabs SSR structure" {
     trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
   let result = @render.render_to_string(vnode)
 
   // Verify ARIA roles preserved
@@ -197,7 +215,10 @@ test "Component with BEM class names (double underscore) preserved" {
     trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
   let result = @render.render_to_string(vnode)
 
   // BEM class names with __ must be preserved
@@ -217,7 +238,10 @@ test "JsxComponent with BEM class names preserved" {
     cls_hints: None,
   }
   let node = @markdown.MdNode::JsxComponent(jsx_embed)
-  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let vnode = @md_render.md_node_to_vnode(
+    node,
+    islands_base_path="/components/",
+  )
   let result = @render.render_to_string(vnode)
 
   // BEM class names must be preserved through JSX conversion

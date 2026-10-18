@@ -3,7 +3,7 @@ using @test {assert_eq}
 
 ///|
 test "HmrMessage::to_json - update includes islands and timestamp" {
-  let msg = HmrMessage::Update(islands=["*"], timestamp_ms=1234.0).to_json()
+  let msg = @hmr.HmrMessage::Update(islands=["*"], timestamp_ms=1234.0).to_json()
   assert_true(msg.contains("\"type\":\"update\""))
   assert_true(msg.contains("\"islands\":[\"*\"]"))
   assert_true(msg.contains("\"timestamp\":1234"))
@@ -11,30 +11,30 @@ test "HmrMessage::to_json - update includes islands and timestamp" {
 
 ///|
 test "HmrMessage::to_json - full reload" {
-  let msg = HmrMessage::FullReload.to_json()
+  let msg = @hmr.HmrMessage::FullReload.to_json()
   assert_eq(msg, "{\"type\":\"full-reload\"}")
 }
 
 ///|
 test "HmrMessage::to_json - error message" {
-  let msg = HmrMessage::Error(message="bad").to_json()
+  let msg = @hmr.HmrMessage::Error(message="bad").to_json()
   assert_true(msg.contains("\"type\":\"error\""))
   assert_true(msg.contains("\"error\":\"bad\""))
 }
 
 ///|
 async test "HmrServer broadcasts over built-in WebSocket server" {
-  let server = HmrServer::start(0).wait()
+  let server = @hmr.HmrServer::start(0).wait()
   let received = connect_and_wait_message(server.get_port(), fn() {
     server.notify_full_reload()
   }).wait()
-  assert_eq(received, HmrMessage::FullReload.to_json())
+  assert_eq(received, @hmr.HmrMessage::FullReload.to_json())
   server.close()
 }
 
 ///|
 async test "HmrServer on_connection exposes typed client wrapper" {
-  let server = HmrServer::start(0).wait()
+  let server = @hmr.HmrServer::start(0).wait()
   server.on_connection(fn(client) {
     if client.is_open() {
       client.send("typed-client")
@@ -43,7 +43,7 @@ async test "HmrServer on_connection exposes typed client wrapper" {
     }
   })
   let received = connect_and_collect_messages(server.get_port(), 2).wait()
-  assert_eq(received[0], HmrMessage::Connected.to_json())
+  assert_eq(received[0], @hmr.HmrMessage::Connected.to_json())
   assert_eq(received[1], "typed-client")
   server.close()
 }

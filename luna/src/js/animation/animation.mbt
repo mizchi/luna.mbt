@@ -8,6 +8,12 @@ pub(all) struct Rect {
 } derive(Debug, Eq)
 
 ///|
+pub extend Rect with Eq::{not_equal, equal}
+
+///|
+pub extend Rect with @debug.Debug::{to_repr}
+
+///|
 #external
 pub type Keyframe
 

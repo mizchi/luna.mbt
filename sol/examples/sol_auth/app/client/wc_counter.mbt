@@ -22,6 +22,12 @@ pub(all) struct WcCounterProps {
   initial_count : Int
 } derive(ToJson, FromJson)
 
+///|
+pub extend WcCounterProps with @json.FromJson::{from_json}
+
+///|
+pub extend WcCounterProps with ToJson::{to_json}
+
 ///| WC Counter component
 
 ///|

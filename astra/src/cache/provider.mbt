@@ -27,6 +27,12 @@ pub fn LocalFileProvider::new(
 }
 
 ///|
+pub extend LocalFileProvider with BuildStateProvider::{
+  get_content_state,
+  describe_state,
+}
+
+///|
 /// Implement BuildStateProvider for LocalFileProvider
 pub impl BuildStateProvider for LocalFileProvider with fn get_content_state(
   self,

@@ -48,6 +48,11 @@ pub fn lookup_asset(
   minify? : Bool = false,
 ) -> Asset? {
   match path {
+    "/components/sidebar-disclosure.js" =>
+      Some({
+        body: load_asset("scripts/sidebar-disclosure.js"),
+        content_type: "text/javascript; charset=utf-8",
+      })
     "/assets/style.css" =>
       Some({
         body: build_style_css_body(config, minify~),
@@ -95,7 +100,12 @@ fn build_style_css_body(config : @astra.SsgConfig, minify~ : Bool) -> String {
 /// tests asserting the dev server and the static dump cover the same
 /// surface.
 pub fn list_asset_urls() -> Array[String] {
-  ["/assets/style.css", "/assets/github-markdown.css", "/assets/shiki.css"]
+  [
+    "/assets/style.css",
+    "/assets/github-markdown.css",
+    "/assets/shiki.css",
+    "/components/sidebar-disclosure.js",
+  ]
 }
 
 ///|

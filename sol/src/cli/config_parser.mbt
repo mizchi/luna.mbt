@@ -14,6 +14,15 @@ pub enum ServerRuntime {
 } derive(Eq, Show, Debug)
 
 ///|
+pub extend ServerRuntime with @debug.Debug::{to_repr}
+
+///|
+pub extend ServerRuntime with Show::{to_string, output}
+
+///|
+pub extend ServerRuntime with Eq::{not_equal, equal}
+
+///|
 /// Server entry ownership. Auto preserves the historical main.mbt detection.
 pub enum ServerEntryMode {
   ServerEntryAuto
@@ -22,11 +31,29 @@ pub enum ServerEntryMode {
 } derive(Eq, Show, Debug)
 
 ///|
+pub extend ServerEntryMode with @debug.Debug::{to_repr}
+
+///|
+pub extend ServerEntryMode with Show::{to_string, output}
+
+///|
+pub extend ServerEntryMode with Eq::{not_equal, equal}
+
+///|
 /// Client island bundle ownership.
 pub enum ClientBundleMode {
   ClientBundleAuto
   ClientBundleExternal
 } derive(Eq, Show, Debug)
+
+///|
+pub extend ClientBundleMode with @debug.Debug::{to_repr}
+
+///|
+pub extend ClientBundleMode with Show::{to_string, output}
+
+///|
+pub extend ClientBundleMode with Eq::{not_equal, equal}
 
 ///|
 /// TypeScript interface source used to generate Sol contract metadata.
@@ -42,6 +69,12 @@ pub struct ContractTsConfig {
   /// External client bundle URL for the component
   client_url : String?
 } derive(Eq, Debug)
+
+///|
+pub extend ContractTsConfig with @debug.Debug::{to_repr}
+
+///|
+pub extend ContractTsConfig with Eq::{not_equal, equal}
 
 ///|
 /// Sol configuration (new architecture)

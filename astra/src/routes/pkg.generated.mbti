@@ -211,6 +211,7 @@ pub(all) enum ComponentType {
 } derive(@debug.Debug)
 pub fn ComponentType::can_hydrate(Self) -> Bool
 pub fn ComponentType::can_ssr(Self) -> Bool
+pub fn ComponentType::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ConflictType {
   DuplicatePath(path~ : String, sources~ : Array[String])
@@ -254,8 +255,11 @@ pub(all) enum FallbackConfig {
   SpaPrefix(prefix~ : String, entry~ : String)
 } derive(Eq, @debug.Debug)
 pub fn FallbackConfig::default() -> Self
+pub fn FallbackConfig::equal(Self, Self) -> Bool
 pub fn FallbackConfig::is_spa(Self) -> Bool
+pub fn FallbackConfig::not_equal(Self, Self) -> Bool
 pub fn FallbackConfig::spa_entry(Self) -> String?
+pub fn FallbackConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FileEntry {
   relative_path : String
@@ -278,9 +282,12 @@ pub(all) enum FileType {
   Html
   Unknown
 } derive(Eq, @debug.Debug)
+pub fn FileType::equal(Self, Self) -> Bool
 pub fn FileType::from_extension(String) -> Self
 pub fn FileType::from_filename(String) -> Self
 pub fn FileType::is_page(Self) -> Bool
+pub fn FileType::not_equal(Self, Self) -> Bool
+pub fn FileType::to_repr(Self) -> @debug.Repr
 
 pub(all) struct HierarchicalManifest {
   version : Int
@@ -301,7 +308,10 @@ pub(all) enum HttpMethod {
   Patch
   All
 } derive(Eq, @debug.Debug)
+pub fn HttpMethod::equal(Self, Self) -> Bool
 pub fn HttpMethod::from_string(String) -> Self?
+pub fn HttpMethod::not_equal(Self, Self) -> Bool
+pub fn HttpMethod::to_repr(Self) -> @debug.Repr
 pub fn HttpMethod::to_string(Self) -> String
 
 pub(all) struct PageConfig {
@@ -341,8 +351,11 @@ pub(all) enum RenderMode {
   Spa
 } derive(Eq, @debug.Debug)
 pub fn RenderMode::default() -> Self
+pub fn RenderMode::equal(Self, Self) -> Bool
+pub fn RenderMode::not_equal(Self, Self) -> Bool
 pub fn RenderMode::requires_server(Self) -> Bool
 pub fn RenderMode::revalidate_seconds(Self) -> Int?
+pub fn RenderMode::to_repr(Self) -> @debug.Repr
 
 pub(all) enum RouteEntry {
   Static(StaticRouteEntry)

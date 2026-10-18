@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/debug",
   "moonbitlang/core/string",
   "mizchi/astra",
   "mizchi/astra/content/frontmatter",

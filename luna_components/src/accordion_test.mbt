@@ -1,6 +1,6 @@
 ///|
 test "accordion_header: expanded state" {
-  let node : @luna.Node[Unit, String] = accordion_header(
+  let node : @luna.Node[Unit, String] = @luna_components.accordion_header(
     "header-1",
     true,
     "panel-1",
@@ -23,7 +23,7 @@ test "accordion_header: expanded state" {
 
 ///|
 test "accordion_header: collapsed state" {
-  let node : @luna.Node[Unit, String] = accordion_header(
+  let node : @luna.Node[Unit, String] = @luna_components.accordion_header(
     "header-2",
     false,
     "panel-2",
@@ -47,7 +47,7 @@ test "accordion_header: collapsed state" {
 
 ///|
 test "accordion_panel: with region role" {
-  let node : @luna.Node[Unit, String] = accordion_panel(
+  let node : @luna.Node[Unit, String] = @luna_components.accordion_panel(
     "panel-1",
     "header-1",
     false,
@@ -75,7 +75,7 @@ test "accordion_panel: with region role" {
 
 ///|
 test "accordion_panel: hidden when collapsed" {
-  let node : @luna.Node[Unit, String] = accordion_panel(
+  let node : @luna.Node[Unit, String] = @luna_components.accordion_panel(
     "panel-x",
     "header-x",
     true,
@@ -93,11 +93,15 @@ test "accordion_panel: hidden when collapsed" {
 
 ///|
 test "accordion: builds structure" {
-  let items : Array[AccordionItem[Unit]] = [
-    accordion_item("sec1", "Section 1", [@luna.text("Content 1")]),
-    accordion_item("sec2", "Section 2", [@luna.text("Content 2")]),
+  let items : Array[@luna_components.AccordionItem[Unit]] = [
+    @luna_components.accordion_item("sec1", "Section 1", [
+      @luna.text("Content 1"),
+    ]),
+    @luna_components.accordion_item("sec2", "Section 2", [
+      @luna.text("Content 2"),
+    ]),
   ]
-  let node : @luna.Node[Unit, String] = accordion(items, 0)
+  let node : @luna.Node[Unit, String] = @luna_components.accordion(items, 0)
   guard node is @core.Element(container) else { fail("expected Element") }
   // 2 items = 4 children (header + panel each)
   inspect(container.children.length(), content="4")
@@ -105,12 +109,15 @@ test "accordion: builds structure" {
 
 ///|
 test "accordion_multi: multiple expanded" {
-  let items : Array[AccordionItem[Unit]] = [
-    accordion_item("a", "A", [@luna.text("A")]),
-    accordion_item("b", "B", [@luna.text("B")]),
-    accordion_item("c", "C", [@luna.text("C")]),
+  let items : Array[@luna_components.AccordionItem[Unit]] = [
+    @luna_components.accordion_item("a", "A", [@luna.text("A")]),
+    @luna_components.accordion_item("b", "B", [@luna.text("B")]),
+    @luna_components.accordion_item("c", "C", [@luna.text("C")]),
   ]
-  let node : @luna.Node[Unit, String] = accordion_multi(items, ["a", "c"])
+  let node : @luna.Node[Unit, String] = @luna_components.accordion_multi(
+    items,
+    ["a", "c"],
+  )
   guard node is @core.Element(container) else { fail("expected Element") }
   // 3 items = 6 children
   inspect(container.children.length(), content="6")
@@ -119,7 +126,7 @@ test "accordion_multi: multiple expanded" {
 ///|
 test "accordion_header_dyn: dynamic expanded" {
   let expanded = @resource.signal(false)
-  let node : @luna.Node[Unit, String] = accordion_header_dyn(
+  let node : @luna.Node[Unit, String] = @luna_components.accordion_header_dyn(
     "h1",
     expanded,
     "p1",

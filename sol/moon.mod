@@ -11,8 +11,8 @@ import {
   "mizchi/luna@0.25.1",
   "moonbitlang/async@0.21.3",
   "moonbitlang/x@0.5.5",
-  "moonbitlang/parser@0.3.19",
-  "moonbitlang/moon_config@0.3.15",
+  "moonbitlang/parser@0.4.4",
+  "moonbitlang/moon_config@0.4.2",
   "mizchi/npm_typed@0.1.16",
   "mizchi/js@0.13.0",
   "mizchi/js_browser@0.13.0",
@@ -20,7 +20,7 @@ import {
   "mizchi/ts@0.5.2",
   "mizchi/wite@0.11.3",
   "mizchi/x@0.6.1",
-  "moonbitlang/lexer@0.3.16",
+  "moonbitlang/lexer@0.4.2",
   "mizchi/wit@0.3.3",
 }
 

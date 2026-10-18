@@ -9,21 +9,21 @@
 
 ///|
 test "RenderMode::Ssr - server-side rendering" {
-  let mode = RenderMode::Ssr
-  inspect(mode == RenderMode::Ssr, content="true")
+  let mode = @routes.RenderMode::Ssr
+  inspect(mode == @routes.RenderMode::Ssr, content="true")
   inspect(mode.requires_server(), content="true")
 }
 
 ///|
 test "RenderMode::Spa - client-side only" {
-  let mode = RenderMode::Spa
-  inspect(mode == RenderMode::Spa, content="true")
+  let mode = @routes.RenderMode::Spa
+  inspect(mode == @routes.RenderMode::Spa, content="true")
   inspect(mode.requires_server(), content="false")
 }
 
 ///|
 test "RenderMode::Isr - with revalidation" {
-  let mode = RenderMode::Isr(revalidate=60)
+  let mode = @routes.RenderMode::Isr(revalidate=60)
   inspect(mode.requires_server(), content="true")
   guard mode.revalidate_seconds() is Some(sec) else {
     fail("Expected Some revalidate seconds")
@@ -33,24 +33,26 @@ test "RenderMode::Isr - with revalidation" {
 
 ///|
 test "RenderMode - equality comparison" {
-  inspect(RenderMode::Ssr == RenderMode::Ssr, content="true")
-  inspect(RenderMode::Spa == RenderMode::Spa, content="true")
+  inspect(@routes.RenderMode::Ssr == @routes.RenderMode::Ssr, content="true")
+  inspect(@routes.RenderMode::Spa == @routes.RenderMode::Spa, content="true")
   inspect(
-    RenderMode::Isr(revalidate=60) == RenderMode::Isr(revalidate=60),
+    @routes.RenderMode::Isr(revalidate=60) ==
+    @routes.RenderMode::Isr(revalidate=60),
     content="true",
   )
-  inspect(RenderMode::Ssr == RenderMode::Spa, content="false")
+  inspect(@routes.RenderMode::Ssr == @routes.RenderMode::Spa, content="false")
   inspect(
-    RenderMode::Isr(revalidate=60) == RenderMode::Isr(revalidate=120),
+    @routes.RenderMode::Isr(revalidate=60) ==
+    @routes.RenderMode::Isr(revalidate=120),
     content="false",
   )
 }
 
 ///|
 test "RenderMode - Show implementation" {
-  let ssr = RenderMode::Ssr
-  let spa = RenderMode::Spa
-  let isr = RenderMode::Isr(revalidate=300)
+  let ssr = @routes.RenderMode::Ssr
+  let spa = @routes.RenderMode::Spa
+  let isr = @routes.RenderMode::Isr(revalidate=300)
   debug_inspect(ssr, content="Ssr")
   debug_inspect(spa, content="Spa")
   debug_inspect(
@@ -67,14 +69,14 @@ test "RenderMode - Show implementation" {
 
 ///|
 test "FallbackConfig::NotFound - 404 page" {
-  let fallback = FallbackConfig::NotFound(path="/404.html")
+  let fallback = @routes.FallbackConfig::NotFound(path="/404.html")
   inspect(fallback.is_spa(), content="false")
   inspect(fallback.spa_entry() is None, content="true")
 }
 
 ///|
 test "FallbackConfig::Spa - full SPA mode" {
-  let fallback = FallbackConfig::Spa(entry="/index.html")
+  let fallback = @routes.FallbackConfig::Spa(entry="/index.html")
   inspect(fallback.is_spa(), content="true")
   guard fallback.spa_entry() is Some(entry) else { fail("Expected Some entry") }
   inspect(entry, content="/index.html")
@@ -82,7 +84,7 @@ test "FallbackConfig::Spa - full SPA mode" {
 
 ///|
 test "FallbackConfig::SpaPrefix - prefix-limited SPA" {
-  let fallback = FallbackConfig::SpaPrefix(
+  let fallback = @routes.FallbackConfig::SpaPrefix(
     prefix="/app/",
     entry="/app/index.html",
   )
@@ -97,12 +99,12 @@ test "FallbackConfig::SpaPrefix - prefix-limited SPA" {
 
 ///|
 test "DynamicRouteEntry - basic dynamic route" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/blog/:slug",
     pattern: "^/blog/([^/]+)$",
     param_names: ["slug"],
     source: "blog/[slug]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     catch_all: None,
     title: Some("Blog - :slug"),
@@ -110,17 +112,17 @@ test "DynamicRouteEntry - basic dynamic route" {
   }
   inspect(route.path, content="/blog/:slug")
   inspect(route.param_names[0], content="slug")
-  inspect(route.mode == RenderMode::Ssr, content="true")
+  inspect(route.mode == @routes.RenderMode::Ssr, content="true")
 }
 
 ///|
 test "DynamicRouteEntry - ISR mode with revalidation" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/products/:id",
     pattern: "^/products/([^/]+)$",
     param_names: ["id"],
     source: "products/[id]/page.tsx",
-    mode: RenderMode::Isr(revalidate=300),
+    mode: @routes.RenderMode::Isr(revalidate=300),
     layout: Some("shop-layout"),
     catch_all: None,
     title: Some("Product :id"),
@@ -136,31 +138,31 @@ test "DynamicRouteEntry - ISR mode with revalidation" {
 
 ///|
 test "DynamicRouteEntry - SPA mode (client-only)" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/app/:section",
     pattern: "^/app/([^/]+)$",
     param_names: ["section"],
     source: "app/[section]/page.tsx",
-    mode: RenderMode::Spa,
+    mode: @routes.RenderMode::Spa,
     layout: Some("app-layout"),
     catch_all: None,
     title: None,
     islands: [],
   }
-  inspect(route.mode == RenderMode::Spa, content="true")
+  inspect(route.mode == @routes.RenderMode::Spa, content="true")
   inspect(route.mode.requires_server(), content="false")
 }
 
 ///|
 test "DynamicRouteEntry - catch-all route" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/docs/[...slug]",
     pattern: "^/docs/(.+)$",
     param_names: ["slug"],
     source: "docs/[...slug]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
-    catch_all: Some(CatchAllInfo::{ name: "slug", optional: false, }),
+    catch_all: Some(@routes.CatchAllInfo::{ name: "slug", optional: false, }),
     title: Some("Documentation"),
     islands: ["toc", "code-block"],
   }
@@ -171,14 +173,14 @@ test "DynamicRouteEntry - catch-all route" {
 
 ///|
 test "DynamicRouteEntry - optional catch-all route" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/wiki/[[...path]]",
     pattern: "^/wiki(?:/(.*))?$",
     param_names: ["path"],
     source: "wiki/[[...path]]/page.tsx",
-    mode: RenderMode::Spa,
+    mode: @routes.RenderMode::Spa,
     layout: None,
-    catch_all: Some(CatchAllInfo::{ name: "path", optional: true, }),
+    catch_all: Some(@routes.CatchAllInfo::{ name: "path", optional: true, }),
     title: None,
     islands: [],
   }
@@ -192,21 +194,21 @@ test "DynamicRouteEntry - optional catch-all route" {
 
 ///|
 test "Complete SPA - all routes as SPA" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
-      RouteEntry::Dynamic(DynamicRouteEntry::{
+      @routes.RouteEntry::Dynamic(@routes.DynamicRouteEntry::{
         path: "/app/:page",
         pattern: "^/app/([^/]+)$",
         param_names: ["page"],
         source: "app/[page]/page.tsx",
-        mode: RenderMode::Spa,
+        mode: @routes.RenderMode::Spa,
         layout: None,
         catch_all: None,
         title: None,
         islands: [],
       }),
     ],
-    fallback: FallbackConfig::Spa(entry="/app/index.html"),
+    fallback: @routes.FallbackConfig::Spa(entry="/app/index.html"),
   }
   // All unmatched routes go to SPA entry
   inspect(manifest.fallback.is_spa(), content="true")
@@ -215,12 +217,12 @@ test "Complete SPA - all routes as SPA" {
 ///|
 test "Complete SPA - no server rendering" {
   // SPA mode routes don't require server
-  let spa_route = DynamicRouteEntry::{
+  let spa_route = @routes.DynamicRouteEntry::{
     path: "/dashboard/:view",
     pattern: "^/dashboard/([^/]+)$",
     param_names: ["view"],
     source: "dashboard/[view]/page.tsx",
-    mode: RenderMode::Spa,
+    mode: @routes.RenderMode::Spa,
     layout: None,
     catch_all: None,
     title: None,
@@ -234,7 +236,7 @@ test "Complete SPA - no server rendering" {
 ///|
 test "Complete SPA - fallback entry configuration" {
   // In SPA mode, fallback serves the SPA shell
-  let fallback = FallbackConfig::Spa(entry="/index.html")
+  let fallback = @routes.FallbackConfig::Spa(entry="/index.html")
   guard fallback.spa_entry() is Some(entry) else { fail("Expected SPA entry") }
   inspect(entry, content="/index.html")
 }
@@ -245,21 +247,21 @@ test "Complete SPA - fallback entry configuration" {
 
 ///|
 test "SSR-only - all routes server-rendered" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
-      RouteEntry::Dynamic(DynamicRouteEntry::{
+      @routes.RouteEntry::Dynamic(@routes.DynamicRouteEntry::{
         path: "/blog/:slug",
         pattern: "^/blog/([^/]+)$",
         param_names: ["slug"],
         source: "blog/[slug]/page.tsx",
-        mode: RenderMode::Ssr,
+        mode: @routes.RenderMode::Ssr,
         layout: None,
         catch_all: None,
         title: Some("Blog"),
         islands: [], // No client-side islands
       }),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   // Fallback is 404, not SPA
   inspect(manifest.fallback.is_spa(), content="false")
@@ -267,12 +269,12 @@ test "SSR-only - all routes server-rendered" {
 
 ///|
 test "SSR-only - requires server for every request" {
-  let ssr_route = DynamicRouteEntry::{
+  let ssr_route = @routes.DynamicRouteEntry::{
     path: "/user/:id",
     pattern: "^/user/([^/]+)$",
     param_names: ["id"],
     source: "user/[id]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     catch_all: None,
     title: Some("User Profile"),
@@ -285,7 +287,7 @@ test "SSR-only - requires server for every request" {
 ///|
 test "SSR-only - 404 fallback" {
   // SSR-only uses 404 fallback instead of SPA
-  let fallback = FallbackConfig::NotFound(path="/404.html")
+  let fallback = @routes.FallbackConfig::NotFound(path="/404.html")
   inspect(fallback.is_spa(), content="false")
   inspect(fallback.spa_entry() is None, content="true")
 }
@@ -293,12 +295,12 @@ test "SSR-only - 404 fallback" {
 ///|
 test "SSR-only - multiple dynamic segments" {
   // SSR-only routes can have multiple dynamic segments
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/user/:userId/post/:postId",
     pattern: "^/user/([^/]+)/post/([^/]+)$",
     param_names: ["userId", "postId"],
     source: "user/[userId]/post/[postId]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     catch_all: None,
     title: None,
@@ -313,12 +315,12 @@ test "SSR-only - multiple dynamic segments" {
 
 ///|
 test "Hybrid - SSR with client islands" {
-  let hybrid_route = DynamicRouteEntry::{
+  let hybrid_route = @routes.DynamicRouteEntry::{
     path: "/shop/:category",
     pattern: "^/shop/([^/]+)$",
     param_names: ["category"],
     source: "shop/[category]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: Some("shop-layout"),
     catch_all: None,
     title: Some("Shop - :category"),
@@ -332,34 +334,37 @@ test "Hybrid - SSR with client islands" {
 
 ///|
 test "Hybrid - SPA for some routes, SSR for others" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
       // SSR route for SEO-important content
-      RouteEntry::Dynamic(DynamicRouteEntry::{
+      @routes.RouteEntry::Dynamic(@routes.DynamicRouteEntry::{
         path: "/blog/:slug",
         pattern: "^/blog/([^/]+)$",
         param_names: ["slug"],
         source: "blog/[slug]/page.tsx",
-        mode: RenderMode::Ssr,
+        mode: @routes.RenderMode::Ssr,
         layout: None,
         catch_all: None,
         title: Some("Blog"),
         islands: ["comments"],
       }),
       // SPA route for app section
-      RouteEntry::Dynamic(DynamicRouteEntry::{
+      @routes.RouteEntry::Dynamic(@routes.DynamicRouteEntry::{
         path: "/app/:section",
         pattern: "^/app/([^/]+)$",
         param_names: ["section"],
         source: "app/[section]/page.tsx",
-        mode: RenderMode::Spa,
+        mode: @routes.RenderMode::Spa,
         layout: None,
         catch_all: None,
         title: None,
         islands: [],
       }),
     ],
-    fallback: FallbackConfig::SpaPrefix(prefix="/app/", entry="/app/index.html"),
+    fallback: @routes.FallbackConfig::SpaPrefix(
+      prefix="/app/",
+      entry="/app/index.html",
+    ),
   }
   inspect(manifest.routes.length(), content="2")
   // Fallback only applies to /app/ prefix
@@ -370,24 +375,24 @@ test "Hybrid - SPA for some routes, SSR for others" {
 test "Hybrid - ISR for product pages, SSR for dynamic" {
   let routes = [
     // ISR for product pages (cache with revalidation)
-    DynamicRouteEntry::{
+    @routes.DynamicRouteEntry::{
       path: "/products/:id",
       pattern: "^/products/([^/]+)$",
       param_names: ["id"],
       source: "products/[id]/page.tsx",
-      mode: RenderMode::Isr(revalidate=60),
+      mode: @routes.RenderMode::Isr(revalidate=60),
       layout: None,
       catch_all: None,
       title: None,
       islands: ["buy-button"],
     },
     // SSR for user-specific content
-    DynamicRouteEntry::{
+    @routes.DynamicRouteEntry::{
       path: "/cart",
       pattern: "^/cart$",
       param_names: [],
       source: "cart/page.tsx",
-      mode: RenderMode::Ssr,
+      mode: @routes.RenderMode::Ssr,
       layout: None,
       catch_all: None,
       title: None,
@@ -400,7 +405,7 @@ test "Hybrid - ISR for product pages, SSR for dynamic" {
   }
   inspect(sec, content="60")
   // Cart uses SSR (no caching for user data)
-  inspect(routes[1].mode == RenderMode::Ssr, content="true")
+  inspect(routes[1].mode == @routes.RenderMode::Ssr, content="true")
 }
 
 // =============================================================================
@@ -409,30 +414,30 @@ test "Hybrid - ISR for product pages, SSR for dynamic" {
 
 ///|
 test "ComponentType::SsrComponent - full hydration" {
-  let comp_type = ComponentType::SsrComponent
+  let comp_type = @routes.ComponentType::SsrComponent
   // SSR + hydration: server renders, client hydrates
   match comp_type {
-    ComponentType::SsrComponent => inspect(true, content="true")
+    @routes.ComponentType::SsrComponent => inspect(true, content="true")
     _ => fail("Expected SsrComponent")
   }
 }
 
 ///|
 test "ComponentType::ClientOnlyComponent - no SSR" {
-  let comp_type = ComponentType::ClientOnlyComponent
+  let comp_type = @routes.ComponentType::ClientOnlyComponent
   // Client-only: placeholder on server, full render on client
   match comp_type {
-    ComponentType::ClientOnlyComponent => inspect(true, content="true")
+    @routes.ComponentType::ClientOnlyComponent => inspect(true, content="true")
     _ => fail("Expected ClientOnlyComponent")
   }
 }
 
 ///|
 test "ComponentType::ServerOnlyComponent - no hydration" {
-  let comp_type = ComponentType::ServerOnlyComponent
+  let comp_type = @routes.ComponentType::ServerOnlyComponent
   // Server-only: SSR but no client JS
   match comp_type {
-    ComponentType::ServerOnlyComponent => inspect(true, content="true")
+    @routes.ComponentType::ServerOnlyComponent => inspect(true, content="true")
     _ => fail("Expected ServerOnlyComponent")
   }
 }
@@ -443,11 +448,11 @@ test "ComponentType::ServerOnlyComponent - no hydration" {
 
 ///|
 test "ComponentRouteEntry - SSR with hydration" {
-  let route = ComponentRouteEntry::{
+  let route = @routes.ComponentRouteEntry::{
     path: "/counter/:initial",
     source: "components/counter",
-    component_type: ComponentType::SsrComponent,
-    mode: RenderMode::Ssr,
+    component_type: @routes.ComponentType::SsrComponent,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     props_type: Some("CounterProps"),
     client_export: Some("Counter"),
@@ -455,18 +460,21 @@ test "ComponentRouteEntry - SSR with hydration" {
     static_paths: [],
     islands: ["counter"],
   }
-  inspect(route.component_type is ComponentType::SsrComponent, content="true")
+  inspect(
+    route.component_type is @routes.ComponentType::SsrComponent,
+    content="true",
+  )
   guard route.props_type is Some(pt) else { fail("Expected props_type") }
   inspect(pt, content="CounterProps")
 }
 
 ///|
 test "ComponentRouteEntry - client-only React component" {
-  let route = ComponentRouteEntry::{
+  let route = @routes.ComponentRouteEntry::{
     path: "/chart/:type",
     source: "components/chart",
-    component_type: ComponentType::ClientOnlyComponent,
-    mode: RenderMode::Spa,
+    component_type: @routes.ComponentType::ClientOnlyComponent,
+    mode: @routes.RenderMode::Spa,
     layout: None,
     props_type: Some("ChartProps"),
     client_export: Some("Chart"),
@@ -475,7 +483,7 @@ test "ComponentRouteEntry - client-only React component" {
     islands: [],
   }
   inspect(
-    route.component_type is ComponentType::ClientOnlyComponent,
+    route.component_type is @routes.ComponentType::ClientOnlyComponent,
     content="true",
   )
   inspect(route.server_export is None, content="true")
@@ -483,11 +491,11 @@ test "ComponentRouteEntry - client-only React component" {
 
 ///|
 test "ComponentRouteEntry - server-only (no hydration)" {
-  let route = ComponentRouteEntry::{
+  let route = @routes.ComponentRouteEntry::{
     path: "/email/:template",
     source: "components/email-template",
-    component_type: ComponentType::ServerOnlyComponent,
-    mode: RenderMode::Ssr,
+    component_type: @routes.ComponentType::ServerOnlyComponent,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     props_type: Some("EmailProps"),
     client_export: None, // No client export
@@ -496,7 +504,7 @@ test "ComponentRouteEntry - server-only (no hydration)" {
     islands: [], // No islands needed
   }
   inspect(
-    route.component_type is ComponentType::ServerOnlyComponent,
+    route.component_type is @routes.ComponentType::ServerOnlyComponent,
     content="true",
   )
   inspect(route.client_export is None, content="true")
@@ -509,25 +517,25 @@ test "ComponentRouteEntry - server-only (no hydration)" {
 
 ///|
 test "ComponentRouteEntry - static paths for ISG" {
-  let route = ComponentRouteEntry::{
+  let route = @routes.ComponentRouteEntry::{
     path: "/blog/:slug",
     source: "components/blog-post",
-    component_type: ComponentType::SsrComponent,
-    mode: RenderMode::Isr(revalidate=3600),
+    component_type: @routes.ComponentType::SsrComponent,
+    mode: @routes.RenderMode::Isr(revalidate=3600),
     layout: None,
     props_type: Some("BlogPostProps"),
     client_export: Some("BlogPost"),
     server_export: Some("render_ssr"),
     static_paths: [
-      StaticPathEntry::{
+      @routes.StaticPathEntry::{
         params: { "slug": "hello-world" },
         output: "blog/hello-world/index.html",
       },
-      StaticPathEntry::{
+      @routes.StaticPathEntry::{
         params: { "slug": "getting-started" },
         output: "blog/getting-started/index.html",
       },
-      StaticPathEntry::{
+      @routes.StaticPathEntry::{
         params: { "slug": "advanced-topics" },
         output: "blog/advanced-topics/index.html",
       },
@@ -549,7 +557,7 @@ test "ComponentRouteEntry - static paths for ISG" {
 
 ///|
 test "FallbackConfig - SPA entry with prefix" {
-  let fallback = FallbackConfig::SpaPrefix(
+  let fallback = @routes.FallbackConfig::SpaPrefix(
     prefix="/app/",
     entry="/app/shell.html",
   )
@@ -560,13 +568,13 @@ test "FallbackConfig - SPA entry with prefix" {
 
 ///|
 test "FallbackConfig - NotFound with custom path" {
-  let fallback = FallbackConfig::NotFound(path="/custom-404.html")
+  let fallback = @routes.FallbackConfig::NotFound(path="/custom-404.html")
   inspect(fallback.is_spa(), content="false")
 }
 
 ///|
 test "FallbackConfig - SPA for entire app" {
-  let fallback = FallbackConfig::Spa(entry="/index.html")
+  let fallback = @routes.FallbackConfig::Spa(entry="/index.html")
   inspect(fallback.is_spa(), content="true")
   guard fallback.spa_entry() is Some(entry) else { fail("Expected SPA entry") }
   inspect(entry, content="/index.html")
@@ -575,9 +583,9 @@ test "FallbackConfig - SPA for entire app" {
 ///|
 test "RenderMode - ISR revalidation times" {
   // Various revalidation times for different use cases
-  let short = RenderMode::Isr(revalidate=60) // 1 minute
-  let medium = RenderMode::Isr(revalidate=300) // 5 minutes
-  let long = RenderMode::Isr(revalidate=3600) // 1 hour
+  let short = @routes.RenderMode::Isr(revalidate=60) // 1 minute
+  let medium = @routes.RenderMode::Isr(revalidate=300) // 5 minutes
+  let long = @routes.RenderMode::Isr(revalidate=3600) // 1 hour
   guard short.revalidate_seconds() is Some(s1) else { fail("Expected Some") }
   guard medium.revalidate_seconds() is Some(s2) else { fail("Expected Some") }
   guard long.revalidate_seconds() is Some(s3) else { fail("Expected Some") }
@@ -592,9 +600,9 @@ test "RenderMode - ISR revalidation times" {
 
 ///|
 test "RouteManifest - static and dynamic routes" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
-      RouteEntry::Static(StaticRouteEntry::{
+      @routes.RouteEntry::Static(@routes.StaticRouteEntry::{
         path: "/",
         source: "index.md",
         output: "index.html",
@@ -605,41 +613,41 @@ test "RouteManifest - static and dynamic routes" {
         locale: "en",
         generated_params: [],
       }),
-      RouteEntry::Dynamic(DynamicRouteEntry::{
+      @routes.RouteEntry::Dynamic(@routes.DynamicRouteEntry::{
         path: "/blog/:slug",
         pattern: "^/blog/([^/]+)$",
         param_names: ["slug"],
         source: "blog/[slug]/page.tsx",
-        mode: RenderMode::Isr(revalidate=60),
+        mode: @routes.RenderMode::Isr(revalidate=60),
         layout: None,
         catch_all: None,
         title: Some("Blog"),
         islands: [],
       }),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
   inspect(manifest.routes.length(), content="2")
 }
 
 ///|
 test "RouteManifest - API routes with dynamic paths" {
-  let manifest = RouteManifest::{
+  let manifest = @routes.RouteManifest::{
     routes: [
-      RouteEntry::Api(ApiRouteEntry::{
+      @routes.RouteEntry::Api(@routes.ApiRouteEntry::{
         path: "/api/users/:id",
         pattern: "^/api/users/([^/]+)$",
         param_names: ["id"],
-        http_method: HttpMethod::Get,
+        http_method: @routes.HttpMethod::Get,
         source: "api/users/[id].ts",
       }),
     ],
-    fallback: FallbackConfig::NotFound(path="/404.html"),
+    fallback: @routes.FallbackConfig::NotFound(path="/404.html"),
   }
-  guard manifest.routes[0] is RouteEntry::Api(api) else {
+  guard manifest.routes[0] is @routes.RouteEntry::Api(api) else {
     fail("Expected Api route")
   }
-  inspect(api.http_method == HttpMethod::Get, content="true")
+  inspect(api.http_method == @routes.HttpMethod::Get, content="true")
 }
 
 // =============================================================================
@@ -648,12 +656,12 @@ test "RouteManifest - API routes with dynamic paths" {
 
 ///|
 test "Mixed frameworks - React SSR route" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/dashboard/:view",
     pattern: "^/dashboard/([^/]+)$",
     param_names: ["view"],
     source: "dashboard/[view]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: Some("dashboard-layout"),
     catch_all: None,
     title: Some("Dashboard - :view"),
@@ -666,12 +674,12 @@ test "Mixed frameworks - React SSR route" {
 
 ///|
 test "Mixed frameworks - Preact lightweight islands" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/widgets/:type",
     pattern: "^/widgets/([^/]+)$",
     param_names: ["type"],
     source: "widgets/[type]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     catch_all: None,
     title: None,
@@ -683,12 +691,12 @@ test "Mixed frameworks - Preact lightweight islands" {
 
 ///|
 test "Mixed frameworks - Luna WASM islands" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/compute/:task",
     pattern: "^/compute/([^/]+)$",
     param_names: ["task"],
     source: "compute/[task]/page.tsx",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     catch_all: None,
     title: None,
@@ -705,21 +713,21 @@ test "Mixed frameworks - Luna WASM islands" {
 ///|
 test "HttpMethod - all HTTP methods" {
   let methods = [
-    HttpMethod::Get,
-    HttpMethod::Post,
-    HttpMethod::Put,
-    HttpMethod::Delete,
-    HttpMethod::Patch,
-    HttpMethod::All,
+    @routes.HttpMethod::Get,
+    @routes.HttpMethod::Post,
+    @routes.HttpMethod::Put,
+    @routes.HttpMethod::Delete,
+    @routes.HttpMethod::Patch,
+    @routes.HttpMethod::All,
   ]
   inspect(methods.length(), content="6")
 }
 
 ///|
 test "HttpMethod - equality comparison" {
-  inspect(HttpMethod::Get == HttpMethod::Get, content="true")
-  inspect(HttpMethod::Post == HttpMethod::Post, content="true")
-  inspect(HttpMethod::Get == HttpMethod::Post, content="false")
+  inspect(@routes.HttpMethod::Get == @routes.HttpMethod::Get, content="true")
+  inspect(@routes.HttpMethod::Post == @routes.HttpMethod::Post, content="true")
+  inspect(@routes.HttpMethod::Get == @routes.HttpMethod::Post, content="false")
 }
 
 // =============================================================================
@@ -729,7 +737,7 @@ test "HttpMethod - equality comparison" {
 ///|
 test "Pattern - Express style :param" {
   let path = "/blog/:slug"
-  let (pattern, params) = extract_url_pattern(path)
+  let (pattern, params) = @routes.extract_url_pattern(path)
   inspect(pattern.contains("([^/]+)"), content="true")
   inspect(params[0], content="slug")
 }
@@ -737,7 +745,7 @@ test "Pattern - Express style :param" {
 ///|
 test "Pattern - Next.js style [param]" {
   let path = "/blog/[slug]"
-  let (pattern, params) = extract_url_pattern(path)
+  let (pattern, params) = @routes.extract_url_pattern(path)
   inspect(pattern.contains("([^/]+)"), content="true")
   inspect(params[0], content="slug")
 }
@@ -745,7 +753,7 @@ test "Pattern - Next.js style [param]" {
 ///|
 test "Pattern - multiple params" {
   let path = "/user/:id/posts/:postId"
-  let (_, params) = extract_url_pattern(path)
+  let (_, params) = @routes.extract_url_pattern(path)
   inspect(params.length(), content="2")
   inspect(params[0], content="id")
   inspect(params[1], content="postId")
@@ -754,7 +762,7 @@ test "Pattern - multiple params" {
 ///|
 test "Pattern - catch-all extraction" {
   let path = "/docs/[...slug]"
-  guard extract_catch_all(path) is Some(info) else {
+  guard @routes.extract_catch_all(path) is Some(info) else {
     fail("Expected catch-all")
   }
   inspect(info.name, content="slug")
@@ -764,7 +772,7 @@ test "Pattern - catch-all extraction" {
 ///|
 test "Pattern - optional catch-all extraction" {
   let path = "/wiki/[[...path]]"
-  guard extract_catch_all(path) is Some(info) else {
+  guard @routes.extract_catch_all(path) is Some(info) else {
     fail("Expected catch-all")
   }
   inspect(info.name, content="path")
@@ -777,12 +785,12 @@ test "Pattern - optional catch-all extraction" {
 
 ///|
 test "Edge case - empty islands array" {
-  let route = DynamicRouteEntry::{
+  let route = @routes.DynamicRouteEntry::{
     path: "/static/:page",
     pattern: "^/static/([^/]+)$",
     param_names: ["page"],
     source: "static/[page]/page.md",
-    mode: RenderMode::Ssr,
+    mode: @routes.RenderMode::Ssr,
     layout: None,
     catch_all: None,
     title: None,
@@ -793,7 +801,7 @@ test "Edge case - empty islands array" {
 
 ///|
 test "Edge case - ISR with 0 revalidation" {
-  let mode = RenderMode::Isr(revalidate=0)
+  let mode = @routes.RenderMode::Isr(revalidate=0)
   // 0 means cache forever (no revalidation)
   guard mode.revalidate_seconds() is Some(sec) else { fail("Expected Some") }
   inspect(sec, content="0")
@@ -802,7 +810,7 @@ test "Edge case - ISR with 0 revalidation" {
 ///|
 test "Edge case - deeply nested dynamic segments" {
   let path = "/org/:orgId/team/:teamId/project/:projectId"
-  let (_, params) = extract_url_pattern(path)
+  let (_, params) = @routes.extract_url_pattern(path)
   inspect(params.length(), content="3")
   inspect(params[0], content="orgId")
   inspect(params[1], content="teamId")

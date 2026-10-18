@@ -1,8 +1,9 @@
 ///|
 test "popover: uses native popover attribute" {
-  let node : @luna.Node[Unit, String] = popover("menu-popover", [
-    @luna.text("Menu"),
-  ])
+  let node : @luna.Node[Unit, String] = @luna_components.popover(
+    "menu-popover",
+    [@luna.text("Menu")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="div")
   let mut has_id = false
@@ -23,7 +24,7 @@ test "popover: uses native popover attribute" {
 
 ///|
 test "popover: supports manual mode and dialog role" {
-  let node : @luna.Node[Unit, String] = popover(
+  let node : @luna.Node[Unit, String] = @luna_components.popover(
     "confirm-popover",
     mode=Manual,
     role="dialog",
@@ -59,7 +60,7 @@ test "popover: supports manual mode and dialog role" {
 
 ///|
 test "popover_trigger: targets popover without client runtime" {
-  let node : @luna.Node[Unit, String] = popover_trigger(
+  let node : @luna.Node[Unit, String] = @luna_components.popover_trigger(
     "menu-popover",
     action=Toggle,
     [@luna.text("Open menu")],

@@ -10,26 +10,29 @@
 ///|
 test "ServerNode::sync - creates synchronous node" {
   let node = @luna.text("Hello, World!")
-  let server_node = ServerNode::sync(node)
+  let server_node = @static.ServerNode::sync(node)
   inspect(server_node.is_async(), content="false")
 }
 
 ///|
 test "ServerNode::async_ - creates asynchronous node" {
-  let server_node = ServerNode::async_(fn() { @luna.text("Async content") })
+  let server_node = @static.ServerNode::async_(fn() {
+    @luna.text("Async content")
+  })
   inspect(server_node.is_async(), content="true")
 }
 
 ///|
 async test "ServerNode - declared assets compose without affecting resolved HTML" {
-  let server_node = ServerNode::group([
-    ServerNode::sync(@luna.h("p", [], [@luna.text("First")])).with_assets(
+  let server_node = @static.ServerNode::group([
+    @static.ServerNode::sync(@luna.h("p", [], [@luna.text("First")])).with_assets(
       styles=["./panel.css"],
       scripts=["./panel.client.ts"],
     ),
-    ServerNode::sync(@luna.h("span", [], [@luna.text("Second")])).with_assets(styles=[
-      "./panel.css", "./badge.css",
-    ]),
+    @static.ServerNode::sync(@luna.h("span", [], [@luna.text("Second")])).with_assets(styles=[
+        "./panel.css", "./badge.css",
+      ],
+    ),
   ])
   let assets = server_node.declared_assets()
   assert_eq(assets.styles, ["./panel.css", "./badge.css"])
@@ -51,7 +54,7 @@ test "ServerNode - sync with element tree" {
     @luna.h("h1", [], [@luna.text("Title")]),
     @luna.h("p", [], [@luna.text("Content")]),
   ])
-  let server_node = ServerNode::sync(node)
+  let server_node = @static.ServerNode::sync(node)
   // Verify it's synchronous
   inspect(server_node.is_async(), content="false")
   // Can access the node directly for sync
@@ -64,7 +67,7 @@ test "ServerNode - sync with element tree" {
 ///|
 test "ServerNode - async with dynamic data factory" {
   // Test creating async ServerNode (factory pattern)
-  let server_node = ServerNode::async_(fn() {
+  let server_node = @static.ServerNode::async_(fn() {
     let items = ["Item 1", "Item 2", "Item 3"]
     @luna.h(
       "ul",
@@ -90,7 +93,7 @@ test "ServerNode - sync with wc_island" {
     [@luna.text("Toggle")],
     trigger=@core.Visible,
   )
-  let server_node = ServerNode::sync(wc_island)
+  let server_node = @static.ServerNode::sync(wc_island)
   inspect(server_node.is_async(), content="false")
   guard server_node is Sync(inner) else { fail("Expected Sync") }
   guard inner is @core.WcIsland(island) else { fail("Expected WcIsland") }
@@ -107,7 +110,7 @@ test "ServerNode - sync with internal_ref" {
     trigger=@core.Idle,
     children=[@luna.text("Click me")],
   )
-  let server_node = ServerNode::sync(ref_node)
+  let server_node = @static.ServerNode::sync(ref_node)
   inspect(server_node.is_async(), content="false")
   guard server_node is Sync(inner) else { fail("Expected Sync") }
   guard inner is @core.InternalRef(iref) else { fail("Expected InternalRef") }
@@ -134,7 +137,7 @@ test "ServerNode - nested wc_islands in sync" {
       [@luna.text("Contact")],
     ),
   ])
-  let server_node = ServerNode::sync(node)
+  let server_node = @static.ServerNode::sync(node)
   inspect(server_node.is_async(), content="false")
   guard server_node is Sync(inner) else { fail("Expected Sync") }
   guard inner is @core.Element(el) else { fail("Expected Element") }
@@ -259,7 +262,7 @@ test "Fragment - contains multiple nodes" {
 
 ///|
 test "ServerNode - pattern matching sync" {
-  let server_node = ServerNode::sync(@luna.text("test"))
+  let server_node = @static.ServerNode::sync(@luna.text("test"))
   let is_sync = match server_node {
     Sync(_) => true
     Async(_) => false
@@ -270,7 +273,7 @@ test "ServerNode - pattern matching sync" {
 
 ///|
 test "ServerNode - pattern matching async" {
-  let server_node = ServerNode::async_(fn() { @luna.text("async") })
+  let server_node = @static.ServerNode::async_(fn() { @luna.text("async") })
   let is_async = match server_node {
     Sync(_) => false
     Async(_) => true

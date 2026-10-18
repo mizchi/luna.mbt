@@ -46,6 +46,12 @@ pub(all) enum CacheStrategy {
 } derive(Eq, Debug)
 
 ///|
+pub extend CacheStrategy with @debug.Debug::{to_repr}
+
+///|
+pub extend CacheStrategy with Eq::{not_equal, equal}
+
+///|
 /// Default cache strategy is AlwaysFetch
 pub fn CacheStrategy::default() -> CacheStrategy {
   CacheStrategy::AlwaysFetch
@@ -207,6 +213,12 @@ pub enum SolRouteKind {
   RawDelete
   RawPatch
 } derive(Eq, Debug)
+
+///|
+pub extend SolRouteKind with @debug.Debug::{to_repr}
+
+///|
+pub extend SolRouteKind with Eq::{not_equal, equal}
 
 // ============================================================================
 // Static Directory (SSG Integration)

@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "example/sol-auth/server"
+
+import {
+  "mizchi/luna/dom/static",
+  "mizchi/sol/action",
+  "mizchi/sol/router",
+}
+
+// Values
+pub fn action_registry() -> @action.ActionRegistry
+
+pub fn admin_layout(@router.PageProps, @static.ServerNode) -> @static.ServerNode raise
+
+pub fn config() -> @router.RouterConfig
+
+pub fn get_session() -> Session?
+
+pub fn is_authenticated() -> Bool
+
+pub fn routes() -> Array[@router.SolRoutes]
+
+// Errors
+
+// Types and methods
+pub struct Session {
+  user_id : String
+  user_name : String
+  user_email : String
+}
+
+// Type aliases
+
+// Traits

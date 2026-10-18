@@ -51,3 +51,41 @@ test.describe("sol_components_demo visual regression", () => {
     });
   }
 });
+
+test("React and MoonBit pages contain actual SSR output", async ({ page }) => {
+  for (const [path, component] of [
+    ["/color_palette/", ".color-palette-component"],
+    ["/info_box/", ".info-box-component"],
+  ]) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator(component)).toBeVisible();
+    await expect(page.locator('[data-ssr="pending"], [data-ssr="failed"]')).toHaveCount(0);
+  }
+});
+
+test("sidebar hydrates and supports keyboard navigation", async ({ page }) => {
+  const response = await page.request.get("/components/sidebar-disclosure.js");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toMatch(/javascript/);
+  await page.goto("/color_palette/");
+  const sidebar = page.locator("aside.sidebar");
+  await expect(sidebar).toHaveAttribute("data-hydrated", "true");
+  const summaries = sidebar.locator("details.sidebar-collapse > summary");
+  await expect(summaries).toHaveCount(2);
+  await summaries.first().focus();
+  await page.keyboard.press("End");
+  await expect(summaries.last()).toBeFocused();
+  await page.keyboard.press("Home");
+  await expect(summaries.first()).toBeFocused();
+});
+
+test("counter island responds to clicks", async ({ page }) => {
+  await page.goto("/");
+  const counter = page.locator("my-counter");
+  await expect(counter.locator(".count")).toHaveText("0");
+  await counter.getByRole("button", { name: "increment", exact: true }).click();
+  await expect(counter.locator(".count")).toHaveText("1");
+  await counter.getByRole("button", { name: "decrement", exact: true }).click();
+  await expect(counter.locator(".count")).toHaveText("0");
+});
