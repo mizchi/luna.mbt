@@ -86,6 +86,12 @@ jobs:
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
           echo "dir=$DIR"   >> "$GITHUB_OUTPUT"
 
+      # Moon resolves the whole checkout's workspace even for Luna-only builds.
+      # Bootstrap generated example imports before the npm prepack hook runs.
+      - name: Prepare MoonBit workspace for Luna
+        if: steps.pkg.outputs.name == '@luna_ui/luna'
+        run: node scripts/generate-examples.mjs
+
       # pnpm resolves workspace: ranges in the artifact. The package's
       # prepack hook builds its JS and, where needed, MoonBit output.
       - name: Pack ${{ steps.pkg.outputs.name }}
