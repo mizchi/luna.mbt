@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna_components-v0.23.4] - 2026-10-19
+
+- Update dependencies and explicit derived method declarations for compiler compatibility.
+
 ## [luna_components-v0.23.3] - 2026-09-16
 
 ### Dependencies

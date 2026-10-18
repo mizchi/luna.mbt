@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.23.2 (2026-10-19)
+
+- Fix generated starter JSON methods and exclude associated methods from island entry points.
+- Ship current MoonBit dependencies and updated typed route, action, and hydration generation.
+
 ## [0.23.0](https://github.com/mizchi/luna.mbt/compare/sol-v0.22.1...sol-v0.23.0) (2026-07-10)
 
 

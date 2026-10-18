@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/stella",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "Stella CLI - Web Components generator for Luna",
   "type": "module",
   "bin": {
@@ -47,5 +47,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=24.15.0"
   }
 }

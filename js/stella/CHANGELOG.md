@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.2 (2026-10-19)
+
+- Update dependencies and publish with the current Web Components runtime.
+
 ## [0.23.0](https://github.com/mizchi/luna.mbt/compare/stella-v0.22.0...stella-v0.23.0) (2026-07-10)
 
 

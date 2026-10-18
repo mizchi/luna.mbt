@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [sol-v0.23.5] - 2026-10-19
+
+- Fix starter JSON methods and exclude associated methods from island entry points.
+- Update typed generation for Int32/UInt32 and current MoonBit dependencies.
+
 ## [sol-v0.23.4] - 2026-09-16
 
 ### Dependencies

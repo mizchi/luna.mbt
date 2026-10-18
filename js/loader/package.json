@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/luna-loader",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "Island loader for Luna SSR hydration",
   "type": "module",
   "main": "./dist/wc-loader.js",
@@ -58,5 +58,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=24.15.0"
   }
 }

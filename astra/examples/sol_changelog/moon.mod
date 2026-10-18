@@ -3,9 +3,9 @@ name = "example/sol-changelog"
 version = "0.1.0"
 
 import {
-  "mizchi/astra@0.23.3",
-  "mizchi/sol@0.23.4",
-  "mizchi/luna@0.25.1",
+  "mizchi/astra@0.23.4",
+  "mizchi/sol@0.23.5",
+  "mizchi/luna@0.25.2",
   "mizchi/mars@0.3.13",
   "mizchi/signals@0.6.6",
   "mizchi/js@0.13.0",

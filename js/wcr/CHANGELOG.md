@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.2 (2026-10-19)
+
+- Update dependencies and regenerate JavaScript and TypeScript declarations.
+
 ## [0.23.0](https://github.com/mizchi/luna.mbt/compare/wcr-v0.22.0...wcr-v0.23.0) (2026-07-10)
 
 

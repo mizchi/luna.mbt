@@ -1,11 +1,11 @@
 name = "mizchi/astra"
 
-version = "0.23.3"
+version = "0.23.4"
 
 import {
   "mizchi/js_core@0.13.0",
   "mizchi/js_node@0.13.0",
-  "mizchi/luna@0.25.1",
+  "mizchi/luna@0.25.2",
   "mizchi/mars@0.3.13",
   "mizchi/markdown@0.8.3",
   "mizchi/js@0.13.0",

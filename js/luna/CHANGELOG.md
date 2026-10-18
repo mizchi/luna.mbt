@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.24.0 (2026-10-19)
+
+- Add optional Void renderer exports and composable Luna, React, and Solid islands.
+- Ship animation and easing builds, current MoonBit dependencies, and compiler compatibility fixes.
+
 ## [0.23.1](https://github.com/mizchi/luna.mbt/compare/luna-v0.23.0...luna-v0.23.1) (2026-07-10)
 
 

@@ -2,6 +2,11 @@
 
 All notable changes to `mizchi/astra` are documented here.
 
+## [astra-v0.23.4] - 2026-10-19
+
+- Render React and MoonBit components asynchronously in build and development.
+- Serve sidebar hydration, fail on SSR errors, and refresh component output after source changes.
+
 ## [astra-v0.23.3] - 2026-09-16
 
 ### Dependencies

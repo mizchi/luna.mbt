@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.2 (2026-10-19)
+
+- Update build dependencies and publish the refreshed island loader bundles.
+
 ## [0.23.0](https://github.com/mizchi/luna.mbt/compare/luna-loader-v0.22.0...luna-loader-v0.23.0) (2026-07-10)
 
 

@@ -2,6 +2,10 @@
 
 All notable changes to `mizchi/sol_adapter_cloudflare` are documented here.
 
+## [sol_adapter_cloudflare-v0.23.4] - 2026-10-19
+
+- Update Sol and Cloudflare runtime dependencies for compiler compatibility.
+
 ## [sol_adapter_cloudflare-v0.23.3] - 2026-09-16
 
 ### Dependencies

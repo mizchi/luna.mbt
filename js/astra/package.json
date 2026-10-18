@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/astra",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "private": false,
   "type": "module",
   "bin": {
@@ -19,7 +19,7 @@
   "dependencies": {
     "colorette": "^2.0.20"
   },
-  "description": "Astra \u2014 SSG / static-export companion for Sol (CLI wrapper)",
+  "description": "Astra — SSG / static-export companion for Sol (CLI wrapper)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -28,5 +28,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=24.15.0"
   }
 }

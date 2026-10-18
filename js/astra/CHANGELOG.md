@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.23.2 (2026-10-19)
+
+- Render React and MoonBit components through asynchronous SSR in build and development.
+- Serve sidebar hydration, report SSR failures, and refresh component output after source changes.
+
 ## [0.23.0](https://github.com/mizchi/luna.mbt/compare/astra-v0.22.0...astra-v0.23.0) (2026-07-10)
 
 

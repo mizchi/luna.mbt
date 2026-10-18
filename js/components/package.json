@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/components",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "Headless UI components matching src/components APG patterns",
   "type": "module",
   "main": "./dist/index.mjs",
@@ -87,5 +87,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=24.15.0"
   }
 }

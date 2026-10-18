@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/luna",
-  "version": "0.23.2",
+  "version": "0.24.0",
   "description": "Fine-grained reactive UI library for Moonbit/JS",
   "type": "module",
   "main": "./dist/index.js",
@@ -119,5 +119,8 @@
   "files": [
     "dist",
     "docs/void.md"
-  ]
+  ],
+  "engines": {
+    "node": ">=24.15.0"
+  }
 }

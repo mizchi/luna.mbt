@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/wcr",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "Web Components Runtime for Luna UI",
   "type": "module",
   "main": "./dist/index.js",
@@ -36,5 +36,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=24.15.0"
   }
 }

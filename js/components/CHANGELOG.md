@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.2 (2026-10-19)
+
+- Update dependencies and build tooling for the current Node.js and TypeScript toolchain.
+
 ## [0.23.0](https://github.com/mizchi/luna.mbt/compare/components-v0.22.0...components-v0.23.0) (2026-07-10)
 
 

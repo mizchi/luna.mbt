@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/testing",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "Testing utilities for Luna UI components",
   "type": "module",
   "main": "./dist/index.mjs",
@@ -43,5 +43,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=24.15.0"
   }
 }

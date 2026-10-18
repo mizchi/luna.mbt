@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna-v0.25.2] - 2026-10-19
+
+- Update MoonBit dependencies and require compiler 0.10.15 or newer.
+- Make derived JSON methods explicit and retain current animation, easing, and DOM APIs.
+
 ## [luna-v0.25.1] - 2026-09-16
 
 ### Dependencies
