@@ -10,11 +10,11 @@ pub fn[E] register_routes(
   page_resolver : (String, Ctx, RouteParams) -> @luna.Node[E, String]?,
   api_resolver : (String, Ctx, RouteParams) -> Json?,
   config? : RouterConfig,
-  title_prefix? : String = "",
-  default_title? : String = "App",
-  default_head? : String = "",
-  loader_url? : String = "/__sol__/loader.js",
-  wc_loader_url? : String = "/__sol__/wc-loader.js",
+  title_prefix~ : String = "",
+  default_title~ : String = "App",
+  default_head~ : String = "",
+  loader_url~ : String = "/__sol__/loader.js",
+  wc_loader_url~ : String = "/__sol__/wc-loader.js",
 ) -> Unit {
   ensure_mars_to_handler_compat()
   let resolved = resolve_router_config(
@@ -159,11 +159,11 @@ pub fn register_server_routes(
   page_resolver : AsyncPageResolver,
   api_resolver : (String, Ctx, RouteParams) -> Json?,
   config? : RouterConfig,
-  title_prefix? : String = "",
-  default_title? : String = "App",
-  default_head? : String = "",
-  loader_url? : String = "/__sol__/loader.js",
-  wc_loader_url? : String = "/__sol__/wc-loader.js",
+  title_prefix~ : String = "",
+  default_title~ : String = "App",
+  default_head~ : String = "",
+  loader_url~ : String = "/__sol__/loader.js",
+  wc_loader_url~ : String = "/__sol__/wc-loader.js",
 ) -> Unit {
   ensure_mars_to_handler_compat()
   let resolved = resolve_router_config(
@@ -225,7 +225,7 @@ fn legacy_api_handler_from_resolver(
           "Handler not found",
           status=404,
         )
-        ().to_json()
+        Json::Json(())
       }
     }
   }

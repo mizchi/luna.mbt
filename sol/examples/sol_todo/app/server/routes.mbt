@@ -199,7 +199,7 @@ async fn about_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
 ///|
 /// Todo item structure
 pub(all) struct Todo {
-  id : Int
+  id : Int32
   text : String
   completed : Bool
 } derive(ToJson, FromJson)
@@ -210,7 +210,7 @@ let todo_store : Ref[Array[Todo]] = { val: [], }
 
 ///|
 /// Next ID counter
-let next_id : Ref[Int] = { val: 1, }
+let next_id : Ref[Int32] = { val: 1, }
 
 ///|
 /// Initialize with sample data
@@ -244,7 +244,7 @@ fn add_todo(text : String) -> Todo {
 
 ///|
 /// Toggle todo completion
-fn toggle_todo(id : Int) -> Bool {
+fn toggle_todo(id : Int32) -> Bool {
   ensure_initialized()
   for i, todo in todo_store.val {
     if todo.id == id {
@@ -257,7 +257,7 @@ fn toggle_todo(id : Int) -> Bool {
 
 ///|
 /// Delete a todo
-fn delete_todo(id : Int) -> Bool {
+fn delete_todo(id : Int32) -> Bool {
   ensure_initialized()
   let initial_len = todo_store.val.length()
   todo_store.val = todo_store.val.iter().filter(fn(t) { t.id != id }).collect()
@@ -273,7 +273,7 @@ fn delete_todo(id : Int) -> Bool {
 async fn api_get_todos(_props : @sol.PageProps) -> Json {
   let todos = get_todos()
   let todos_json : Array[Json] = todos.map(fn(t) { ToJson::to_json(t) })
-  { "todos": todos_json.to_json() }.to_json()
+  Json({ "todos": Json(todos_json) })
 }
 
 ///|
@@ -295,7 +295,7 @@ async fn api_add_todo(props : @sol.PageProps) -> Json {
   let json = props.body_json()
   let text = get_json_string(json, "text")
   if text == "" {
-    return { "error": "text is required" }.to_json()
+    return Json({ "error": "text is required" })
   }
   let todo = add_todo(text)
   ToJson::to_json(todo)
@@ -310,10 +310,10 @@ async fn api_delete_todo(props : @sol.PageProps) -> Json {
   }
   let id = parse_int(id_str)
   if id <= 0 {
-    return { "error": "invalid id" }.to_json()
+    return Json({ "error": "invalid id" })
   }
   let deleted = delete_todo(id)
-  { "deleted": deleted.to_json() }.to_json()
+  Json({ "deleted": Json(deleted) })
 }
 
 // =============================================================================
@@ -327,7 +327,7 @@ priv struct AddTodoRequest {
 
 ///|
 priv struct TodoIdRequest {
-  id : Int
+  id : Int32
 } derive(FromJson)
 
 ///|
@@ -474,11 +474,11 @@ extern "js" fn get_string_field(obj : @core.Any, field : String) -> String =
   #| (obj, field) => obj[field] || ""
 
 ///|
-extern "js" fn get_int_field(obj : @core.Any, field : String) -> Int =
+extern "js" fn get_int_field(obj : @core.Any, field : String) -> Int32 =
   #| (obj, field) => parseInt(obj[field], 10) || 0
 
 ///|
-extern "js" fn parse_int(s : String) -> Int =
+extern "js" fn parse_int(s : String) -> Int32 =
   #| (s) => parseInt(s, 10) || 0
 
 // =============================================================================

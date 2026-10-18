@@ -191,9 +191,9 @@ fn format_json_pure(
   timestamp : String,
 ) -> String {
   let json : Json = {
-    "method": http_method.to_json(),
-    "path": path.to_json(),
-    "timestamp": timestamp.to_json(),
+    "method": Json::Json(http_method),
+    "path": Json::Json(path),
+    "timestamp": Json::Json(timestamp),
   }
   json.stringify()
 }

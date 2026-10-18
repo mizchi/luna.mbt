@@ -7,7 +7,7 @@ test "route_ownership_manifest includes Sol page API raw and reserved ownership"
   }
 
   async fn api_handler(_props : PageProps) -> Json {
-    { "ok": true }.to_json()
+    Json::Json({ "ok": true })
   }
 
   async fn raw_handler(_props : PageProps) -> @web_http.Response {
@@ -87,7 +87,7 @@ test "api_client_manifest_json includes only Sol JSON API routes" {
   }
 
   async fn api_handler(_props : PageProps) -> Json {
-    { "ok": true }.to_json()
+    Json::Json({ "ok": true })
   }
 
   async fn raw_handler(_props : PageProps) -> @web_http.Response {
@@ -113,7 +113,7 @@ test "api_client_manifest_json includes only Sol JSON API routes" {
 ///|
 test "api_client_typescript generates fetch helpers with typed error shape" {
   async fn api_handler(_props : PageProps) -> Json {
-    { "ok": true }.to_json()
+    Json::Json({ "ok": true })
   }
 
   let manifest = route_ownership_manifest([
@@ -134,7 +134,7 @@ test "api_client_typescript generates fetch helpers with typed error shape" {
 ///|
 test "api_client_typescript quotes param names for file-system routes" {
   async fn api_handler(_props : PageProps) -> Json {
-    { "ok": true }.to_json()
+    Json::Json({ "ok": true })
   }
 
   let manifest = route_ownership_manifest([
@@ -150,7 +150,7 @@ test "api_client_typescript quotes param names for file-system routes" {
 ///|
 test "api_client_typescript fills colon regex routes without leaving regex suffix" {
   async fn api_handler(_props : PageProps) -> Json {
-    { "ok": true }.to_json()
+    Json::Json({ "ok": true })
   }
 
   let manifest = route_ownership_manifest([

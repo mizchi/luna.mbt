@@ -1231,12 +1231,12 @@ test "template_moon_mod: uses current published moon deps" {
   assert_true(content.contains("\"mizchi/sol@\{@version.VERSION}\""))
   assert_true(content.contains("\"mizchi/sol_adapter_node@0.23.3\""))
   assert_true(content.contains("\"mizchi/luna@0.25.1\""))
-  assert_true(content.contains("\"mizchi/signals@0.6.5\""))
+  assert_true(content.contains("\"mizchi/signals@0.6.6\""))
   assert_true(content.contains("\"mizchi/js@0.13.0\""))
   assert_true(content.contains("\"mizchi/js_core@0.13.0\""))
   assert_true(content.contains("\"mizchi/js_browser@0.13.0\""))
-  assert_true(content.contains("\"mizchi/npm_typed@0.1.16\""))
-  assert_true(content.contains("\"moonbitlang/async@0.21.3\""))
+  assert_true(content.contains("\"mizchi/npm_typed@0.1.18\""))
+  assert_true(content.contains("\"moonbitlang/async@0.22.5\""))
 }
 
 ///|

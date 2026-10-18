@@ -155,7 +155,7 @@ async fn home(_props : @sol.PageProps) -> @server_dom.ServerNode {
 
 ///|
 /// Generate a random integer between min and max (inclusive)
-fn generate_random_int(min : Int, max : Int) -> Int {
+fn generate_random_int(min : Int32, max : Int32) -> Int32 {
   let random = ffi_math_random()
   min + (random * (max - min + 1).to_double()).to_int()
 }
@@ -618,19 +618,19 @@ async fn api_test_catch_all(props : @sol.PageProps) -> Json {
     Err(_) => "(none)"
   }
   let all_params = props.params.params.map(fn(p) { p.0 + "=" + p.1 }).join(",")
-  @sol.ok([("path", path.to_json()), ("all_params", all_params.to_json())]).to_json()
+  @sol.ok([("path", Json(path)), ("all_params", Json(all_params))]).to_json()
 }
 
 ///|
 /// API handler: health check
 async fn api_health(_props : @sol.PageProps) -> Json {
-  @sol.ok([("status", "ok".to_json())]).to_json()
+  @sol.ok([("status", Json("ok"))]).to_json()
 }
 
 ///|
 /// API handler: benchmark ping (lightweight)
 async fn api_bench_ping(_props : @sol.PageProps) -> Json {
-  @sol.ok([("ok", true.to_json())]).to_json()
+  @sol.ok([("ok", Json(true))]).to_json()
 }
 
 ///|
@@ -640,19 +640,16 @@ async fn api_bench_catch_all(props : @sol.PageProps) -> Json {
     Ok(p) => p.path
     Err(_) => "(none)"
   }
-  @sol.ok([("path", path.to_json())]).to_json()
+  @sol.ok([("path", Json(path))]).to_json()
 }
 
 ///|
 /// API handler: middleware test - returns request info
 async fn api_middleware_test(_props : @sol.PageProps) -> Json {
   @sol.ok([
-    ("middleware", "logger >> cors".to_json()),
-    ("timestamp", get_timestamp().to_json()),
-    (
-      "message",
-      "Middleware is working! Check CORS headers in response.".to_json(),
-    ),
+    ("middleware", Json("logger >> cors")),
+    ("timestamp", Json(get_timestamp())),
+    ("message", Json("Middleware is working! Check CORS headers in response.")),
   ]).to_json()
 }
 

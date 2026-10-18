@@ -9,7 +9,7 @@
 /// route constants, action key factories, and Locale enum
 fn generate_types_mbt(
   structs : Array[StructExport],
-  route_info? : RouteInfo = RouteInfo::{
+  route_info~ : RouteInfo = RouteInfo::{
     _page_components: [],
     _api_handlers: [],
     route_paths: [],
@@ -19,9 +19,9 @@ fn generate_types_mbt(
     api_contracts: [],
     contract_shapes: [],
   },
-  static_dirs? : Array[StaticDirEntry] = [],
-  external_client_bundle? : Bool = false,
-  client_assets? : Array[ContractClientAsset] = [],
+  static_dirs~ : Array[StaticDirEntry] = [],
+  external_client_bundle~ : Bool = false,
+  client_assets~ : Array[ContractClientAsset] = [],
 ) -> String {
   let buf = StringBuilder()
   buf.write_string("///| Auto-generated types for island props\n")
@@ -172,7 +172,7 @@ fn generate_derived_method_extensions(
 /// These tests verify that to_json → from_json produces identical values.
 fn generate_types_roundtrip_tests(
   structs : Array[StructExport],
-  external_client_bundle? : Bool = false,
+  external_client_bundle~ : Bool = false,
 ) -> String {
   if structs.is_empty() {
     return ""
@@ -285,7 +285,12 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
 ///|
 /// Default JSON value for common MoonBit types
 fn default_json_value(type_str : String) -> String {
-  if type_str == "Int" || type_str == "Double" || type_str == "Float" {
+  if type_str == "Int" ||
+    type_str == "Int32" ||
+    type_str == "UInt" ||
+    type_str == "UInt32" ||
+    type_str == "Double" ||
+    type_str == "Float" {
     "0"
   } else if type_str == "String" {
     "\\\"\\\"" // escaped empty string
@@ -306,11 +311,11 @@ fn default_json_value(type_str : String) -> String {
 /// Generate types/moon.pkg
 fn generate_types_pkg(
   structs : Array[StructExport],
-  has_actions? : Bool = false,
-  external_client_bundle? : Bool = false,
-  has_route_params? : Bool = false,
-  client_assets? : Array[ContractClientAsset] = [],
-  contract_shapes? : Array[ContractDataShape] = [],
+  has_actions~ : Bool = false,
+  external_client_bundle~ : Bool = false,
+  has_route_params~ : Bool = false,
+  client_assets~ : Array[ContractClientAsset] = [],
+  contract_shapes~ : Array[ContractDataShape] = [],
 ) -> String {
   let buf = StringBuilder()
   let imports : Array[String] = []
@@ -368,7 +373,7 @@ fn generate_types_pkg(
 /// Generate TypeScript declarations for frontend code that consumes Sol contracts.
 fn generate_typescript_contract_decl(
   structs : Array[StructExport],
-  route_info? : RouteInfo = RouteInfo::{
+  route_info~ : RouteInfo = RouteInfo::{
     _page_components: [],
     _api_handlers: [],
     route_paths: [],
@@ -378,7 +383,7 @@ fn generate_typescript_contract_decl(
     api_contracts: [],
     contract_shapes: [],
   },
-  client_assets? : Array[ContractClientAsset] = [],
+  client_assets~ : Array[ContractClientAsset] = [],
 ) -> String {
   if structs.is_empty() &&
     route_info.route_paths.is_empty() &&
@@ -500,7 +505,7 @@ fn write_typescript_shape_interface(
 ///|
 fn generate_typescript_route_decl(
   route_paths : Array[String],
-  route_queries? : Array[RouteQueryContract] = [],
+  route_queries~ : Array[RouteQueryContract] = [],
 ) -> String {
   let buf = StringBuilder()
   buf.write_string("export type SolRoutePath = ")
@@ -582,7 +587,7 @@ fn route_query_for_path(
 ///|
 fn generate_typescript_action_decl(
   action_ids : Array[String],
-  action_contracts? : Array[ActionTypeContract] = [],
+  action_contracts~ : Array[ActionTypeContract] = [],
 ) -> String {
   let buf = StringBuilder()
   buf.write_string("export type SolActionId = ")
@@ -733,7 +738,14 @@ fn moonbit_type_to_typescript_type(type_str : String) -> String {
   match type_name {
     "Unit" => "undefined"
     "Bool" => "boolean"
-    "Int" | "UInt" | "Float" | "Double" | "Byte" | "Char" => "number"
+    "Int"
+    | "Int32"
+    | "UInt"
+    | "UInt32"
+    | "Float"
+    | "Double"
+    | "Byte"
+    | "Char" => "number"
     "Int64" | "UInt64" => "bigint"
     "String" => "string"
     "Json" => "unknown"
@@ -793,7 +805,7 @@ pub fn split_params(params_str : String) -> Array[String] {
 
 ///|
 /// Find matching closing paren position
-pub fn find_matching_paren(s : String, start : Int) -> Int? {
+pub fn find_matching_paren(s : String, start : Int32) -> Int32? {
   let mut depth = 0
   let chars = s.to_array()
   for i = start; i < chars.length(); i = i + 1 {

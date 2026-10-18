@@ -221,12 +221,12 @@ pub fn generate_state_script(id : String, json : String) -> String {
 /// ```
 pub fn[E] server_island(
   id~ : String,
-  props? : Json? = None,
-  fallback? : @luna.Node[E, String] = @luna.text(""),
-  revalidate? : Int? = None,
+  props~ : Json? = None,
+  fallback~ : @luna.Node[E, String] = @luna.text(""),
+  revalidate~ : Int32? = None,
 ) -> @luna.Node[E, String] {
   // Build the defer URL with encoded props
-  let props_json = props.unwrap_or(().to_json())
+  let props_json = props.unwrap_or(Json(()))
   let props_encoded = encode_uri_component(props_json.stringify())
   let defer_url = "/_sol/defer/" + id + "?props=" + props_encoded
   // Build attributes
@@ -247,8 +247,8 @@ pub fn[E] server_island(
 pub fn[T : ToJson, E] server_island_typed(
   id~ : String,
   props~ : T,
-  fallback? : @luna.Node[E, String] = @luna.text(""),
-  revalidate? : Int? = None,
+  fallback~ : @luna.Node[E, String] = @luna.text(""),
+  revalidate~ : Int32? = None,
 ) -> @luna.Node[E, String] {
   server_island(id~, props=Some(props.to_json()), fallback~, revalidate~)
 }
@@ -300,7 +300,7 @@ pub fn[E] island_raw(
   url : String,
   state : String,
   children : Array[@luna.Node[E, String]],
-  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
+  trigger~ : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E, String] {
   @luna.wc_island(name, url, "", state, children, trigger~)
 }
@@ -313,7 +313,7 @@ pub fn[E] island_with_raw(
   url : String,
   state : String,
   render : () -> @luna.Node[E, String],
-  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
+  trigger~ : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E, String] {
   @luna.wc_island(name, url, "", state, [render()], trigger~)
 }
@@ -323,7 +323,7 @@ pub fn[E] island_with_raw(
 /// Use hydration=true to enable hydration markers
 pub fn[E] render_node(
   node : @luna.Node[E, String],
-  hydration? : Bool = false,
+  hydration~ : Bool = false,
 ) -> String {
   if hydration {
     @render.render_to_string_with_hydration(node)
@@ -349,7 +349,7 @@ pub fn[E] wc_island_raw(
   styles : String,
   state : String,
   children : Array[@luna.Node[E, String]],
-  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
+  trigger~ : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E, String] {
   @luna.wc_island(name, url, styles, state, children, trigger~)
 }
@@ -363,7 +363,7 @@ pub fn[E] wc_island_with_raw(
   styles : String,
   state : String,
   render : () -> @luna.Node[E, String],
-  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
+  trigger~ : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E, String] {
   @luna.wc_island(name, url, styles, state, [render()], trigger~)
 }

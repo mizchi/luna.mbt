@@ -31,7 +31,7 @@ fn generate_hydrate_mbt(
     )
     buf.write_string("fn ffi_any_to_json(value : @js.Any) -> Json {\n")
     buf.write_string("  let s : String = ffi_json_stringify(value)\n")
-    buf.write_string("  @json.parse(s) catch { _ => ().to_json() }\n")
+    buf.write_string("  @json.parse(s) catch { _ => Json::null() }\n")
     buf.write_string("}\n\n")
     buf.write_string("///|\n")
     buf.write_string(

@@ -30,12 +30,12 @@ pub(all) struct WorkerInitData {
 /// Serialize WorkerInitData to JSON string for IPC
 pub fn WorkerInitData::to_json_string(self : WorkerInitData) -> String {
   let obj : Map[String, Json] = {
-    "configJson": self.config_json.to_json(),
-    "pagesJson": self.pages_json.to_json(),
-    "sidebarJson": self.sidebar_json.to_json(),
-    "cwd": self.cwd.to_json(),
+    "configJson": Json(self.config_json),
+    "pagesJson": Json(self.pages_json),
+    "sidebarJson": Json(self.sidebar_json),
+    "cwd": Json(self.cwd),
   }
-  obj.to_json().stringify()
+  Json(obj).stringify()
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn WorkerInitData::from_json(json : Json) -> WorkerInitData? {
 /// SSG-specific job result with page metadata
 pub(all) struct PageJobResult {
   /// Index of the page in the pages array
-  page_index : Int
+  page_index : Int32
   /// URL path of the generated page
   url_path : String
   /// Whether the job succeeded

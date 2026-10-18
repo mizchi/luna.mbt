@@ -36,16 +36,16 @@ if (args[0] === 'version') console.log(${JSON.stringify(version)});
 }
 
 test("npm builds reject an old MoonBit compiler before compiling dependencies", () => {
-  buildWithCompiler("moon 0.1.20260824\nmoonc v0.10.10+f8a486b6f (2026-08-21)", (result, calls) => {
+  buildWithCompiler("moon 0.1.20260920\nmoonc v0.10.14+7d59c7ec9 (2026-09-18)", (result, calls) => {
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /requires MoonBit v0\.10\.12 or newer/);
+    assert.match(result.stderr, /requires MoonBit v0\.10\.15 or newer/);
     assert.match(result.stderr, /moon upgrade/);
     assert.ok(!calls.some(([command]) => command === "build"));
   });
 });
 
 test("npm builds accept the supported compiler and run the release build", () => {
-  buildWithCompiler("moon 0.1.20260904\nmoonc v0.10.12+1634b282e (2026-09-07)", (result, calls) => {
+  buildWithCompiler("moon 0.1.20261012\nmoonc v0.10.15+943464bfa (2026-10-12)", (result, calls) => {
     assert.equal(result.status, 0, result.stderr);
     assert.deepEqual(calls.at(-1), ["build", "--target", "js", "--release"]);
   });

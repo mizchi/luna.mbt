@@ -138,7 +138,7 @@ test "legacy_routes_to_sol_routes - keeps layout prefix and route kinds" {
     Some(@server_dom.ServerNode::sync(@luna.text("ok")))
   }
   let api_resolver = fn(_handler : String, _ctx : Ctx, _params : RouteParams) {
-    let json : Json = { "ok": true.to_json() }
+    let json : Json = { "ok": Json::Json(true) }
     Some(json)
   }
   let converted = legacy_routes_to_sol_routes(
@@ -237,7 +237,7 @@ test "compiled route pre-computes rendered_meta for page routes" {
 test "compiled route has empty rendered_meta for API routes" {
   async fn handler(_props : PageProps) -> Json {
     let obj : Map[String, Json] = Map([])
-    obj.to_json()
+    Json::Json(obj)
   }
 
   let routes = [api_get("/api/test", handler)]

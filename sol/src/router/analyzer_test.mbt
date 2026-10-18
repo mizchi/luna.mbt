@@ -4,11 +4,11 @@ test "analyze_routes extracts API routes as dynamic" {
   let routes : Array[@router.SolRoutes] = [
     @router.SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(async fn(_) { ().to_json() }),
+      handler=ApiHandler(async fn(_) { Json::Json(()) }),
     ),
     @router.SolRoutes::Post(
       path="/api/users",
-      handler=ApiHandler(async fn(_) { ().to_json() }),
+      handler=ApiHandler(async fn(_) { Json::Json(()) }),
     ),
   ]
   let analyzed = @router.analyze_routes(routes)

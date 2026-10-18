@@ -5,9 +5,9 @@ version = "0.23.3"
 import {
   "mizchi/js_core@0.13.0",
   "mizchi/sol@0.23.4",
-  "mizchi/mars@0.3.12",
+  "mizchi/mars@0.3.13",
   "mizchi/js@0.13.0",
-  "moonbitlang/async@0.21.3",
+  "moonbitlang/async@0.22.5",
 }
 
 readme = "README.md"

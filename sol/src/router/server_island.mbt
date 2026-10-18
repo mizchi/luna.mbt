@@ -16,7 +16,7 @@ pub(all) struct ServerIslandDef {
   /// Async render function that takes JSON props and returns ServerNode
   render : async (Json) -> @server_dom.ServerNode
   /// Optional revalidation interval in seconds for Cache-Control
-  revalidate : Int?
+  revalidate : Int32?
 }
 
 ///|
@@ -73,7 +73,9 @@ fn register_defer_endpoint(app : App, registry : ServerIslandRegistry) -> Unit {
         Some(def) => {
           // Parse props from query parameter
           let props_str = c.query("props").unwrap_or("{}")
-          let props : Json = @json.parse(props_str) catch { _ => ().to_json() }
+          let props : Json = @json.parse(props_str) catch {
+            _ => Json::Json(())
+          }
           // Render the island
           let node : @server_dom.ServerNode = (def.render)(props)
           // Resolve async node and render to HTML

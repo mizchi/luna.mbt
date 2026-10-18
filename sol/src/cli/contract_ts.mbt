@@ -130,14 +130,14 @@ fn contract_manifest_json_from_ts_source(
 fn ContractManifest::to_json(self : ContractManifest) -> Json {
   let routes : Array[Json] = []
   for route in self.routes {
-    routes.push({ "path": route.path.to_json() }.to_json())
+    routes.push(Json({ "path": Json(route.path) }))
   }
   let actions : Array[Json] = []
   for action in self.actions {
     if action.request_shape is None && action.response_shape is None {
-      actions.push(action.id.to_json())
+      actions.push(Json(action.id))
     } else {
-      let obj : Map[String, Json] = { "id": action.id.to_json() }
+      let obj : Map[String, Json] = { "id": Json(action.id) }
       match action.request_shape {
         Some(shape) => obj["request"] = shape.to_json()
         None => ()
@@ -146,14 +146,14 @@ fn ContractManifest::to_json(self : ContractManifest) -> Json {
         Some(shape) => obj["response"] = shape.to_json()
         None => ()
       }
-      actions.push(obj.to_json())
+      actions.push(Json(obj))
     }
   }
   let apis : Array[Json] = []
   for api in self.apis {
     let obj : Map[String, Json] = {
-      "method": api.method_name.to_json(),
-      "path": api.path.to_json(),
+      "method": Json(api.method_name),
+      "path": Json(api.path),
     }
     match api.request_shape {
       Some(shape) => obj["request"] = shape.to_json()
@@ -163,7 +163,7 @@ fn ContractManifest::to_json(self : ContractManifest) -> Json {
       Some(shape) => obj["response"] = shape.to_json()
       None => ()
     }
-    apis.push(obj.to_json())
+    apis.push(Json(obj))
   }
   let client_assets : Array[Json] = []
   for asset in self.client_assets {
@@ -173,28 +173,28 @@ fn ContractManifest::to_json(self : ContractManifest) -> Json {
   for component in self.components {
     components.push(component.to_json())
   }
-  {
-    "routes": routes.to_json(),
-    "actions": actions.to_json(),
-    "apis": apis.to_json(),
-    "clientAssets": client_assets.to_json(),
-    "components": components.to_json(),
-  }.to_json()
+  Json({
+    "routes": Json(routes),
+    "actions": Json(actions),
+    "apis": Json(apis),
+    "clientAssets": Json(client_assets),
+    "components": Json(components),
+  })
 }
 
 ///|
 fn ContractClientAsset::to_json(self : ContractClientAsset) -> Json {
-  { "component": self.component.to_json(), "url": self.url.to_json() }.to_json()
+  Json({ "component": Json(self.component), "url": Json(self.url) })
 }
 
 ///|
 fn ContractComponent::to_json(self : ContractComponent) -> Json {
-  {
-    "name": self.name.to_json(),
-    "package": self.package_path.to_json(),
-    "importAlias": self.import_alias.to_json(),
+  Json({
+    "name": Json(self.name),
+    "package": Json(self.package_path),
+    "importAlias": Json(self.import_alias),
     "props": self.props.to_json(),
-  }.to_json()
+  })
 }
 
 ///|
@@ -203,7 +203,7 @@ fn ContractProps::to_json(self : ContractProps) -> Json {
   for field in self.fields {
     fields.push(field.to_json())
   }
-  { "name": self.name.to_json(), "fields": fields.to_json() }.to_json()
+  Json({ "name": Json(self.name), "fields": Json(fields) })
 }
 
 ///|
@@ -212,12 +212,12 @@ fn ContractDataShape::to_json(self : ContractDataShape) -> Json {
   for field in self.fields {
     fields.push(field.to_json())
   }
-  { "name": self.name.to_json(), "fields": fields.to_json() }.to_json()
+  Json({ "name": Json(self.name), "fields": Json(fields) })
 }
 
 ///|
 fn ContractPropsField::to_json(self : ContractPropsField) -> Json {
-  { "name": self.name.to_json(), "type": self.type_name.to_json() }.to_json()
+  Json({ "name": Json(self.name), "type": Json(self.type_name) })
 }
 
 ///|

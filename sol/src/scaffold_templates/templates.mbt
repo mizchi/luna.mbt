@@ -37,14 +37,14 @@ pub fn template_moon_mod(package_name : String, luna_path : String?) -> String {
     #|import {
     #|  "mizchi/sol@0.23.4",
     #|  "mizchi/sol_adapter_node@0.23.3",
-    #|  "mizchi/mars@0.3.12",
+    #|  "mizchi/mars@0.3.13",
     #|  "mizchi/luna@0.25.1",
-    #|  "mizchi/signals@0.6.5",
+    #|  "mizchi/signals@0.6.6",
     #|  "mizchi/js@0.13.0",
     #|  "mizchi/js_core@0.13.0",
     #|  "mizchi/js_browser@0.13.0",
-    #|  "mizchi/npm_typed@0.1.16",
-    #|  "moonbitlang/async@0.21.3",
+    #|  "mizchi/npm_typed@0.1.18",
+    #|  "moonbitlang/async@0.22.5",
     #|}
     #|
     #|source = "app"
@@ -702,14 +702,14 @@ pub fn template_cloudflare_moon_mod(
     #|import {
     #|  "mizchi/sol@0.23.4",
     #|  "mizchi/sol_adapter_cloudflare@0.23.3",
-    #|  "mizchi/mars@0.3.12",
+    #|  "mizchi/mars@0.3.13",
     #|  "mizchi/luna@0.25.1",
-    #|  "mizchi/signals@0.6.5",
+    #|  "mizchi/signals@0.6.6",
     #|  "mizchi/js@0.13.0",
     #|  "mizchi/js_core@0.13.0",
     #|  "mizchi/js_browser@0.13.0",
-    #|  "mizchi/npm_typed@0.1.16",
-    #|  "moonbitlang/async@0.21.3",
+    #|  "mizchi/npm_typed@0.1.18",
+    #|  "moonbitlang/async@0.22.5",
     #|}
     #|
     #|source = "app"
@@ -782,7 +782,7 @@ pub fn template_cloudflare_routes_moon_pkg(package_name : String) -> String {
 /// `.sol/prod/server/main.js`; pass `./.sol/dev/server/main.js` for the dev
 /// variant.
 pub fn template_worker_entry_mjs(
-  sol_module? : String = "./.sol/prod/server/main.js",
+  sol_module~ : String = "./.sol/prod/server/main.js",
 ) -> String {
   (
     #|import solApp from "{{SOL_MODULE}}";

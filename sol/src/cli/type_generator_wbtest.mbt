@@ -21,6 +21,32 @@ fn sample_action_form_props() -> StructExport {
 }
 
 ///|
+test "generated contracts accept the current compiler's 32-bit integer names" {
+  let props : StructExport = {
+    name: "CounterProps",
+    raw_definition: "pub(all) struct CounterProps {\n  initial : Int32\n  total : UInt32\n}",
+    package_path: "app/client",
+    import_alias: "client",
+  }
+  let declaration = generate_typescript_contract_decl([props])
+  assert_true(declaration.contains("  initial: number;"))
+  assert_true(declaration.contains("  total: number;"))
+}
+
+///|
+test "generated Props round trips use numeric defaults for 32-bit integers" {
+  let props : StructExport = {
+    name: "CounterProps",
+    raw_definition: "pub(all) struct CounterProps {\n  initial : Int32\n  total : UInt32\n}",
+    package_path: "app/client",
+    import_alias: "client",
+  }
+  let tests = generate_types_roundtrip_tests([props])
+  assert_true(tests.contains("\\\"initial\\\": 0"))
+  assert_true(tests.contains("\\\"total\\\": 0"))
+}
+
+///|
 test "generate_types_mbt: auto bundle keeps default and url-injected factories" {
   let content = generate_types_mbt([sample_counter_props()])
   assert_true(content.contains("pub fn counter_at("))

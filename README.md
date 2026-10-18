@@ -78,15 +78,14 @@ optional React/Solid islands. Run `just test-void-e2e` for the isolated D1 examp
 
 ## Development
 
-Use MoonBit v0.10.12 or newer and Node.js 24.15 or newer. The current
+Use MoonBit v0.10.15 or newer and Node.js 24.15 or newer. The current
 dependencies use the newer MoonBit collection APIs and jsdom's updated Node
 requirements. Run `moon upgrade` and `moon update` when upgrading an older
 toolchain. All npm packages and examples share the root pnpm workspace and
 `pnpm-lock.yaml`; run `pnpm install` from the repository root.
 
-Keep `parser 0.4.4`, `lexer 0.4.2`, and `moon_config 0.4.2` aligned across
-Luna and Sol. This set is verified with `moonc 0.10.14`; parser 0.4.5's lexer
-requires a newer compiler's `Int32` support.
+Keep `parser 0.4.5`, `lexer 0.4.3`, and `moon_config 0.4.4` aligned across
+Luna and Sol. These dependencies require `moonc 0.10.15` for `Int32` support.
 
 The root `moon.work` includes the six libraries, documentation, and all 15
 MoonBit example modules under `sol/examples`, `astra/examples`, and

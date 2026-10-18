@@ -18,12 +18,12 @@
 pub fn page(
   path : String,
   handler : async (PageProps) -> @server_dom.ServerNode,
-  title? : String = "",
-  meta? : Array[(String, String)] = [],
-  revalidate? : Int? = None,
-  cache? : CacheStrategy? = None,
-  styles? : Array[String] = [],
-  scripts? : Array[String] = [],
+  title~ : String = "",
+  meta~ : Array[(String, String)] = [],
+  revalidate~ : Int32? = None,
+  cache~ : CacheStrategy? = None,
+  styles~ : Array[String] = [],
+  scripts~ : Array[String] = [],
 ) -> SolRoutes {
   let route = SolRoutes::Page(
     path~,
@@ -190,8 +190,8 @@ pub fn with_mw(
 /// Attach stylesheet and client script assets to a route group.
 pub fn assets(
   children : Array[SolRoutes],
-  styles? : Array[String] = [],
-  scripts? : Array[String] = [],
+  styles~ : Array[String] = [],
+  scripts~ : Array[String] = [],
 ) -> SolRoutes {
   SolRoutes::WithAssets(styles~, scripts~, children~)
 }
@@ -208,11 +208,11 @@ pub(all) enum ApiResponse {
   /// JSON data response
   Json(Json)
   /// Redirect response (url, status_code)
-  Redirect(String, Int)
+  Redirect(String, Int32)
   /// Not found (404)
   NotFound(String)
   /// Error response (message, status_code)
-  Error(String, Int)
+  Error(String, Int32)
 }
 
 ///|
@@ -221,9 +221,11 @@ pub fn ApiResponse::to_json(self : ApiResponse) -> Json {
   match self {
     Json(data) => data
     Redirect(url, status) =>
-      { "redirect": url.to_json(), "status": status.to_json() }
-    NotFound(msg) => { "error": msg.to_json(), "status": (404 : Int).to_json() }
-    Error(msg, status) => { "error": msg.to_json(), "status": status.to_json() }
+      { "redirect": Json::Json(url), "status": Json::Json(status) }
+    NotFound(msg) =>
+      { "error": Json::Json(msg), "status": Json::Json((404 : Int32)) }
+    Error(msg, status) =>
+      { "error": Json::Json(msg), "status": Json::Json(status) }
   }
 }
 
@@ -239,12 +241,12 @@ pub fn ok(pairs : Array[(String, Json)]) -> ApiResponse {
   for pair in pairs {
     obj[pair.0] = pair.1
   }
-  ApiResponse::Json(obj.to_json())
+  ApiResponse::Json(Json::Json(obj))
 }
 
 ///|
 /// Create a redirect response (default 302)
-pub fn redirect_to(url : String, status? : Int = 302) -> ApiResponse {
+pub fn redirect_to(url : String, status~ : Int32 = 302) -> ApiResponse {
   ApiResponse::Redirect(url, status)
 }
 
@@ -256,13 +258,13 @@ pub fn redirect_permanent_to(url : String) -> ApiResponse {
 
 ///|
 /// Create a 404 not found response
-pub fn not_found_response(message? : String = "Not found") -> ApiResponse {
+pub fn not_found_response(message~ : String = "Not found") -> ApiResponse {
   ApiResponse::NotFound(message)
 }
 
 ///|
 /// Create an error response
-pub fn error_response(message : String, status? : Int = 500) -> ApiResponse {
+pub fn error_response(message : String, status~ : Int32 = 500) -> ApiResponse {
   ApiResponse::Error(message, status)
 }
 
@@ -274,13 +276,13 @@ pub fn bad_request(message : String) -> ApiResponse {
 
 ///|
 /// Create an unauthorized (401) response
-pub fn unauthorized(message? : String = "Unauthorized") -> ApiResponse {
+pub fn unauthorized(message~ : String = "Unauthorized") -> ApiResponse {
   ApiResponse::Error(message, 401)
 }
 
 ///|
 /// Create a forbidden (403) response
-pub fn forbidden(message? : String = "Forbidden") -> ApiResponse {
+pub fn forbidden(message~ : String = "Forbidden") -> ApiResponse {
   ApiResponse::Error(message, 403)
 }
 
@@ -305,7 +307,7 @@ pub fn optional(props : PageProps, name : String, default : String) -> String {
 pub fn require_int(
   props : PageProps,
   name : String,
-) -> Result[Int, ApiResponse] {
+) -> Result[Int32, ApiResponse] {
   props.params.require_int(name)
 }
 
@@ -378,8 +380,8 @@ pub fn with_script(
 /// Attach component-local stylesheet and client script assets to a node.
 pub fn with_assets(
   content : @luna.Node[Unit, String],
-  styles? : Array[String] = [],
-  scripts? : Array[String] = [],
+  styles~ : Array[String] = [],
+  scripts~ : Array[String] = [],
 ) -> @server_dom.ServerNode {
   @server_dom.ServerNode::sync(content).with_assets(styles~, scripts~)
 }

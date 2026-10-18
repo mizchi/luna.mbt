@@ -44,14 +44,17 @@ test "ApiResponse::Error produces error and custom status" {
 
 ///|
 test "ok() with single pair produces Json variant" {
-  let resp = ok([("status", "ok".to_json())])
+  let resp = ok([("status", Json::Json("ok"))])
   let json = resp.to_json()
   assert_eq(json.stringify(), "{\"status\":\"ok\"}")
 }
 
 ///|
 test "ok() with multiple pairs" {
-  let resp = ok([("id", (42 : Int).to_json()), ("name", "Alice".to_json())])
+  let resp = ok([
+    ("id", Json::Json((42 : Int32))),
+    ("name", Json::Json("Alice")),
+  ])
   let json = resp.to_json()
   match json {
     Object(m) => {
@@ -375,7 +378,7 @@ test "page() wraps route-level style and script assets" {
 ///|
 fn empty_json() -> Json {
   let obj : Map[String, Json] = Map([])
-  obj.to_json()
+  Json::Json(obj)
 }
 
 ///|

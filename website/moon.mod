@@ -8,8 +8,8 @@ import {
   "mizchi/js@0.13.0",
   "mizchi/js_browser@0.13.0",
   "mizchi/luna@0.25.1",
-  "mizchi/mars@0.3.10",
-  "mizchi/signals@0.6.4",
+  "mizchi/mars@0.3.13",
+  "mizchi/signals@0.6.6",
 }
 
 description = "Type-checked sample code for the luna.mbt documentation site"
