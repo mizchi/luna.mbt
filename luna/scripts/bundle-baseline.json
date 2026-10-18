@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-07T12:46:30.735Z",
+  "generatedAt": "2026-10-18T17:17:03.047Z",
   "entries": [
     {
       "id": "boot",
@@ -12,8 +12,8 @@
         "js/loader/dist/lib.js",
         "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 9245,
-      "gzip": 3885
+      "bytes": 9375,
+      "gzip": 3965
     },
     {
       "id": "boot/loader",
@@ -22,8 +22,8 @@
       "files": [
         "js/loader/dist/boot/loader.js"
       ],
-      "bytes": 3814,
-      "gzip": 1347
+      "bytes": 3898,
+      "gzip": 1385
     },
     {
       "id": "boot/router",
@@ -34,8 +34,8 @@
         "js/loader/dist/boot/router.js",
         "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 7204,
-      "gzip": 2787
+      "bytes": 7302,
+      "gzip": 2847
     },
     {
       "id": "hydration",
@@ -44,8 +44,8 @@
       "files": [
         "js/loader/dist/hydration.js"
       ],
-      "bytes": 3071,
-      "gzip": 1043
+      "bytes": 3103,
+      "gzip": 1061
     },
     {
       "id": "lib",
@@ -54,8 +54,8 @@
       "files": [
         "js/loader/dist/lib.js"
       ],
-      "bytes": 1258,
-      "gzip": 686
+      "bytes": 1290,
+      "gzip": 706
     },
     {
       "id": "main",
@@ -65,8 +65,8 @@
         "js/loader/dist/lib.js",
         "js/loader/dist/wc-loader.js"
       ],
-      "bytes": 2388,
-      "gzip": 1300
+      "bytes": 2467,
+      "gzip": 1337
     },
     {
       "id": "router",
@@ -79,8 +79,8 @@
         "js/loader/dist/router/scroll.js",
         "js/loader/dist/router/spa.js"
       ],
-      "bytes": 7523,
-      "gzip": 3257
+      "bytes": 7587,
+      "gzip": 3312
     },
     {
       "id": "router/hybrid",
@@ -90,8 +90,8 @@
         "js/loader/dist/router/hybrid.js",
         "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 2750,
-      "gzip": 1280
+      "bytes": 2780,
+      "gzip": 1296
     },
     {
       "id": "router/navigation",
@@ -111,8 +111,8 @@
         "js/loader/dist/router/navigation-fallback.js",
         "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 1570,
-      "gzip": 870
+      "bytes": 1586,
+      "gzip": 887
     },
     {
       "id": "router/scroll",
@@ -121,8 +121,8 @@
       "files": [
         "js/loader/dist/router/scroll.js"
       ],
-      "bytes": 2045,
-      "gzip": 785
+      "bytes": 2061,
+      "gzip": 806
     },
     {
       "id": "router/spa",
@@ -132,8 +132,8 @@
         "js/loader/dist/router/navigation.js",
         "js/loader/dist/router/spa.js"
       ],
-      "bytes": 2609,
-      "gzip": 1256
+      "bytes": 2627,
+      "gzip": 1274
     },
     {
       "id": "sol-nav",
@@ -142,8 +142,8 @@
       "files": [
         "js/loader/dist/sol-nav.js"
       ],
-      "bytes": 2894,
-      "gzip": 1240
+      "bytes": 2898,
+      "gzip": 1251
     },
     {
       "id": "wc",
@@ -153,8 +153,8 @@
         "js/loader/dist/lib.js",
         "js/loader/dist/wc-loader.js"
       ],
-      "bytes": 2388,
-      "gzip": 1300
+      "bytes": 2467,
+      "gzip": 1337
     }
   ]
 }

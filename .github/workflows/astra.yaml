@@ -64,6 +64,7 @@ jobs:
       # rendering deterministic — host builds the dist/, container only
       # runs `playwright test`.
       - name: Build astra example dist/ on host (moon-toolchain side)
+        id: build_examples
         run: |
           pnpm -F @luna_ui/sol-landing-example build
           pnpm -F @luna_ui/sol-changelog-example build
@@ -72,6 +73,7 @@ jobs:
           pnpm -F @luna_ui/sol-api-ref-example build
           pnpm -F @luna_ui/sol-docs-search-example build
       - name: sol_landing Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -83,6 +85,7 @@ jobs:
             mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_changelog Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -94,6 +97,7 @@ jobs:
             mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_components_demo Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -105,6 +109,7 @@ jobs:
             mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_portfolio Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -116,6 +121,7 @@ jobs:
             mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_api_ref Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \
@@ -127,6 +133,7 @@ jobs:
             mcr.microsoft.com/playwright:v1.64.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_docs_search Playwright VRT (docker)
+        if: ${{ !cancelled() && steps.build_examples.outcome == 'success' }}
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/work" \

@@ -28,6 +28,7 @@ test.describe("sol_components_demo visual regression", () => {
       // TSX section's swatches rendered inline in markdown (the
       // server-side TSX page lives at /color_palette/ as well).
       await expect(p.locator(".color-palette-swatches .swatch")).toHaveCount(3);
+      await expect(p.locator(".color-palette-swatches .swatch .label")).toHaveCount(3);
 
       // MoonBit section's info-box body.
       await expect(p.locator(".info-box strong")).toBeVisible();
