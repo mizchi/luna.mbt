@@ -638,17 +638,23 @@ async fn test_admin_layout(browser : @pw.Browser) -> Unit {
 async fn test_admin_csr_nav(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/admin")
-  // Admin → Settings (via evaluate click + wait_for_content)
+  // Wait for the destination, since "Settings" is already in the sidebar.
   let _ = page.evaluate(
     "() => document.querySelector('.admin-sidebar a[href=\"/admin/settings\"]')?.click()",
   )
-  @pw.expect(page.wait_for_content("Settings")).to_be_truthy()
+  wait_until(
+    page,
+    "() => location.pathname === '/admin/settings' && document.querySelector('.admin-content h1')?.textContent === 'Admin Settings'",
+  )
   @pw.expect(page.content()).to_contain("admin-sidebar")
   // Settings → Users
   let _ = page.evaluate(
     "() => document.querySelector('.admin-sidebar a[href=\"/admin/users\"]')?.click()",
   )
-  @pw.expect(page.wait_for_content("User Management")).to_be_truthy()
+  wait_until(
+    page,
+    "() => location.pathname === '/admin/users' && document.querySelector('.admin-content h1')?.textContent === 'User Management'",
+  )
   page.close()
 }
 
