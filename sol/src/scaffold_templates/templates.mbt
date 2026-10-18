@@ -376,6 +376,12 @@ pub fn template_client_counter_mbt() -> String {
     #|} derive(ToJson, FromJson)
     #|
     #|///|
+    #|pub extend CounterProps with ToJson::{to_json}
+    #|
+    #|///|
+    #|pub extend CounterProps with @json.FromJson::{from_json}
+    #|
+    #|///|
     #|/// Counter component
     #|pub fn counter(props : CounterProps) -> DomNode {
     #|  let count = @signal.signal(props.initial_count)
@@ -412,6 +418,12 @@ pub fn template_client_api_tools_mbt() -> String {
     #|pub(all) struct ApiToolsProps {
     #|  endpoint : String
     #|} derive(ToJson, FromJson)
+    #|
+    #|///|
+    #|pub extend ApiToolsProps with ToJson::{to_json}
+    #|
+    #|///|
+    #|pub extend ApiToolsProps with @json.FromJson::{from_json}
     #|
     #|fn filter_button(
     #|  label : String,
@@ -611,10 +623,22 @@ pub fn template_gen_types_mbt() -> String {
     #|  initial_count : Int
     #|} derive(ToJson, FromJson)
     #|
+    #|///|
+    #|pub extend CounterProps with ToJson::{to_json}
+    #|
+    #|///|
+    #|pub extend CounterProps with @json.FromJson::{from_json}
+    #|
     #|///| Props type from @client
     #|pub(all) struct ApiToolsProps {
     #|  endpoint : String
     #|} derive(ToJson, FromJson)
+    #|
+    #|///|
+    #|pub extend ApiToolsProps with ToJson::{to_json}
+    #|
+    #|///|
+    #|pub extend ApiToolsProps with @json.FromJson::{from_json}
     #|
     #|///|
     #|///| Create ComponentRef for counter component with an explicit client URL

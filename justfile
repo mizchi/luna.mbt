@@ -49,10 +49,7 @@ retest *tasks="test:moonbit test:vitest":
 # MoonBit ビルド
 build-moon: generate-examples
     moon build --target js --release luna/src
-    moon build --target js --release luna/src/js/api
-    moon build --target js --release luna/src/js/api_signals
-    moon build --target js --release luna/src/js/api_resource_lite
-    moon build --target js --release luna/src/js/api_router_lite
+    node js/luna/scripts/build-moon.mjs
     @rm -f _build/js/release/build/package.json
 
 # MoonBit デバッグビルド（ソースマップ付き）

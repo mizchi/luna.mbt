@@ -62,7 +62,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm exec vite preview --outDir dist --host 127.0.0.1 --port ${port} --strictPort`,
+    command: `npx --no-install vite preview --outDir dist --host 127.0.0.1 --port ${port} --strictPort`,
     cwd: exampleDir,
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,

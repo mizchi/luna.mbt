@@ -35,11 +35,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest

@@ -92,6 +92,22 @@ test "parse_mbti: pub fn extraction" {
 }
 
 ///|
+test "parse_mbti: associated methods are not island entry points" {
+  let content =
+    #|package "myproject/client"
+    #|
+    #|pub fn counter(CounterProps) -> @element.DomNode
+    #|pub fn CounterProps::to_json(Self) -> Json
+    #|pub fn CounterProps::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+    #|pub fn CounterProps::new(Int) -> Self
+    #|pub fn api_tools(ApiToolsProps) -> @element.DomNode
+  let funcs = @cli.parse_mbti(content)
+  assert_eq(funcs.length(), 2)
+  assert_eq(funcs[0].0, "counter")
+  assert_eq(funcs[1].0, "api_tools")
+}
+
+///|
 test "extract_package_path: valid path" {
   let content =
     #|package "myproject/client/components"

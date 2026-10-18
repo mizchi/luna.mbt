@@ -51,11 +51,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
@@ -220,11 +220,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
@@ -235,8 +235,7 @@ jobs:
         run: |
           # Core libraries
           moon build --target js --release luna/src
-          moon build --target js --release luna/src/js/api
-          moon build --target js --release luna/src/js/api_signals
+          node js/luna/scripts/build-moon.mjs
           moon build --target js --release luna/src/js/stream_renderer
           moon build --target js --release luna/src/x/stella
           # Test packages for browser tests
@@ -264,11 +263,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
@@ -279,8 +278,7 @@ jobs:
         run: |
           # Core libraries
           moon build --target js --release luna/src
-          moon build --target js --release luna/src/js/api
-          moon build --target js --release luna/src/js/api_signals
+          node js/luna/scripts/build-moon.mjs
           moon build --target js --release luna/src/js/stream_renderer
           moon build --target js --release luna/src/x/stella
           # Test packages for e2e tests
