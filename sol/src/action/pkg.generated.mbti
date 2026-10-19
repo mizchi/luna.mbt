@@ -56,7 +56,7 @@ pub struct ActionFormConfig[Res] {
   // private fields
 }
 pub fn[Req, Res] ActionFormConfig::from_key(TypedActionKey[Req, Res]) -> Self[Res]
-pub fn[Res] ActionFormConfig::with_error(Self[Res], (Int, String) -> Unit) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_error(Self[Res], (Int32, String) -> Unit) -> Self[Res]
 pub fn[Res] ActionFormConfig::with_method(Self[Res], String) -> Self[Res]
 pub fn[Res] ActionFormConfig::with_redirect(Self[Res], (String) -> Bool) -> Self[Res]
 pub fn[Res] ActionFormConfig::with_success(Self[Res], (Res) -> Unit) -> Self[Res]
@@ -65,7 +65,7 @@ pub(all) struct ActionHandler(async (ActionContext) -> ActionResult)
 
 pub struct ActionOptions {
   headers : Array[(String, String)]
-  timeout : Int?
+  timeout : Int32?
   signal : @js_async.AbortSignal?
 }
 pub fn ActionOptions::default() -> Self
@@ -103,14 +103,15 @@ pub fn ActionResult::redirect(String) -> Self
 pub fn ActionResult::server_error(message? : String) -> Self
 pub fn ActionResult::unauthorized(message? : String) -> Self
 pub fn ActionResult::validation_error(String) -> Self
+pub fn ActionResult::validation_errors(Map[String, String]) -> Self
 
 pub struct ActionState {
   phase : ActionPhase
-  status : Int?
+  status : Int32?
   message : String?
   redirect : String?
 }
-pub fn ActionState::error(status~ : Int, message~ : String) -> Self
+pub fn ActionState::error(status~ : Int32, message~ : String) -> Self
 pub fn ActionState::idle() -> Self
 pub fn ActionState::pending(message? : String) -> Self
 pub fn ActionState::redirect(String) -> Self
@@ -130,7 +131,7 @@ pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res]
 pub enum TypedActionResponse[Res] {
   Success(Res)
   Redirect(String)
-  Error(Int, String)
+  Error(Int32, String)
   NetworkError(String)
   DecodeError(String)
 }

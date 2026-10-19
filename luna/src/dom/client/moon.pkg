@@ -7,7 +7,6 @@ import {
   "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
   "mizchi/js_builtin/global",
-  "moonbitlang/core/hashmap",
 }
 
 import {

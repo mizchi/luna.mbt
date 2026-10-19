@@ -55,7 +55,7 @@ export function voidLuna(options: VoidLunaOptions): Plugin {
           ([name, path]) =>
             `${JSON.stringify(name)}: () => import(${JSON.stringify(resolve(root, path))})`,
         );
-        return `import { initLunaIslands } from "@luna_ui/luna/void/client";
+        return `import { initLunaIslands } from "@luna_ui/luna/void/scheduler";
           const dispose = initLunaIslands({${entries.join(",")}});
           if (import.meta.hot) import.meta.hot.dispose(dispose);`;
       }

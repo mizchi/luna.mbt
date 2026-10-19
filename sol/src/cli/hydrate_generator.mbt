@@ -11,6 +11,7 @@ let hydrate_required_imports : Array[(String, String)] = [
   ("mizchi/js_core", "js"),
   ("mizchi/js_browser/dom", "js_dom"),
   ("mizchi/luna/dom/client", "wc"),
+  ("mizchi/luna/js/resource", "resource"),
 ]
 
 ///|
@@ -68,7 +69,7 @@ fn generate_hydrate_mbt(
         "///| When is_rerender is true, performs full re-render instead of hydration\n",
       )
       buf.write_string(
-        "pub fn __sol_internal__client_\{func.name}(element : @js.Any, state : @js.Any, _id : String, is_rerender : Bool) -> Unit {\n",
+        "pub fn __sol_internal__client_\{func.name}(element : @js.Any, state : @js.Any, _id : String, is_rerender : Bool) -> () -> Unit {\n",
       )
       buf.write_string("  let jsdom_el : @js_dom.Element = element.cast()\n")
       buf.write_string(
@@ -76,7 +77,10 @@ fn generate_hydrate_mbt(
       )
       buf.write_string("  let json : Json = ffi_any_to_json(state)\n")
       buf.write_string(
-        "  let props : @\{client_alias}.\{props_type} = try { @json.from_json(json) } catch { e => { ffi_log_hydration_error(\"\{func.name}\", e.to_string()); return } }\n",
+        "  let props : @\{client_alias}.\{props_type} = try { @json.from_json(json) } catch { e => { ffi_log_hydration_error(\"\{func.name}\", e.to_string()); return fn() { () } } }\n",
+      )
+      buf.write_string(
+        "  let (_, dispose) = @resource.create_root_with_dispose(fn() {\n",
       )
       buf.write_string("  let node = @\{client_alias}.\{func.name}(props)\n")
       buf.write_string("  // Auto-detect WC (shadowRoot) vs Luna mode\n")
@@ -88,6 +92,8 @@ fn generate_hydrate_mbt(
         buf.write_string("  @wc.hydrate_auto(jsdom_el, node, is_rerender~)\n")
       }
       buf.write_string("  ffi_mark_hydrated(element)\n")
+      buf.write_string("  })\n")
+      buf.write_string("  dispose\n")
       buf.write_string("}\n\n")
     }
   }

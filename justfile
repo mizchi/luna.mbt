@@ -86,8 +86,16 @@ test-e2e:
     env -u NO_COLOR pnpm playwright test --config luna/e2e/playwright.config.mts
 
 # Void adapter contracts and DOM lifecycle
-test-void: build-void
+test-void: test-void-types
     pnpm --filter @luna_ui/luna test:void
+
+test-void-types: build-void
+    pnpm --filter @luna_ui/luna exec tsc --ignoreConfig --noEmit --strict --target ES2022 --module ESNext --moduleResolution bundler --skipLibCheck --jsx react-jsx src/void/form.ts src/sol/form.ts tests/void/contracts.typecheck.tsx
+
+# Shared Sol/Void contracts, loader lifecycle, and same-origin requests
+test-adapter-contracts: test-void
+    pnpm vitest run --config luna/vitest.config.mts --project node js/loader
+    moon test sol/src/action --target js
 
 build-void:
     pnpm --filter @luna_ui/luna build:moon

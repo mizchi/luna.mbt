@@ -56,10 +56,32 @@ pub fn HydrationResult::get_message(self : HydrationResult) -> String {
 /// Hydration context to track current position in DOM
 priv struct HydrationContext {
   container : @js_dom.Element
-  mut current_id : Int
+  mut current_id : Int32
   mismatches : Array[String]
-  mut hk_cache : @hashmap.HashMap[Int, @js_dom.Element]?
+  mut hk_cache : HydrationKeyCache?
 }
+
+///|
+/// Native Map keeps the JS hydrator importable in Worker global scope:
+/// MoonBit's general HashMap initializes a random hash seed at module load.
+#external
+priv type HydrationKeyCache
+
+///|
+extern "js" fn new_hk_cache() -> HydrationKeyCache =
+  #| () => new Map()
+
+///|
+extern "js" fn hk_cache_set(
+  cache : HydrationKeyCache,
+  id : Int32,
+  elem : @js_dom.Element,
+) -> Unit =
+  #| (cache, id, elem) => { cache.set(id, elem); }
+
+///|
+extern "js" fn hk_cache_get(cache : HydrationKeyCache, id : Int32) -> @js.Any =
+  #| (cache, id) => cache.get(id)
 
 ///|
 /// Log a hydration warning to logger or console
@@ -274,7 +296,15 @@ fn hydrate_node(
         }
       } else {
         // For static elements, find by traversing from parent
-        find_child_element_by_tag(parent, elem.tag, cursor, stop)
+        match find_child_element_by_tag(parent, elem.tag, cursor, stop) {
+          Some(elem) => Some(elem)
+          None => {
+            ctx.mismatches.push(
+              "Element not found: expected <" + elem.tag + ">",
+            )
+            None
+          }
+        }
       }
 
       // Hydrate children
@@ -345,10 +375,8 @@ extern "js" fn node_ref_equal(a : @js_dom.Node, b : @js_dom.Node) -> Bool =
 
 ///|
 /// Build hk_cache by scanning all elements with sol:hk attribute once
-fn build_hk_cache(
-  container : @js_dom.Element,
-) -> @hashmap.HashMap[Int, @js_dom.Element] {
-  let cache : @hashmap.HashMap[Int, @js_dom.Element] = @hashmap.HashMap([])
+fn build_hk_cache(container : @js_dom.Element) -> HydrationKeyCache {
+  let cache = new_hk_cache()
   build_hk_cache_recursive(container.as_node(), cache)
   cache
 }
@@ -357,7 +385,7 @@ fn build_hk_cache(
 /// Recursively collect elements with sol:hk attribute into cache
 fn build_hk_cache_recursive(
   node : @js_dom.Node,
-  cache : @hashmap.HashMap[Int, @js_dom.Element],
+  cache : HydrationKeyCache,
 ) -> Unit {
   if node.nodeType() == 1 {
     let elem : @js_dom.Element = node.as_any().cast()
@@ -374,7 +402,7 @@ fn build_hk_cache_recursive(
           }
         }
         if valid && !id_str.is_empty() {
-          cache.set(id, elem)
+          hk_cache_set(cache, id, elem)
         }
       }
       None => ()
@@ -388,7 +416,7 @@ fn build_hk_cache_recursive(
 
 ///|
 /// Find element with sol:hk="id" attribute using cache (O(1))
-fn find_element_by_hk(ctx : HydrationContext, id : Int) -> @js_dom.Element? {
+fn find_element_by_hk(ctx : HydrationContext, id : Int32) -> @js_dom.Element? {
   let cache = match ctx.hk_cache {
     Some(cache) => cache
     None => {
@@ -397,7 +425,12 @@ fn find_element_by_hk(ctx : HydrationContext, id : Int) -> @js_dom.Element? {
       built
     }
   }
-  cache.get(id)
+  let elem = hk_cache_get(cache, id)
+  if is_null_or_undefined(elem) {
+    None
+  } else {
+    Some(elem.cast())
+  }
 }
 
 ///|
@@ -434,7 +467,7 @@ fn find_child_element_by_tag(
 /// Hydrate dynamic text node
 fn hydrate_dynamic_text(
   parent : @js_dom.Node,
-  id : Int,
+  id : Int32,
   getter : () -> String,
   ctx : HydrationContext,
 ) -> Unit {
@@ -447,8 +480,18 @@ fn hydrate_dynamic_text(
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
         found_marker = true
-        // Found start marker, next sibling should be the text node
-        if child.nextSibling() is Some(text_node) && text_node.nodeType() == 3 {
+        // HTML parsers omit empty text nodes between adjacent markers.
+        let text_node = match child.nextSibling() {
+          Some(sibling) if sibling.nodeType() == 3 => Some(sibling)
+          Some(sibling) if sibling.nodeType() == 8 &&
+            get_text_content(sibling) == "/t" => {
+            let empty = @js_dom.document().createTextNode("").as_node()
+            parent.insertBefore(empty, Some(sibling)) |> ignore
+            Some(empty)
+          }
+          _ => None
+        }
+        if text_node is Some(text_node) {
           // Set up effect to update text
           let _ = @resource.render_effect(fn() {
             let new_text = getter()
@@ -477,6 +520,18 @@ fn hydrate_element(
 ) -> Unit {
   hydrate_element_with_dispatch(elem, attrs, None)
 }
+
+///|
+/// Hydration owns listeners until its reactive root is disposed.
+extern "js" fn add_hydration_listener(
+  elem : @js_dom.Element,
+  event_name : String,
+  callback : (@js.Any) -> Unit,
+) -> () -> Unit =
+  #| (elem, name, callback) => {
+  #|   elem.addEventListener(name, callback);
+  #|   return () => elem.removeEventListener(name, callback);
+  #| }
 
 ///|
 /// Hydrate element attributes with optional action dispatcher
@@ -520,14 +575,15 @@ fn hydrate_element_with_dispatch(
         })
       }
       @core.VHandler(handler) => {
-        // Attach event handler
-        let event_name = extract_event_name(name)
         let callback = handler.get_callback()
-        // Pass event to callback
-        let wrapper : (@js.Any) -> Unit = fn(event) { callback(event) }
-        elem
-        .as_event_target()
-        .addEventListener(event_name, @js.any(wrapper).cast())
+        if name == "__ref" {
+          callback(elem.as_any())
+        } else {
+          let event_name = extract_event_name(name)
+          @resource.on_cleanup(
+            add_hydration_listener(elem, event_name, callback),
+          )
+        }
       }
       @core.VAction(action_name) =>
         // Attach action handler - dispatch action when event fires
@@ -537,9 +593,9 @@ fn hydrate_element_with_dispatch(
           let wrapper : (@js.Any) -> Unit = fn(_event) {
             dispatch(captured_action)
           }
-          elem
-          .as_event_target()
-          .addEventListener(event_name, @js.any(wrapper).cast())
+          @resource.on_cleanup(
+            add_hydration_listener(elem, event_name, wrapper),
+          )
         }
       // No dispatcher provided, action won't work
     }
@@ -582,7 +638,7 @@ fn extract_event_name(name : String) -> String {
 /// Hydrate conditional show
 fn hydrate_show(
   parent : @js_dom.Node,
-  id : Int,
+  id : Int32,
   cond : () -> Bool,
   child_fn : () -> @luna.Node[@js.Any, String],
   ctx : HydrationContext,
@@ -716,7 +772,7 @@ fn hydrate_child_nodes(
 /// Hydrate for loop
 fn hydrate_for(
   parent : @js_dom.Node,
-  id : Int,
+  id : Int32,
   render_fn : () -> Array[@luna.Node[@js.Any, String]],
   ctx : HydrationContext,
   cursor : Ref[@js_dom.Node?],
@@ -939,7 +995,7 @@ fn hydrate_for(
 /// Hydrate error boundary node
 fn hydrate_error_boundary(
   parent : @js_dom.Node,
-  id : Int,
+  id : Int32,
   boundary : @luna.VErrorBoundary[@js.Any, String],
   ctx : HydrationContext,
   cursor : Ref[@js_dom.Node?],
@@ -1114,7 +1170,7 @@ pub fn[State] hydrate_with_actions(
 /// Hydrate switch node
 fn hydrate_switch(
   parent : @js_dom.Node,
-  id : Int,
+  id : Int32,
   switch_node : @luna.VSwitch[@js.Any, String],
   ctx : HydrationContext,
   cursor : Ref[@js_dom.Node?],

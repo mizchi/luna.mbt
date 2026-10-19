@@ -17,7 +17,8 @@ export default defineConfig({
     voidPlugin(),
     voidLuna({
       islands: {
-        luna: "./src/counter.luna.tsx",
+        luna: "./src/luna.island.tsx",
+        "note-form": "./src/form.island.ts",
         react: "./src/react-island.ts",
         solid: "./src/solid-island.ts",
       },

@@ -2,6 +2,7 @@ import { renderBodyAttrs, renderHeadToString, renderHtmlAttrs } from "void/pages
 import type { RenderAssetTags } from "void/handler";
 import type { PageObject } from "void/pages-protocol";
 import { assertIslandId, assertStrategy, type IslandStrategy } from "./contracts";
+import { renderToString, type VNode } from "../ssr";
 
 /** Trusted markup. Use html for interpolation; raw is an explicit escape hatch. */
 export class Html {
@@ -67,6 +68,16 @@ export function island<P extends object>(
       (options.fallback?.value ?? "") +
       "</section>",
   );
+}
+
+/** Render an SSR-capable Luna component with the same props its island receives. */
+export function lunaIsland<P extends object>(
+  id: string,
+  component: (props: P) => VNode,
+  props: P,
+  options: { strategy?: IslandStrategy } = {},
+): Html {
+  return island(id, props, { ...options, fallback: raw(renderToString(() => component(props))) });
 }
 
 export type Page<P extends object = Record<string, unknown>> = (

@@ -133,10 +133,29 @@ for (const pkgDir of PUBLIC_PACKAGE_DIRS) {
       if (path.basename(pkgDir) === "luna") {
         // Optional Void entry points must not make core Luna depend on Void.
         const smoke = spawnSync(process.execPath, ["--input-type=module", "-e", `
-          import { createSignal } from ${JSON.stringify(path.join(stage, "package/dist/index.js"))};
+          Object.defineProperty(globalThis, "crypto", { value: {
+            getRandomValues() { throw new Error("Randomness is unavailable in Worker global scope"); }
+          }});
+          const { createSignal } = await import(${JSON.stringify(path.join(stage, "package/dist/index.js"))});
           const [count, setCount] = createSignal(1);
           setCount(value => value + 1);
           if (count() !== 2) throw new Error("Luna signal failed outside the workspace");
+          const { renderToString } = await import(${JSON.stringify(path.join(stage, "package/dist/ssr.js"))});
+          const { jsx } = await import(${JSON.stringify(path.join(stage, "package/dist/ssr/jsx-runtime.js"))});
+          const markup = renderToString(() => jsx("button", {
+            onClick() {}, children: () => "Luna " + count()
+          }));
+          if (!markup.includes("Luna 2") || !markup.includes('sol:hk="0"')) {
+            throw new Error("Packed Luna SSR must work without a DOM or Void installed");
+          }
+          const { createRoot } = await import(${JSON.stringify(path.join(stage, "package/dist/index.js"))});
+          const { useActionForm } = await import(${JSON.stringify(path.join(stage, "package/dist/sol/form.js"))});
+          createRoot(dispose => {
+            const form = useActionForm({ title: "initial" });
+            form.setData("title", "edited");
+            if (!form.hasChanges || form.pending) throw new Error("Sol form state failed without Void or DOM");
+            dispose();
+          });
         `], { cwd: stage, encoding: "utf8" });
         assert.equal(smoke.status, 0, smoke.stderr);
       }

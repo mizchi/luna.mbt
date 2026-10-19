@@ -13,7 +13,7 @@ pub struct ActionOptions {
   /// Custom headers to send with the request
   headers : Array[(String, String)]
   /// Request timeout in milliseconds
-  timeout : Int?
+  timeout : Int32?
   /// Abort signal (for cancellation)
   signal : @js_async.AbortSignal?
 }
@@ -32,9 +32,10 @@ priv enum ActionResponse {
   /// Server requested a redirect
   Redirect(String)
   /// Error response
-  Error(Int, String)
-  /// Network error
+  Error(Int32, String)
+  /// Network error (including cancellation)
   NetworkError(String)
+  DecodeError(String)
 }
 
 ///|
@@ -45,7 +46,7 @@ pub enum TypedActionResponse[Res] {
   /// Server requested a redirect
   Redirect(String)
   /// Error response
-  Error(Int, String)
+  Error(Int32, String)
   /// Network error
   NetworkError(String)
   /// Successful HTTP response whose JSON shape did not match `Res`
@@ -75,6 +76,8 @@ fn[Res : FromJson] TypedActionResponse::from_action_response(
       TypedActionResponse::Error(status, message)
     ActionResponse::NetworkError(message) =>
       TypedActionResponse::NetworkError(message)
+    ActionResponse::DecodeError(message) =>
+      TypedActionResponse::DecodeError(message)
   }
 }
 
@@ -98,7 +101,7 @@ pub extend ActionPhase with Eq::{not_equal, equal}
 /// UI-facing action state for pending/error/success controls
 pub struct ActionState {
   phase : ActionPhase
-  status : Int?
+  status : Int32?
   message : String?
   redirect : String?
 }
@@ -111,19 +114,19 @@ pub fn ActionState::idle() -> ActionState {
 
 ///|
 /// Pending action state
-pub fn ActionState::pending(message? : String = "Pending") -> ActionState {
+pub fn ActionState::pending(message~ : String = "Pending") -> ActionState {
   { phase: Pending, status: None, message: Some(message), redirect: None, }
 }
 
 ///|
 /// Successful action state
-pub fn ActionState::success(message? : String = "Success") -> ActionState {
+pub fn ActionState::success(message~ : String = "Success") -> ActionState {
   { phase: Succeeded, status: None, message: Some(message), redirect: None, }
 }
 
 ///|
 /// Failed action state
-pub fn ActionState::error(status~ : Int, message~ : String) -> ActionState {
+pub fn ActionState::error(status~ : Int32, message~ : String) -> ActionState {
   {
     phase: Failed,
     status: Some(status),
@@ -158,9 +161,10 @@ fn invoke_action(
   payload : @js.Any,
   callback : (ActionResponse) -> Unit,
   options? : ActionOptions,
+  http_method~ : String = "POST",
 ) -> Unit {
   let opts = options.unwrap_or(ActionOptions::default())
-  ffi_invoke_action_cb(url, payload, callback, opts)
+  request_action(url, payload, http_method, callback, opts)
 }
 
 ///|
@@ -190,9 +194,10 @@ pub fn[Req : ToJson, Res : FromJson] create_typed_action_invoker_key(
   let url = typed_action_url(key)
   let opts = options.unwrap_or(ActionOptions::default())
   fn(payload, callback) {
-    ffi_invoke_action_cb(
+    request_action(
       url,
       @js_any.json_to_any(payload.to_json()),
+      "POST",
       fn(response) {
         callback(TypedActionResponse::from_action_response(response))
       },
@@ -215,7 +220,7 @@ pub struct ActionFormConfig[Res] {
   /// On success callback
   priv on_success : ((Res) -> Unit)?
   /// On error callback
-  priv on_error : ((Int, String) -> Unit)?
+  priv on_error : ((Int32, String) -> Unit)?
   /// On redirect callback (return false to prevent redirect)
   priv on_redirect : ((String) -> Bool)?
 }
@@ -226,7 +231,7 @@ priv struct RawActionFormConfig {
   action : String
   form_method : String
   on_success : ((@js.Any) -> Unit)?
-  on_error : ((Int, String) -> Unit)?
+  on_error : ((Int32, String) -> Unit)?
   on_redirect : ((String) -> Bool)?
 }
 
@@ -272,7 +277,7 @@ pub fn[Res] ActionFormConfig::with_success(
 /// Set error callback for action form submission.
 pub fn[Res] ActionFormConfig::with_error(
   self : ActionFormConfig[Res],
-  on_error : (Int, String) -> Unit,
+  on_error : (Int32, String) -> Unit,
 ) -> ActionFormConfig[Res] {
   { ..self, on_error: Some(on_error), }
 }
@@ -329,134 +334,149 @@ pub fn[Res : FromJson] submit_form_as_action(
   form : @js_dom.HTMLFormElement,
   config : ActionFormConfig[Res],
 ) -> Unit {
-  ffi_submit_form_action(form, config.to_raw())
+  let raw = config.to_raw()
+  invoke_action(
+    raw.action,
+    ffi_form_payload(form),
+    fn(response) {
+      match response {
+        Success(data) =>
+          match raw.on_success {
+            Some(f) => f(data)
+            None => ()
+          }
+        Redirect(url) => {
+          let navigate = match raw.on_redirect {
+            Some(f) => f(url)
+            None => true
+          }
+          if navigate {
+            ffi_navigate_action(url)
+          }
+        }
+        Error(status, message) =>
+          match raw.on_error {
+            Some(f) => f(status, message)
+            None => ()
+          }
+        NetworkError(message) | DecodeError(message) =>
+          match raw.on_error {
+            Some(f) => f(0, message)
+            None => ()
+          }
+      }
+    },
+    http_method=raw.form_method,
+  )
 }
 
 // ============================================================================
 // FFI Implementation
 // ============================================================================
 
-// TODO: MoonBit enum serialization format
-// Currently using $tag (numeric index) format for enum variants:
-//   { $tag: 0, _0: data }     // Success
-//   { $tag: 1, _0: url }      // Redirect
-//   { $tag: 2, _0: status, _1: msg }  // Error
-//   { $tag: 3, _0: msg }      // NetworkError
-//
-// Issues to investigate:
-// 1. Is $tag the stable/official format? Or should we use $ with string names?
-// 2. MoonBit's Option uses { $: "Some", _0: value } but enums use $tag
-// 3. Consider creating a helper function or macro for enum construction
-// 4. Document the serialization format in MoonBit FFI best practices
-//
-// See: docs/internal/server-action-implementation.md
+// The FFI carries a string discriminator and plain data, never compiler-private enum tags.
 
 ///|
-extern "js" fn ffi_invoke_action_cb(
+fn request_action(
   url : String,
   payload : @js.Any,
+  http_method : String,
   callback : (ActionResponse) -> Unit,
   options : ActionOptions,
-) -> Unit =
-  #| (url, payload, callback, options) => {
-  #|   (async () => {
-  #|     try {
-  #|       // Build headers - options.headers is MoonBit Array of tuples
-  #|       const headers = { 'Content-Type': 'application/json' };
-  #|       if (options.headers && options.headers.length > 0) {
-  #|         for (const h of options.headers) {
-  #|           // MoonBit tuple: h[0] or h._0 for first, h[1] or h._1 for second
-  #|           const key = h[0] ?? h._0;
-  #|           const val = h[1] ?? h._1;
-  #|           if (key && val) headers[key] = val;
-  #|         }
-  #|       }
-  #|
-  #|       const fetchOptions = {
-  #|         method: 'POST',
-  #|         headers,
-  #|         body: JSON.stringify(payload),
-  #|         credentials: 'same-origin'
-  #|       };
-  #|
-  #|       // Handle MoonBit Option type: { $: "Some", _0: value } or { $: "None" }
-  #|       const signal = options.signal;
-  #|       if (signal && signal.$ === 'Some' && signal._0 instanceof AbortSignal) {
-  #|         fetchOptions.signal = signal._0;
-  #|       }
-  #|
-  #|       const response = await fetch(url, fetchOptions);
-  #|
-  #|       if (!response.ok) {
-  #|         const text = await response.text();
-  #|         try {
-  #|           const json = JSON.parse(text);
-  #|           // Error = variant index 2
-  #|           callback({ $tag: 2, _0: response.status, _1: json.error || text });
-  #|         } catch {
-  #|           callback({ $tag: 2, _0: response.status, _1: text });
-  #|         }
-  #|         return;
-  #|       }
-  #|
-  #|       const data = await response.json();
-  #|
-  #|       // Check for redirect instruction
-  #|       if (data.redirect) {
-  #|         // Redirect = variant index 1
-  #|         callback({ $tag: 1, _0: data.redirect });
-  #|         return;
-  #|       }
-  #|
-  #|       // Success = variant index 0
-  #|       callback({ $tag: 0, _0: data });
-  #|     } catch (error) {
-  #|       // NetworkError = variant index 3
-  #|       callback({ $tag: 3, _0: error.message || 'Network error' });
-  #|     }
-  #|   })();
+) -> Unit {
+  let signals = match options.signal {
+    Some(signal) => FixedArray::from_array([signal][:])
+    None => FixedArray::from_array([][:])
+  }
+  ffi_request_action_cb(
+    url,
+    payload,
+    http_method,
+    FixedArray::from_array(options.headers[:]),
+    signals,
+    options.timeout.unwrap_or(0),
+    fn(kind, status, message, data) {
+      let response = match kind {
+        "success" => ActionResponse::Success(data)
+        "redirect" => ActionResponse::Redirect(message)
+        "error" => ActionResponse::Error(status, message)
+        "validation" => ActionResponse::Error(status, "Validation failed")
+        "decode" => ActionResponse::DecodeError(message)
+        _ => ActionResponse::NetworkError(message)
+      }
+      callback(response)
+    },
+  )
+}
+
+///|
+extern "js" fn ffi_form_payload(form : @js_dom.HTMLFormElement) -> @js.Any =
+  #| form => Object.fromEntries(new FormData(form).entries())
+
+///|
+extern "js" fn ffi_navigate_action(url : String) -> Unit =
+  #| url => {
+  #|   if (globalThis.__LUNA_NAVIGATION__) globalThis.__LUNA_NAVIGATION__.navigate(url);
+  #|   else globalThis.location.assign(url);
   #| }
 
 ///|
-extern "js" fn ffi_submit_form_action(
-  form : @js_dom.HTMLFormElement,
-  config : RawActionFormConfig,
+extern "js" fn ffi_request_action_cb(
+  url : String,
+  payload : @js.Any,
+  http_method : String,
+  custom_headers : FixedArray[(String, String)],
+  signals : FixedArray[@js_async.AbortSignal],
+  timeout : Int32,
+  callback : (String, Int32, String, @js.Any) -> Unit,
 ) -> Unit =
-  #| async (form, config) => {
+  #| async (url, payload, method, customHeaders, signals, timeout, callback) => {
+  #|   let result;
+  #|   const checkUrl = value => {
+  #|     const current = globalThis.location;
+  #|     const target = new URL(value, current.href);
+  #|     if (!['http:', 'https:'].includes(target.protocol) || target.origin !== current.origin || target.username || target.password) {
+  #|       throw new TypeError('Actions and redirects must use the current HTTP(S) origin.');
+  #|     }
+  #|     return target.href;
+  #|   };
   #|   try {
-  #|     const formData = new FormData(form);
-  #|     const payload = Object.fromEntries(formData.entries());
-  #|
-  #|     const response = await fetch(config.action, {
-  #|       method: config.form_method || 'POST',
-  #|       headers: { 'Content-Type': 'application/json' },
-  #|       body: JSON.stringify(payload),
-  #|       credentials: 'same-origin'
+  #|     const target = checkUrl(url);
+  #|     const headers = new Headers({ 'Content-Type': 'application/json' });
+  #|     for (const h of customHeaders) headers.set(h[0] ?? h._0, h[1] ?? h._1);
+  #|     const signal = timeout > 0
+  #|       ? AbortSignal.any([...signals, AbortSignal.timeout(timeout)])
+  #|       : signals[0];
+  #|     const response = await fetch(target, {
+  #|       method, headers, body: JSON.stringify(payload), signal,
+  #|       mode: 'same-origin', credentials: 'same-origin'
   #|     });
-  #|
-  #|     const data = await response.json();
-  #|
-  #|     if (!response.ok) {
-  #|       if (config.on_error) {
-  #|         config.on_error(response.status, data.error || 'Unknown error');
+  #|     if (response.redirected) {
+  #|       result = ['redirect', response.status, checkUrl(response.url), null];
+  #|     } else {
+  #|       const text = await response.text();
+  #|       let data;
+  #|       let decoded = false;
+  #|       try { data = JSON.parse(text); decoded = true; } catch {}
+  #|       if (!response.ok) {
+  #|         const errors = data && data.fieldErrors;
+  #|         if (response.status === 422 && errors && typeof errors === 'object' && !Array.isArray(errors) && Object.values(errors).every(value => typeof value === 'string')) {
+  #|           result = ['validation', 422, '', errors];
+  #|         } else {
+  #|           result = ['error', response.status, typeof data?.error === 'string' ? data.error : text || response.statusText, null];
+  #|         }
+  #|       } else if (!decoded) {
+  #|         result = ['decode', response.status, 'Action response is not JSON', null];
+  #|       } else if (typeof data?.redirect === 'string') {
+  #|         result = ['redirect', response.status, checkUrl(data.redirect), null];
+  #|       } else {
+  #|         result = ['success', response.status, '', data];
   #|       }
-  #|       return;
-  #|     }
-  #|
-  #|     if (data.redirect) {
-  #|       const shouldRedirect = config.on_redirect ? config.on_redirect(data.redirect) : true;
-  #|       if (shouldRedirect) {
-  #|         window.location.href = data.redirect;
-  #|       }
-  #|       return;
-  #|     }
-  #|
-  #|     if (config.on_success) {
-  #|       config.on_success(data);
   #|     }
   #|   } catch (error) {
-  #|     if (config.on_error) {
-  #|       config.on_error(0, error.message || 'Network error');
-  #|     }
+  #|     const aborted = signals.some(signal => signal.aborted) || error?.name === 'AbortError' || error?.name === 'TimeoutError';
+  #|     result = [aborted ? 'aborted' : 'network', 0, aborted ? 'Action aborted' : error?.message || 'Network error', null];
   #|   }
+  #|   // User callbacks run outside the transport catch and are invoked exactly once.
+  #|   callback(...result);
   #| }

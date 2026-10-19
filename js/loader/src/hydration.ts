@@ -27,17 +27,13 @@
 // =============================================================================
 
 /** Standard hydration function signature */
-export type HydrateFn = (element: Element, state: unknown, name: string) => void;
+export type HydrateFn = (element: Element, state: unknown, name: string) => void | CleanupFn;
 
 /** Cleanup function for SPA navigation */
 export type CleanupFn = () => void;
 
 /** Setup function that returns cleanup */
-export type SetupFn<S = unknown> = (
-  element: Element,
-  state: S,
-  name: string
-) => CleanupFn;
+export type SetupFn<S = unknown> = (element: Element, state: S, name: string) => CleanupFn;
 
 // =============================================================================
 // Core: Hydration Factory
@@ -59,8 +55,15 @@ export type SetupFn<S = unknown> = (
 export function createHydrator<S = unknown>(setup: SetupFn<S>): HydrateFn {
   return (element, state, name) => {
     if (isHydrated(element)) return;
+    const cleanup = setup(element, state as S, name);
     markHydrated(element);
-    setup(element, state as S, name);
+    let active = true;
+    return () => {
+      if (!active) return;
+      active = false;
+      element.removeAttribute("data-hydrated");
+      cleanup();
+    };
   };
 }
 
@@ -77,11 +80,7 @@ export function createHydrator<S = unknown>(setup: SetupFn<S>): HydrateFn {
  * // 'open' -> 'closed', 'closed' -> 'open'
  * ```
  */
-export function toggle(
-  element: Element,
-  attr: string,
-  values: [string, string]
-): string {
+export function toggle(element: Element, attr: string, values: [string, string]): string {
   const current = element.getAttribute(attr);
   const next = current === values[0] ? values[1] : values[0];
   element.setAttribute(attr, next);
@@ -98,8 +97,8 @@ export function toggle(
  * ```
  */
 export function toggleChecked(element: Element): boolean {
-  const checked = element.getAttribute('aria-checked') !== 'true';
-  element.setAttribute('aria-checked', String(checked));
+  const checked = element.getAttribute("aria-checked") !== "true";
+  element.setAttribute("aria-checked", String(checked));
   return checked;
 }
 
@@ -121,21 +120,21 @@ export function getState(element: Element): string | undefined {
  * Set aria-checked attribute.
  */
 export function setChecked(element: Element, checked: boolean): void {
-  element.setAttribute('aria-checked', String(checked));
+  element.setAttribute("aria-checked", String(checked));
 }
 
 /**
  * Get aria-checked attribute.
  */
 export function getChecked(element: Element): boolean {
-  return element.getAttribute('aria-checked') === 'true';
+  return element.getAttribute("aria-checked") === "true";
 }
 
 /**
  * Set aria-valuenow attribute.
  */
 export function setValue(element: Element, value: number): void {
-  element.setAttribute('aria-valuenow', String(value));
+  element.setAttribute("aria-valuenow", String(value));
   (element as HTMLElement).dataset.value = String(value);
 }
 
@@ -143,7 +142,7 @@ export function setValue(element: Element, value: number): void {
  * Get aria-valuenow attribute.
  */
 export function getValue(element: Element, defaultValue = 0): number {
-  const value = element.getAttribute('aria-valuenow');
+  const value = element.getAttribute("aria-valuenow");
   return value ? parseInt(value, 10) : defaultValue;
 }
 
@@ -170,8 +169,8 @@ export function getValue(element: Element, defaultValue = 0): number {
  */
 export function readStates(element: Element, itemAttr: string): Map<string, string> {
   const states = new Map<string, string>();
-  const attrName = toCamelCase(itemAttr.replace('data-', ''));
-  element.querySelectorAll(`[${itemAttr}]`).forEach(item => {
+  const attrName = toCamelCase(itemAttr.replace("data-", ""));
+  element.querySelectorAll(`[${itemAttr}]`).forEach((item) => {
     const id = (item as HTMLElement).dataset[attrName];
     const state = (item as HTMLElement).dataset.state;
     if (id && state) states.set(id, state);
@@ -198,10 +197,10 @@ export function readStates(element: Element, itemAttr: string): Map<string, stri
  */
 export function readChecked(element: Element, itemAttr: string): Map<string, boolean> {
   const states = new Map<string, boolean>();
-  const attrName = toCamelCase(itemAttr.replace('data-', ''));
-  element.querySelectorAll(`[${itemAttr}]`).forEach(el => {
+  const attrName = toCamelCase(itemAttr.replace("data-", ""));
+  element.querySelectorAll(`[${itemAttr}]`).forEach((el) => {
     const id = (el as HTMLElement).dataset[attrName];
-    const checked = el.getAttribute('aria-checked') === 'true';
+    const checked = el.getAttribute("aria-checked") === "true";
     if (id) states.set(id, checked);
   });
   return states;
@@ -225,9 +224,9 @@ export function readNumber(element: Element, attr: string, defaultValue = 0): nu
  */
 export function readRange(element: Element): { min: number; max: number; value: number } {
   return {
-    min: readNumber(element, 'aria-valuemin') || readNumber(element, 'data-min') || 0,
-    max: readNumber(element, 'aria-valuemax') || readNumber(element, 'data-max') || 100,
-    value: readNumber(element, 'aria-valuenow') || readNumber(element, 'data-value') || 0,
+    min: readNumber(element, "aria-valuemin") || readNumber(element, "data-min") || 0,
+    max: readNumber(element, "aria-valuemax") || readNumber(element, "data-max") || 100,
+    value: readNumber(element, "aria-valuenow") || readNumber(element, "data-value") || 0,
   };
 }
 
@@ -251,9 +250,9 @@ export function readRange(element: Element): { min: number; max: number; value: 
 export function onClick(
   element: Element,
   selector: string,
-  handler: (event: MouseEvent, target: Element) => void
+  handler: (event: MouseEvent, target: Element) => void,
 ): CleanupFn {
-  return on(element, 'click', selector, handler);
+  return on(element, "click", selector, handler);
 }
 
 /**
@@ -265,7 +264,7 @@ export function on<E extends Event = Event>(
   element: Element,
   eventType: string,
   selector: string,
-  handler: (event: E, target: Element) => void
+  handler: (event: E, target: Element) => void,
 ): CleanupFn {
   const listener = (event: Event) => {
     const target = (event.target as Element).closest(selector);
@@ -286,7 +285,7 @@ export function onKey(
   element: Element | Document,
   key: string,
   handler: (event: KeyboardEvent) => void,
-  options?: { condition?: () => boolean }
+  options?: { condition?: () => boolean },
 ): CleanupFn {
   const listener = (event: Event) => {
     const e = event as KeyboardEvent;
@@ -294,8 +293,8 @@ export function onKey(
       handler(e);
     }
   };
-  element.addEventListener('keydown', listener);
-  return () => element.removeEventListener('keydown', listener);
+  element.addEventListener("keydown", listener);
+  return () => element.removeEventListener("keydown", listener);
 }
 
 /**
@@ -309,10 +308,10 @@ export function onDrag(
     onStart?: (x: number, y: number) => void;
     onMove: (x: number, y: number) => void;
     onEnd?: () => void;
-  }
+  },
 ): CleanupFn {
   const getXY = (e: MouseEvent | TouchEvent): [number, number] => {
-    if ('touches' in e) {
+    if ("touches" in e) {
       return [e.touches[0].clientX, e.touches[0].clientY];
     }
     return [e.clientX, e.clientY];
@@ -331,24 +330,24 @@ export function onDrag(
 
     const end = () => {
       handlers.onEnd?.();
-      document.removeEventListener('mousemove', move);
-      document.removeEventListener('mouseup', end);
-      document.removeEventListener('touchmove', move);
-      document.removeEventListener('touchend', end);
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", end);
+      document.removeEventListener("touchmove", move);
+      document.removeEventListener("touchend", end);
     };
 
-    document.addEventListener('mousemove', move);
-    document.addEventListener('mouseup', end);
-    document.addEventListener('touchmove', move);
-    document.addEventListener('touchend', end);
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", end);
+    document.addEventListener("touchmove", move);
+    document.addEventListener("touchend", end);
   };
 
-  element.addEventListener('mousedown', start as EventListener);
-  element.addEventListener('touchstart', start as EventListener);
+  element.addEventListener("mousedown", start as EventListener);
+  element.addEventListener("touchstart", start as EventListener);
 
   return () => {
-    element.removeEventListener('mousedown', start as EventListener);
-    element.removeEventListener('touchstart', start as EventListener);
+    element.removeEventListener("mousedown", start as EventListener);
+    element.removeEventListener("touchstart", start as EventListener);
   };
 }
 
@@ -367,12 +366,8 @@ export function onDrag(
  * });
  * ```
  */
-export function enableTransition(
-  element: Element,
-  selector: string,
-  transition: string
-): void {
-  element.querySelectorAll(selector).forEach(el => {
+export function enableTransition(element: Element, selector: string, transition: string): void {
+  element.querySelectorAll(selector).forEach((el) => {
     (el as HTMLElement).style.transition = transition;
   });
 }
@@ -385,14 +380,14 @@ export function enableTransition(
  * Mark element as hydrated.
  */
 export function markHydrated(element: Element): void {
-  (element as HTMLElement).dataset.hydrated = 'true';
+  (element as HTMLElement).dataset.hydrated = "true";
 }
 
 /**
  * Check if element is hydrated.
  */
 export function isHydrated(element: Element): boolean {
-  return (element as HTMLElement).dataset.hydrated === 'true';
+  return (element as HTMLElement).dataset.hydrated === "true";
 }
 
 // =============================================================================
@@ -421,7 +416,7 @@ export function data(element: Element, key: string): string | undefined {
 
 /** Combine multiple cleanup functions */
 export function combine(...cleanups: CleanupFn[]): CleanupFn {
-  return () => cleanups.forEach(fn => fn());
+  return () => cleanups.forEach((fn) => fn());
 }
 
 // =============================================================================
