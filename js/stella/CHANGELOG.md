@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.3 (2026-10-20)
+
+- Update the Web Components runtime dependency to 0.23.3.
+
 ## 0.23.2 (2026-10-19)
 
 - Update dependencies and publish with the current Web Components runtime.
