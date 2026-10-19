@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.3 (2026-10-20)
+
+- Refresh bundled island loader assets with lifecycle and dependency fixes.
+
 ## 0.23.2 (2026-10-19)
 
 - Render React and MoonBit components through asynchronous SSR in build and development.

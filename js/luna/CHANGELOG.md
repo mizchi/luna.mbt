@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.1 (2026-10-20)
+
+- Hydrate Void islands by reusing server-rendered DOM and support shared action forms.
+- Preserve lifecycle cleanup while reducing retained loader and runtime code.
+- Refresh adapter tooling and repair browser and hydration benchmark coverage.
+
 ## 0.24.0 (2026-10-19)
 
 - Add optional Void renderer exports and composable Luna, React, and Solid islands.

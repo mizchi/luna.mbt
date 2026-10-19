@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.3 (2026-10-20)
+
+- Rebuild Web Components runtime artifacts with the current toolchain.
+
 ## 0.23.2 (2026-10-19)
 
 - Update dependencies and regenerate JavaScript and TypeScript declarations.

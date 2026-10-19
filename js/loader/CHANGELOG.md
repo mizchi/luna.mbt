@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.23.3 (2026-10-20)
+
+- Ship self-contained source exports and shared navigation and form runtime.
+- Reduce loader dependencies and skip unnecessary island lifecycle scans.
+
 ## 0.23.2 (2026-10-19)
 
 - Update build dependencies and publish the refreshed island loader bundles.

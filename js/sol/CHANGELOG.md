@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.3 (2026-10-20)
+
+- Refresh bundled island hydration, form, navigation, and cleanup runtime.
+
 ## 0.23.2 (2026-10-19)
 
 - Fix generated starter JSON methods and exclude associated methods from island entry points.
