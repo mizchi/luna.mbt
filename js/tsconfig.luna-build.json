@@ -1,0 +1,6 @@
+{
+  "extends": "./luna/tsconfig.json",
+  "compilerOptions": {
+    "composite": false
+  }
+}

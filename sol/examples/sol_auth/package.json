@@ -16,17 +16,17 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.1.5",
-    "better-auth": "^1.7.10",
+    "better-auth": "^1.7.11",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.13"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20261018.1",
+    "@cloudflare/workers-types": "^5.20261019.1",
     "@playwright/test": "^1.64.1",
     "@types/better-sqlite3": "^9.6.0",
     "tsx": "^4.23.15",
-    "wrangler": "^4.151.1"
+    "wrangler": "^4.151.2"
   },
   "private": true
 }
