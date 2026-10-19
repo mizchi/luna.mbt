@@ -29,18 +29,18 @@ jobs:
   astra-e2e:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           run_install: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - uses: hustcer/setup-moonbit@v1
+      - uses: hustcer/setup-moonbit@87e2bdf5cf20d3b6f5c5f266a8a513f503bb5b76 # v1.25
         with:
           version: latest
       - run: |
@@ -146,7 +146,7 @@ jobs:
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: Upload astra example VRT diffs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: astra-example-vrt-diffs
           path: |
