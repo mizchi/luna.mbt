@@ -9,7 +9,8 @@
  * This benchmark verifies that the untracked() fix for issue #5
  * doesn't introduce performance regressions.
  */
-import { bench, describe } from "vitest";
+import { describe } from "vitest";
+import { bench } from "../../bench-utils";
 import {
   createElement,
   mount,
@@ -227,6 +228,7 @@ describe("For Component Performance", () => {
 
 describe("Nested Show + For Performance (Issue #5 scenario)", () => {
   let container: HTMLDivElement;
+  let disposeDeferred: (() => void) | undefined;
 
   bench(
     "Nested Show + For - Initial render with memo",
@@ -323,7 +325,8 @@ describe("Nested Show + For Performance (Issue #5 scenario)", () => {
         setLineCount(50);
       };
 
-      createRoot(() => {
+      createRoot((dispose) => {
+        disposeDeferred = dispose;
         onMount(() => {
           setIsReady(true);
         });
@@ -338,7 +341,11 @@ describe("Nested Show + For Performance (Issue #5 scenario)", () => {
                   For({
                     each: lines,
                     children: (num: number) =>
-                      createElement("div", [], [text(`${num}`)]),
+                      createElement(
+                        "div",
+                        [attr("data-line", AttrValue.Static("true"))],
+                        [text(`${num}`)],
+                      ),
                   }),
                   createElement(
                     "div",
@@ -352,14 +359,20 @@ describe("Nested Show + For Performance (Issue #5 scenario)", () => {
         mount(container, node);
       });
 
-      // Wait for mount and effects
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      // Flush onMount/effects instead of measuring a fixed 10 ms timer.
+      await Promise.resolve();
+      await Promise.resolve();
+      if (container.querySelectorAll("[data-line]").length !== 50) {
+        throw new Error("Deferred render did not commit all 50 lines");
+      }
     },
     {
       setup: () => {
         container = createContainer();
       },
       teardown: () => {
+        disposeDeferred?.();
+        disposeDeferred = undefined;
         cleanupContainer(container);
       },
     }

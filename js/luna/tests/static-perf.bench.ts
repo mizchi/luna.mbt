@@ -1,4 +1,5 @@
-import { bench, describe } from "vitest";
+import { describe } from "vitest";
+import { bench } from "../../bench-utils";
 
 // Generate HTML for list items
 function generateListHTML(count: number): string {

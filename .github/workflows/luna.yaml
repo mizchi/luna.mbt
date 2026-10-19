@@ -252,6 +252,8 @@ jobs:
         run: npx playwright install chromium --with-deps
       - name: Vitest browser tests
         run: pnpm test:browser
+      - name: Browser benchmark contracts
+        run: pnpm test:bench --run --no-file-parallelism
 
   # E2E tests with Playwright (luna)
   luna-e2e:

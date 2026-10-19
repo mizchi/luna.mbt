@@ -13,7 +13,8 @@
  * - https://dev.to/srmagura/why-were-breaking-up-wiht-css-in-js-4g9b
  */
 
-import { bench, describe } from "vitest";
+import { describe } from "vitest";
+import { bench } from "../../bench-utils";
 
 // =============================================================================
 // Test Helpers

@@ -232,8 +232,14 @@ runtime-bench:
     node luna/scripts/runtime-bench.mjs --build
 
 # Chromium island lifecycle benchmark; --compare <git-ref> compares implementations
+[positional-arguments]
 loader-bench *args:
-    node luna/scripts/loader-bench.mjs {{args}}
+    node luna/scripts/loader-bench.mjs "$@"
+
+# Chromium rendering, Show/For, CSS and Web Component benchmarks
+[positional-arguments]
+browser-bench *args:
+    pnpm test:bench --run --no-file-parallelism "$@"
 
 # Runtime benchmark ベースライン更新
 runtime-baseline:

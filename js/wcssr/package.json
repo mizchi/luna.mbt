@@ -37,8 +37,8 @@
     "test:browser:firefox": "BROWSER=firefox vitest run --config vitest.browser.config.ts",
     "test:browser:webkit": "BROWSER=webkit vitest run --config vitest.browser.config.ts",
     "test:browser:all": "pnpm test:browser:chromium && pnpm test:browser:firefox && pnpm test:browser:webkit",
-    "bench": "vitest bench --run --config vitest.bench.config.ts",
-    "bench:watch": "vitest bench --config vitest.bench.config.ts"
+    "bench": "vitest bench --config ../../luna/vitest.config.mts --project bench --reporter=default --run --no-file-parallelism js/wcssr/tests/island-decision.bench.ts",
+    "bench:watch": "vitest bench --config ../../luna/vitest.config.mts --project bench --reporter=default js/wcssr/tests/island-decision.bench.ts"
   },
   "keywords": [
     "web-components",

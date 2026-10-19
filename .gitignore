@@ -38,6 +38,7 @@ apm_modules/
 .turbo/
 
 # Test outputs
+.vitest/
 test-results/
 coverage/
 *.coverage
