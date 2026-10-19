@@ -32,8 +32,17 @@ export function createIslandLifecycle(onUnmount?: (element: Element) => void) {
     unmountWhere((element) => !root || root.contains(element));
   }
 
-  const observer = new MutationObserver(() => {
-    unmountWhere((element) => !element.isConnected);
+  const observer = new MutationObserver((mutations) => {
+    if (!records.size) return;
+    // Insertions and removed text nodes cannot disconnect an island.
+    for (const { removedNodes } of mutations) {
+      for (let i = 0; i < removedNodes.length; i++) {
+        if (removedNodes[i].nodeType === 1) {
+          unmountWhere((element) => !element.isConnected);
+          return;
+        }
+      }
+    }
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 

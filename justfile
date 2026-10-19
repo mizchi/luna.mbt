@@ -231,6 +231,10 @@ treeshake-check:
 runtime-bench:
     node luna/scripts/runtime-bench.mjs --build
 
+# Chromium island lifecycle benchmark; --compare <git-ref> compares implementations
+loader-bench *args:
+    node luna/scripts/loader-bench.mjs {{args}}
+
 # Runtime benchmark ベースライン更新
 runtime-baseline:
     node luna/scripts/runtime-bench.mjs --build --write-baseline

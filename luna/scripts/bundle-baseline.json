@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-19T13:38:17.071Z",
+  "generatedAt": "2026-10-19T13:51:03.581Z",
   "entries": [
     {
       "id": "boot",
@@ -62,12 +62,12 @@
       "exportKey": ".",
       "file": "js/loader/dist/wc-loader.js",
       "files": [
-        "js/loader/dist/islands-DTqXt1us.js",
+        "js/loader/dist/islands-BTS68UMV.js",
         "js/loader/dist/triggers-BMBd_Ex4.js",
         "js/loader/dist/wc-loader.js"
       ],
-      "bytes": 2692,
-      "gzip": 1496
+      "bytes": 2788,
+      "gzip": 1556
     },
     {
       "id": "router",
@@ -151,12 +151,12 @@
       "exportKey": "./wc",
       "file": "js/loader/dist/wc-loader.js",
       "files": [
-        "js/loader/dist/islands-DTqXt1us.js",
+        "js/loader/dist/islands-BTS68UMV.js",
         "js/loader/dist/triggers-BMBd_Ex4.js",
         "js/loader/dist/wc-loader.js"
       ],
-      "bytes": 2692,
-      "gzip": 1496
+      "bytes": 2788,
+      "gzip": 1556
     }
   ]
 }

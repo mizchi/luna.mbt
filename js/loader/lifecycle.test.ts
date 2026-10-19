@@ -21,6 +21,59 @@ function element() {
 }
 
 describe("shared island lifetime", () => {
+  it("does not scan mounted islands for insertions or text-only removals", async () => {
+    const scope = lifecycle();
+    const host = element();
+    const sidebar = element();
+    await scope.mount(host, () => {});
+    await Promise.resolve();
+    const connected = vi.spyOn(host, "isConnected", "get");
+    try {
+      sidebar.append(document.createElement("span"));
+      await Promise.resolve();
+      expect(connected).not.toHaveBeenCalled();
+      sidebar.append("old text");
+      await Promise.resolve();
+      sidebar.lastChild!.textContent = "new text";
+      await Promise.resolve();
+      sidebar.lastChild!.remove();
+      await Promise.resolve();
+      expect(connected).not.toHaveBeenCalled();
+    } finally {
+      connected.mockRestore();
+    }
+  });
+
+  it("disposes every island inside a removed ancestor", async () => {
+    const scope = lifecycle();
+    const container = element();
+    const first = document.createElement("section");
+    const second = document.createElement("section");
+    container.append(first, second);
+    const cleanup = vi.fn();
+    await scope.mount(first, () => cleanup);
+    await scope.mount(second, () => cleanup);
+    container.remove();
+    await Promise.resolve();
+    expect(cleanup).toHaveBeenCalledTimes(2);
+    scope.dispose();
+    expect(cleanup).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps islands moved to another connected parent in the same mutation batch", async () => {
+    const scope = lifecycle();
+    const host = element();
+    const destination = element();
+    const cleanup = vi.fn();
+    await scope.mount(host, () => cleanup);
+    host.remove();
+    destination.append(host);
+    await Promise.resolve();
+    expect(cleanup).not.toHaveBeenCalled();
+    scope.dispose();
+    expect(cleanup).toHaveBeenCalledOnce();
+  });
+
   it("deduplicates per element and cleans removed islands exactly once", async () => {
     const scope = lifecycle();
     const first = element();

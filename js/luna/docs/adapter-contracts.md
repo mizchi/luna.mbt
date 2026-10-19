@@ -62,6 +62,11 @@ The common renderer contract is `mount(element, props) => void | Dispose | Promi
 - Pending imports check that their element still owns the mount before executing the renderer.
 - Failed mounts can be retried by scanning again.
 
+The removal observer scans mounted instances only after an element is removed.
+Insertions and text-only removals do not trigger a full scan; ancestor removal and
+connected reparenting retain the same disposal rules. See the
+[Chromium lifecycle benchmark](../../loader/benchmarks.md) for measurements.
+
 WC modules use the browser's URL-based module cache. Multiple instances share a module without a separate component-name cache; different URLs (including HMR query strings) remain independent. Unload disposes instances, while code updates use a new module URL.
 
 `createHydrator` returns the setup cleanup and clears its hydration marker when disposed. Sol generates a reactive root around component construction and rendering, returning its disposer to both the Luna and WC loaders. Manual hydration triggers and the existing module-origin allowlist remain available.
