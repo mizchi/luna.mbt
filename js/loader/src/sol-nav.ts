@@ -1,6 +1,6 @@
 /*! sol-nav v1 - CSR Navigation for Sol Framework */
-import type { NavigationPort } from "../../shared/runtime/navigation";
-import { sameOriginActionUrl } from "../../shared/runtime/http";
+import type { NavigationPort } from "./runtime/navigation";
+import { sameOriginActionUrl } from "./runtime/http";
 
 // Use type alias instead of interface to avoid conflicts with global Window declarations
 type SolWindow = Window & {

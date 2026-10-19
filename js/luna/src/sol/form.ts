@@ -1,4 +1,4 @@
-import { fetchAction, sameOriginActionUrl } from "../../../shared/runtime/http";
+import { fetchAction, sameOriginActionUrl } from "../../../loader/src/runtime/http";
 import type { ActionResult, NavigationPort } from "../form/contracts";
 import { createActionForm } from "../form/state";
 

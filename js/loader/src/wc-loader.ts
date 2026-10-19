@@ -1,6 +1,6 @@
 /*! wc-loader v3 - Web Components Hydration Loader */
 import { setupTrigger, onReady, observeAdditions } from "./lib";
-import { createIslandLifecycle, type MountResult } from "../../shared/runtime/islands";
+import { createIslandLifecycle, type MountResult } from "./runtime/islands";
 
 type HydrateFn = (el: Element, state: unknown, id: string) => MountResult;
 

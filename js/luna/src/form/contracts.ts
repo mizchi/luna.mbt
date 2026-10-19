@@ -1,5 +1,5 @@
-import type { NavigationPort } from "../../../shared/runtime/navigation";
-export type { NavigationPort } from "../../../shared/runtime/navigation";
+import type { NavigationPort } from "../../../loader/src/runtime/navigation";
+export type { NavigationPort } from "../../../loader/src/runtime/navigation";
 
 export type ActionResult<E> =
   | { kind: "success" }

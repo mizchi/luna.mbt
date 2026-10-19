@@ -16,6 +16,6 @@
   },
   "include": [
     "src/**/*.ts",
-    "../shared/runtime/**/*.ts"
+    "../loader/src/runtime/**/*.ts"
   ]
 }

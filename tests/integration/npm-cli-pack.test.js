@@ -9,6 +9,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { buildSync } from "esbuild";
 import {
   existsSync,
   mkdirSync,
@@ -129,6 +130,16 @@ for (const pkgDir of PUBLIC_PACKAGE_DIRS) {
       assert.ok(exportedPaths.length > 0, "package must expose an entry point");
       for (const rel of exportedPaths) {
         assert.ok(existsSync(path.join(stage, "package", rel)), `missing packed entry point: ${rel}`);
+      }
+      if (path.basename(pkgDir) === "loader") {
+        // Public source entries must resolve without access to sibling workspace directories.
+        buildSync({
+          entryPoints: Object.entries(manifest.exports)
+            .filter(([key]) => key.startsWith("./src/"))
+            .map(([, rel]) => path.join(stage, "package", rel)),
+          outdir: path.join(stage, "source-smoke"),
+          bundle: true, write: false, platform: "browser", logLevel: "silent",
+        });
       }
       if (path.basename(pkgDir) === "luna") {
         // Optional Void entry points must not make core Luna depend on Void.

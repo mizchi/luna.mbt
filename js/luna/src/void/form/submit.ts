@@ -1,5 +1,5 @@
 import { VoidActionError, categorizeActionError, getValidationErrors } from "void/pages-client";
-import { fetchAction, sameOriginActionUrl } from "../../../../shared/runtime/http";
+import { fetchAction, sameOriginActionUrl } from "../../../../loader/src/runtime/http";
 import type { ActionResult } from "../../form/contracts";
 
 async function readErrorBody(response: Response): Promise<unknown> {

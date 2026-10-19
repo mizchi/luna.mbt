@@ -1,6 +1,6 @@
 /*! luna loader v4 - minimal dispatcher */
 import { observeAdditions, onReady, setupTrigger } from "./lib";
-import { createIslandLifecycle, type MountResult } from "../../shared/runtime/islands";
+import { createIslandLifecycle, type MountResult } from "./runtime/islands";
 
 type HydrateFn = (el: Element, state: unknown, id: string) => MountResult;
 type LunaWindow = Window &

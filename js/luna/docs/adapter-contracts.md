@@ -1,6 +1,6 @@
 # Sol and Void adapter contracts
 
-Both adapters share the reactive form state in `src/form/state.ts` and the renderer-free island lifetime in `js/shared/runtime/islands.ts`. Protocol decoding and navigation remain in their respective adapters. Shared runtime sources are bundled into each published package; consumers do not need another runtime dependency.
+Both adapters share the reactive form state in `src/form/state.ts` and the renderer-free island lifetime in `js/loader/src/runtime/islands.ts`. Protocol decoding and navigation remain in their respective adapters. Shared runtime sources are bundled into each published package; consumers do not need another runtime dependency.
 
 | Concern           | Void                                           | Sol                                                       |
 | ----------------- | ---------------------------------------------- | --------------------------------------------------------- |

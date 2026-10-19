@@ -1,5 +1,5 @@
 import { initIslands } from "void/pages-client";
-import { createIslandLifecycle } from "../../../shared/runtime/islands";
+import { createIslandLifecycle } from "../../../loader/src/runtime/islands";
 import type { Dispose, Island, IslandManifest } from "./contracts";
 
 /** Schedule mixed-renderer islands without loading any rendering runtime. */

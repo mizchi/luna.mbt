@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createIslandLifecycle } from "../shared/runtime/islands";
+import { createIslandLifecycle } from "./src/runtime/islands";
 import { createHydrator } from "./src/hydration";
 
 const stops: Array<() => void> = [];
