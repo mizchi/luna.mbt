@@ -190,4 +190,66 @@ test.describe("sol_app island hydration", () => {
     await counter.getByRole("button", { name: "+", exact: true }).click();
     await expect(display).toHaveText("1");
   });
+
+  test("WC modules use the native URL cache and preserve JSON escape sequences", async ({
+    page,
+  }) => {
+    let requests = 0;
+    await page.route("**/__contract/wc-cache.js?*", (route) => {
+      requests++;
+      return route.fulfill({
+        contentType: "text/javascript",
+        body: `
+        window.__wcEvaluations = (window.__wcEvaluations || 0) + 1;
+        export function hydrate(element, state) {
+          element.textContent = state.label;
+          element.setAttribute('data-version', new URL(import.meta.url).searchParams.get('v'));
+          return () => { window.__wcDisposals = (window.__wcDisposals || 0) + 1; };
+        }
+      `,
+      });
+    });
+    await page.goto("/wc-counter");
+    await hydrated(page, "wc-counter");
+    const result = await page.evaluate(async () => {
+      const runtime = window as unknown as {
+        __LUNA_WC_HYDRATE__: (el: Element) => Promise<void>;
+        __LUNA_WC_UNLOAD__: (name: string) => boolean;
+        __wcEvaluations: number;
+        __wcDisposals: number;
+      };
+      const label = String.raw`literal \u003c and \u0026`;
+      const hosts = [1, 1, 2].map((version) => {
+        const el = document.createElement("wc-cache-fixture");
+        el.setAttribute("luna:wc-url", `/__contract/wc-cache.js?v=${version}`);
+        el.setAttribute("luna:wc-trigger", "none");
+        el.setAttribute("luna:wc-state", JSON.stringify({ label }));
+        document.body.append(el);
+        return el;
+      });
+      await Promise.all(hosts.map((el) => runtime.__LUNA_WC_HYDRATE__(el)));
+      const initial = hosts.map((el) => ({
+        version: el.getAttribute("data-version"),
+        label: el.textContent,
+      }));
+      const unloaded = runtime.__LUNA_WC_UNLOAD__("wc-cache-fixture");
+      await runtime.__LUNA_WC_HYDRATE__(hosts[0]);
+      return {
+        initial,
+        label,
+        unloaded,
+        evaluations: runtime.__wcEvaluations,
+        disposals: runtime.__wcDisposals,
+      };
+    });
+    expect(result.initial).toEqual([
+      { version: "1", label: result.label },
+      { version: "1", label: result.label },
+      { version: "2", label: result.label },
+    ]);
+    expect(result.unloaded).toBe(true);
+    expect(result.evaluations).toBe(2);
+    expect(result.disposals).toBe(3);
+    expect(requests).toBe(2);
+  });
 });

@@ -17,13 +17,6 @@ type SolWindow = Window & {
 // Type for setHTMLUnsafe which may not exist in older browsers
 type SetHTMLUnsafeMethod = ((html: string) => void) | undefined;
 
-const isBlockedLink = (href: string): boolean => {
-  const value = href.trim().toLowerCase();
-  return (
-    value.startsWith("javascript:") || value.startsWith("data:") || value.startsWith("vbscript:")
-  );
-};
-
 ((d: Document, w: SolWindow) => {
   let isNavigating = false;
   const cache = new Map<string, string>();
@@ -222,8 +215,6 @@ const isBlockedLink = (href: string): boolean => {
     const href = link.getAttribute("href");
     if (!href) return;
 
-    // Skip blocked protocol links
-    if (isBlockedLink(href)) return;
     try {
       sameOriginActionUrl(href);
     } catch {
@@ -250,7 +241,7 @@ const isBlockedLink = (href: string): boolean => {
       const link = target.closest<HTMLAnchorElement>("[data-sol-link][data-sol-prefetch]");
       if (link) {
         const href = link.getAttribute("href");
-        if (href && !isBlockedLink(href) && !href.startsWith("http") && !href.startsWith("//")) {
+        if (href && !href.startsWith("http") && !href.startsWith("//")) {
           prefetch(href);
         }
       }

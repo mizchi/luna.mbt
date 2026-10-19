@@ -1,5 +1,5 @@
 /*! luna loader v4 - minimal dispatcher */
-import { observeAdditions, onReady, setupTrigger } from "./lib";
+import { observeAdditions, onReady, setupTrigger } from "./runtime/triggers";
 import { createIslandLifecycle, type MountResult } from "./runtime/islands";
 
 type HydrateFn = (el: Element, state: unknown, id: string) => MountResult;

@@ -20,16 +20,20 @@ export function createIslandLifecycle(onUnmount?: (element: Element) => void) {
     return true;
   }
 
-  function unmountAll(root?: Element) {
+  function unmountWhere(predicate: (element: Element) => boolean): boolean {
+    let found = false;
     for (const element of records.keys()) {
-      if (!root || root.contains(element)) unmount(element);
+      if (predicate(element)) found = unmount(element) || found;
     }
+    return found;
+  }
+
+  function unmountAll(root?: Element) {
+    unmountWhere((element) => !root || root.contains(element));
   }
 
   const observer = new MutationObserver(() => {
-    for (const element of records.keys()) {
-      if (!element.isConnected) unmount(element);
-    }
+    unmountWhere((element) => !element.isConnected);
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 
@@ -44,13 +48,13 @@ export function createIslandLifecycle(onUnmount?: (element: Element) => void) {
       const isCurrent = () => !stopped && element.isConnected && records.get(element) === record;
       try {
         const dispose = await mount(isCurrent);
-        if (!isCurrent()) {
-          if (records.get(element) === record) unmount(element);
-          if (typeof dispose === "function") dispose();
-          return false;
+        const current = isCurrent();
+        if (!current && records.get(element) === record) unmount(element);
+        if (typeof dispose === "function") {
+          if (current) record.dispose = dispose;
+          else dispose();
         }
-        if (typeof dispose === "function") record.dispose = dispose;
-        return true;
+        return current;
       } catch (error) {
         if (records.get(element) === record) unmount(element);
         throw error;
@@ -58,13 +62,7 @@ export function createIslandLifecycle(onUnmount?: (element: Element) => void) {
     },
     unmount,
     unmountAll,
-    unmountWhere(predicate: (element: Element) => boolean): boolean {
-      let found = false;
-      for (const element of records.keys()) {
-        if (predicate(element)) found = unmount(element) || found;
-      }
-      return found;
-    },
+    unmountWhere,
     dispose() {
       if (stopped) return;
       stopped = true;
