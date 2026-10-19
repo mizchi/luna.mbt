@@ -5,7 +5,7 @@ export { MinimalRouter, getRouter, startRouter, type RouterOptions, type Navigat
 
 import { initLoader } from './loader';
 import { startRouter, getRouter } from './router';
-import { onReady } from '../lib';
+import { onReady } from '../runtime/triggers';
 
 /**
  * Boot options for initialization

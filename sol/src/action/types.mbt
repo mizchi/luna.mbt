@@ -102,9 +102,9 @@ fn decode_form_component(s : String) -> String {
 ///|
 fn decode_percent_encoded_bytes(
   chars : Array[Char],
-  start : Int,
-  len : Int,
-) -> (String, Int) {
+  start : Int32,
+  len : Int32,
+) -> (String, Int32) {
   let bytes : Array[Byte] = []
   let mut i = start
   while i + 2 < len && chars[i] == '%' {
@@ -140,7 +140,7 @@ fn is_hex_digit(c : Char) -> Bool {
 }
 
 ///|
-fn hex_digit_to_int(c : Char) -> Int {
+fn hex_digit_to_int(c : Char) -> Int32 {
   if c >= '0' && c <= '9' {
     c.to_int() - '0'.to_int()
   } else if c >= 'a' && c <= 'f' {
@@ -191,7 +191,8 @@ priv enum ActionResultKind {
   JsonSuccess(Json)
   ClientRedirect(String)
   HttpRedirectResult(String)
-  ClientFailure(Int, String)
+  ClientFailure(Int32, String)
+  FieldValidation(Map[String, String])
   ServerFailure(String)
 }
 
@@ -230,6 +231,14 @@ pub fn ActionResult::bad_request(message : String) -> ActionResult {
 /// Create validation error
 pub fn ActionResult::validation_error(message : String) -> ActionResult {
   { kind: ClientFailure(422, message), }
+}
+
+///|
+/// Field errors for JSON forms. Matches the island form validation contract.
+pub fn ActionResult::validation_errors(
+  errors : Map[String, String],
+) -> ActionResult {
+  { kind: FieldValidation(errors), }
 }
 
 ///|
@@ -290,7 +299,7 @@ pub struct TypedActionKey[Req, Res] {
 ///|
 fn[Req, Res] TypedActionKey::new(
   id : String,
-  base_path? : String = "/_action",
+  base_path~ : String = "/_action",
 ) -> TypedActionKey[Req, Res] {
   { id, base_path, _request: None, _response: None, }
 }

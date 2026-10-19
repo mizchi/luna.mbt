@@ -1,7 +1,8 @@
 /*! luna loader v4 - minimal dispatcher */
-import { createLoadedTracker, observeAdditions, onReady, setupTrigger } from './lib';
+import { observeAdditions, onReady, setupTrigger } from "./runtime/triggers";
+import { createIslandLifecycle, type MountResult } from "./runtime/islands";
 
-type HydrateFn = (el: Element, state: unknown, id: string) => void;
+type HydrateFn = (el: Element, state: unknown, id: string) => MountResult;
 type LunaWindow = Window &
   typeof globalThis & {
     __LUNA_ALLOWED_HOSTS__?: string[] | string;
@@ -9,6 +10,7 @@ type LunaWindow = Window &
     __LUNA_HYDRATE__?: (el: Element) => Promise<void>;
     __LUNA_SCAN__?: () => void;
     __LUNA_UNLOAD__?: (id: string) => boolean;
+    __LUNA_UNLOAD_ALL__?: (root: Element) => void;
     __LUNA_CLEAR_LOADED__?: () => void;
     __LUNA_SET_ALLOWED_HOSTS__?: (hosts: string[] | string) => void;
     __LUNA_SCAN_DEFER__?: () => void;
@@ -16,14 +18,19 @@ type LunaWindow = Window &
 
 const d = document;
 const S: Record<string, unknown> = {};
-const { isLoaded, markLoaded, unload, clear } = createLoadedTracker();
+const lifecycle = createIslandLifecycle((el) => {
+  delete (el as Element & { __lunaSetup?: 1 }).__lunaSetup;
+});
 
 const normalizeAllowedEntries = (raw: unknown): string[] => {
   if (Array.isArray(raw)) {
-    return raw.map(v => `${v}`.trim().toLowerCase()).filter(Boolean);
+    return raw.map((v) => `${v}`.trim().toLowerCase()).filter(Boolean);
   }
-  if (typeof raw === 'string') {
-    return raw.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+  if (typeof raw === "string") {
+    return raw
+      .split(",")
+      .map((v) => v.trim().toLowerCase())
+      .filter(Boolean);
   }
   return [];
 };
@@ -42,7 +49,7 @@ const isAllowedModuleUrl = (rawUrl: string | null): string | undefined => {
     return undefined;
   }
 
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
     console.warn(`[luna] Blocked non-http(s) module URL: ${rawUrl}`);
     return undefined;
   }
@@ -59,23 +66,23 @@ const isAllowedModuleUrl = (rawUrl: string | null): string | undefined => {
 
   console.warn(
     `[luna] Blocked cross-origin module URL: ${parsed.href}. ` +
-      'Set window.__LUNA_ALLOWED_HOSTS__ to allow this host.'
+      "Set window.__LUNA_ALLOWED_HOSTS__ to allow this host.",
   );
   return undefined;
 };
 
 const setAllowedHosts = (hosts: string[] | string): void => {
   (globalThis as LunaWindow).__LUNA_ALLOWED_HOSTS__ =
-    Array.isArray(hosts) || typeof hosts === 'string' ? hosts : [];
+    Array.isArray(hosts) || typeof hosts === "string" ? hosts : [];
 };
 
 const parseState = async (el: Element): Promise<unknown> => {
-  const raw = el.getAttribute('luna:state');
+  const raw = el.getAttribute("luna:state");
   if (!raw) return undefined;
-  if (raw[0] === '#') {
-    return JSON.parse(d.getElementById(raw.slice(1))?.textContent ?? 'null');
+  if (raw[0] === "#") {
+    return JSON.parse(d.getElementById(raw.slice(1))?.textContent ?? "null");
   }
-  if (raw.startsWith('url:')) {
+  if (raw.startsWith("url:")) {
     const response = await fetch(raw.slice(4));
     return response.ok ? response.json() : undefined;
   }
@@ -87,22 +94,24 @@ const parseState = async (el: Element): Promise<unknown> => {
 };
 
 const hydrate = async (el: Element): Promise<void> => {
-  const id = el.getAttribute('luna:id') ?? el.tagName.toLowerCase();
-  const url = isAllowedModuleUrl(el.getAttribute('luna:url'));
+  const id = el.getAttribute("luna:id") ?? el.tagName.toLowerCase();
+  const url = isAllowedModuleUrl(el.getAttribute("luna:url"));
   if (!url) {
     // A later allowed-host update and scan can schedule this element again.
     delete (el as Element & { __lunaSetup?: 1 }).__lunaSetup;
     return;
   }
-  if (isLoaded(el)) return;
-
-  markLoaded(el);
-  S[id] = await parseState(el);
-
   try {
-    const mod = (await import(url)) as Record<string, HydrateFn | undefined>;
-    const ex = el.getAttribute('luna:export');
-    (ex ? mod[ex] : mod.hydrate ?? mod.default)?.(el, S[id], id);
+    await lifecycle.mount(el, async (isCurrent) => {
+      const state = await parseState(el);
+      const mod = (await import(url)) as Record<string, HydrateFn | undefined>;
+      if (!isCurrent()) return;
+      const ex = el.getAttribute("luna:export");
+      const fn = ex ? mod[ex] : (mod.hydrate ?? mod.default);
+      if (typeof fn !== "function") throw new TypeError("Missing island hydrate export");
+      S[id] = state;
+      return fn(el, state, id);
+    });
   } catch (e) {
     console.warn(`[luna] Failed to load ${url}:`, e);
   }
@@ -114,50 +123,56 @@ const setup = (el: Element): void => {
   marker.__lunaSetup = 1;
 
   const trigger =
-    el.getAttribute('luna:client-trigger') ?? el.getAttribute('luna:trigger') ?? 'load';
+    el.getAttribute("luna:client-trigger") ?? el.getAttribute("luna:trigger") ?? "load";
   setupTrigger(el, trigger, () => hydrate(el));
 };
 
 const scan = (): void => {
-  d.querySelectorAll('[luna\\:url]').forEach(setup);
+  d.querySelectorAll("[luna\\:url]").forEach(setup);
 };
 
-d.querySelectorAll('script[type="luna/json"]').forEach(s => {
-  if (s.id) S[s.id] = JSON.parse(s.textContent ?? '{}');
+d.querySelectorAll('script[type="luna/json"]').forEach((s) => {
+  if (s.id) S[s.id] = JSON.parse(s.textContent ?? "{}");
 });
 
 const scanDefer = (): void => {
-  d.querySelectorAll('[luna\\:defer]').forEach(el => {
-    const url = el.getAttribute('luna:defer');
+  d.querySelectorAll("[luna\\:defer]").forEach((el) => {
+    const url = el.getAttribute("luna:defer");
     if (!url) return;
-    el.removeAttribute('luna:defer');
+    el.removeAttribute("luna:defer");
     fetch(url)
-      .then(r => (r.ok ? r.text() : ''))
-      .then(html => {
+      .then((r) => (r.ok ? r.text() : ""))
+      .then((html) => {
         if (html) {
           el.innerHTML = html;
           scan();
         }
       })
-      .catch(e => console.warn('[luna] defer fetch failed:', e));
+      .catch((e) => console.warn("[luna] defer fetch failed:", e));
   });
 };
 
 onReady(scan);
 onReady(scanDefer);
 observeAdditions(
-  el => el.hasAttribute('luna:url') || el.hasAttribute('luna:defer'),
-  el => {
-    if (el.hasAttribute('luna:url')) setup(el);
-    if (el.hasAttribute('luna:defer')) scanDefer();
-  }
+  (el) => el.hasAttribute("luna:url") || el.hasAttribute("luna:defer"),
+  (el) => {
+    if (el.hasAttribute("luna:url")) setup(el);
+    if (el.hasAttribute("luna:defer")) scanDefer();
+  },
 );
 
 const w = window as LunaWindow;
 w.__LUNA_STATE__ = S;
 w.__LUNA_HYDRATE__ = hydrate;
 w.__LUNA_SCAN__ = scan;
-w.__LUNA_UNLOAD__ = unload;
-w.__LUNA_CLEAR_LOADED__ = clear;
+w.__LUNA_UNLOAD__ = (id) =>
+  lifecycle.unmountWhere((el) => (el.getAttribute("luna:id") ?? el.tagName.toLowerCase()) === id);
+const unloadAll = w.__LUNA_UNLOAD_ALL__;
+w.__LUNA_UNLOAD_ALL__ = (root) => {
+  lifecycle.unmountAll(root);
+  unloadAll?.(root);
+};
+w.__LUNA_CLEAR_LOADED__ = () => lifecycle.unmountAll();
 w.__LUNA_SET_ALLOWED_HOSTS__ = setAllowedHosts;
 w.__LUNA_SCAN_DEFER__ = scanDefer;

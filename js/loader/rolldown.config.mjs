@@ -7,7 +7,6 @@ export default defineConfig([
       'loader': './src/loader.ts',
       'wc-loader': './src/wc-loader.ts',
       'sol-nav': './src/sol-nav.ts',
-      'lib': './src/lib.ts',
       'hydration': './src/hydration.ts',
       // Boot runtime (chunk loader + minimal router)
       'boot/index': './src/boot/index.ts',
@@ -25,6 +24,17 @@ export default defineConfig([
       dir: './dist',
       format: 'esm',
       entryFileNames: '[name].js',
+      minify: true,
+      comments: { legal: false },
+    },
+  },
+  // Sol serves lib.js as a standalone public asset. Loader entry points use the
+  // internal trigger module so they do not download the legacy tracker API.
+  {
+    input: './src/lib.ts',
+    output: {
+      file: './dist/lib.js',
+      format: 'esm',
       minify: true,
       comments: { legal: false },
     },

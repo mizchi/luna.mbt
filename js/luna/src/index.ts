@@ -1,6 +1,7 @@
 // @ts-nocheck
 // Re-export from MoonBit build output (api_js)
 // This file wraps MoonBit APIs to provide SolidJS-compatible interface
+import { isServerRendering } from "./render-context";
 
 // Type definitions for SolidJS-compatible API
 
@@ -106,12 +107,12 @@ import {
   batchEnd,
   runUntracked,
   batch,
-  onCleanup,
-  createRoot,
+  onCleanup as _onCleanup,
+  createRoot as _createRoot,
   getOwner,
   runWithOwner,
   hasOwner,
-  onMount,
+  onMount as _onMount,
   // DOM API
   text,
   textDyn,
@@ -205,6 +206,34 @@ export function createEffect(fn: () => void): () => void {
 export function createRenderEffect(fn: () => void): () => void {
   return _renderEffect(fn);
 }
+
+/** Client initialization hooks are skipped during renderToString(). */
+export function onMount(fn: () => void): void {
+  if (!isServerRendering()) _onMount(fn);
+}
+
+/** Dispose a failed JS component after MoonBit restores the previous owner. */
+export function createRoot<T>(fn: (dispose: () => void) => T): T {
+  let failure: { error: unknown } | undefined;
+  const result = _createRoot((dispose: () => void) => {
+    try {
+      return fn(dispose);
+    } catch (error) {
+      failure = { error };
+      try {
+        dispose();
+      } catch (cleanupError) {
+        failure.error = new AggregateError([error, cleanupError], "Luna root cleanup failed");
+      }
+    }
+  });
+  // A JS exception must not escape through MoonBit's owner-restoration code.
+  if (failure) throw failure.error;
+  return result;
+}
+
+// MoonBit Unit maps to JS undefined; public cleanup callbacks may return void.
+export const onCleanup = _onCleanup as (cleanup: () => void) => void;
 
 /**
  * Creates a memoized computed value (SolidJS-style)
@@ -922,13 +951,10 @@ export {
   batchEnd,
   batch,
   // Cleanup
-  onCleanup,
   // Owner/Root
-  createRoot,
   getOwner,
   runWithOwner,
   hasOwner,
-  onMount,
   // DOM API
   text,
   textDyn,

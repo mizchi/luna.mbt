@@ -1,14 +1,17 @@
-/** @jsxImportSource @luna_ui/luna */
+/** @jsxImportSource @luna_ui/luna/ssr */
 import { createSignal } from "@luna_ui/luna";
-import { defineLunaIsland } from "@luna_ui/luna/void/client";
 
-function Counter({ initialCount }: { initialCount: number }) {
+export default function Counter({ initialCount }: { initialCount: number }) {
   const [count, setCount] = createSignal(initialCount);
   return (
-    <button data-counter="luna" onClick={() => setCount((value) => value + 1)}>
-      {() => `Luna ${count()}`}
-    </button>
+    <div>
+      <label>
+        Draft
+        <input data-luna-draft="" value="server" />
+      </label>
+      <button data-counter="luna" onClick={() => setCount((value) => value + 1)}>
+        {() => `Luna ${count()}`}
+      </button>
+    </div>
   );
 }
-
-export default defineLunaIsland(Counter);

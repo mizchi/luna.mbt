@@ -147,6 +147,26 @@ test "hydrate dynamic text with hydration markers" {
 }
 
 ///|
+test "hydrate initially empty dynamic text between adjacent markers" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let error = @resource.signal("")
+  let vnode = @luna.text_dyn(fn() { error.get() })
+  let html = @render.render_to_string_with_hydration(vnode)
+  assert_eq(html, "<!--t:0--><!--/t-->")
+  set_inner_html(container, html)
+  let result = @client.hydrate(container, vnode, recover_on_mismatch=false)
+  assert_true(result.is_success())
+  error.set("Required")
+  assert_eq(get_inner_html(container), "<!--t:0-->Required<!--/t-->")
+  error.set("")
+  assert_eq(get_inner_html(container), html)
+  error.set("Try again")
+  assert_eq(get_inner_html(container), "<!--t:0-->Try again<!--/t-->")
+}
+
+///|
 test "hydrate element with click handler" {
   @global_jsdom.register()
   defer cleanup()

@@ -32,7 +32,7 @@ jobs:
       }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: app-token
         with:
           # App ID is safe to commit (cannot do anything by itself).
@@ -41,7 +41,7 @@ jobs:
           app-id: 3420845
           private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
 
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
@@ -59,18 +59,18 @@ jobs:
       # deterministic convention for a single combined PR onto main.
       - name: Check out Release PR branch
         if: ${{ steps.release.outputs.pr }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: release-please--branches--main
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup pnpm
         if: ${{ steps.release.outputs.pr }}
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
       - name: Setup Node
         if: ${{ steps.release.outputs.pr }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
           cache: pnpm

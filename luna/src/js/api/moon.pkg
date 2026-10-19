@@ -9,6 +9,8 @@ import {
   "mizchi/js_core" @js,
   "mizchi/js_browser/dom" @js_dom,
   "mizchi/luna/dom/portal",
+  "mizchi/luna/core",
+  "mizchi/luna/core/render" @ssr,
 }
 
 import {
@@ -47,6 +49,12 @@ options(
         "text_dyn:textDyn",
         "render_to:render",
         "mount_to:mount",
+        "ssr_text:ssrText",
+        "ssr_text_dyn:ssrTextDyn",
+        "ssr_fragment:ssrFragment",
+        "ssr_element:ssrElement",
+        "ssr_render:ssrRender",
+        "ssr_hydrate:ssrHydrate",
         "show",
         "loading",
         "jsx",

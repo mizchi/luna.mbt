@@ -1,7 +1,7 @@
 {
   "name": "@luna_ui/sol-workspace",
   "private": true,
-  "description": "MoonBit SSR/SSG Framework \u2014 workspace dev package (the npm-published CLI lives at js/sol/, name @luna_ui/sol)",
+  "description": "MoonBit SSR/SSG Framework — workspace dev package (the npm-published CLI lives at js/sol/, name @luna_ui/sol)",
   "type": "module",
   "scripts": {
     "test": "just test",
@@ -32,7 +32,7 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5",
-    "wrangler": "^4.151.1",
+    "wrangler": "^4.151.2",
     "ws": "^8.22.0"
   },
   "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",

@@ -10,6 +10,22 @@
     "luna": "./dist/cli.mjs"
   },
   "exports": {
+    "./sol/form": {
+      "types": "./dist/sol/form.d.ts",
+      "import": "./dist/sol/form.js"
+    },
+    "./ssr": {
+      "types": "./dist/ssr.d.ts",
+      "import": "./dist/ssr.js"
+    },
+    "./ssr/jsx-runtime": {
+      "types": "./dist/ssr/jsx-runtime.d.ts",
+      "import": "./dist/ssr/jsx-runtime.js"
+    },
+    "./ssr/jsx-dev-runtime": {
+      "types": "./dist/ssr/jsx-dev-runtime.d.ts",
+      "import": "./dist/ssr/jsx-dev-runtime.js"
+    },
     "./void": {
       "types": "./dist/void.d.ts",
       "import": "./dist/void.js"
@@ -21,6 +37,18 @@
     "./void/client": {
       "types": "./dist/void/client.d.ts",
       "import": "./dist/void/client.js"
+    },
+    "./void/hydrate": {
+      "types": "./dist/void/hydrate.d.ts",
+      "import": "./dist/void/hydrate.js"
+    },
+    "./void/scheduler": {
+      "types": "./dist/void/scheduler.d.ts",
+      "import": "./dist/void/scheduler.js"
+    },
+    "./void/form": {
+      "types": "./dist/void/form.d.ts",
+      "import": "./dist/void/form.js"
     },
     "./animation": {
       "types": "./dist/animation.d.ts",
@@ -89,15 +117,15 @@
   },
   "devDependencies": {
     "jsdom": "^30.1.3",
-    "preact": "^10.29.8",
+    "preact": "^11.0.1",
     "tsdown": "0.23.1",
-    "typescript": "6.0.3",
-    "void": "1.1.11",
-    "wrangler": "4.151.1"
+    "typescript": "7.0.2",
+    "void": "1.1.12",
+    "wrangler": "4.151.2"
   },
   "peerDependencies": {
     "vite": "^8.3.0",
-    "void": "1.1.11"
+    "void": "1.1.12"
   },
   "peerDependenciesMeta": {
     "vite": {
@@ -118,6 +146,7 @@
   "license": "MIT",
   "files": [
     "dist",
+    "docs/adapter-contracts.md",
     "docs/void.md"
   ],
   "engines": {

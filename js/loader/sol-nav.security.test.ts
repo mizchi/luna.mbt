@@ -5,10 +5,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vit
 function dispatchLinkClick(link: HTMLAnchorElement): boolean {
   const event = new MouseEvent("click", { bubbles: true, cancelable: true });
   let notCanceled = true;
-  document.addEventListener("click", (click) => {
-    notCanceled = !click.defaultPrevented;
-    click.preventDefault();
-  }, { once: true });
+  document.addEventListener(
+    "click",
+    (click) => {
+      notCanceled = !click.defaultPrevented;
+      click.preventDefault();
+    },
+    { once: true },
+  );
   link.dispatchEvent(event);
   return notCanceled;
 }
@@ -31,14 +35,14 @@ describe("sol-nav security", () => {
     fetchMock.mockReset();
     fetchMock.mockResolvedValue(
       new Response(
-        "<html><head><title>ok</title></head><body><div id=\"app\">ok</div></body></html>",
+        '<html><head><title>ok</title></head><body><div id="app">ok</div></body></html>',
         {
           status: 200,
           headers: {
             "X-Sol-Fragment-Response": "true",
           },
-        }
-      )
+        },
+      ),
     );
     document.body.innerHTML = `<div id="app"></div>`;
     history.replaceState({}, "", "/");
@@ -50,13 +54,16 @@ describe("sol-nav security", () => {
     const notCanceled = dispatchLinkClick(link);
 
     expect(notCanceled).toBe(false);
-    expect(fetchMock).toHaveBeenCalledWith("/next", { headers: { "X-Sol-Fragment": "true" } });
+    expect(fetchMock).toHaveBeenCalledWith(new URL("/next", location.href).href, {
+      headers: { "X-Sol-Fragment": "true" },
+      mode: "same-origin",
+      credentials: "same-origin",
+    });
     await vi.waitFor(() => expect(window.scrollTo).toHaveBeenCalledWith(0, 0));
   });
 
   test("javascript: link is not intercepted", () => {
-    document.body.innerHTML =
-      `<div id="app"></div><a id="link" data-sol-link href="javascript:alert(1)">X</a>`;
+    document.body.innerHTML = `<div id="app"></div><a id="link" data-sol-link href="javascript:alert(1)">X</a>`;
     const link = document.getElementById("link") as HTMLAnchorElement;
     const notCanceled = dispatchLinkClick(link);
 
@@ -65,8 +72,7 @@ describe("sol-nav security", () => {
   });
 
   test("data: link is not intercepted", () => {
-    document.body.innerHTML =
-      `<div id="app"></div><a id="link" data-sol-link href="data:text/html,<h1>x</h1>">X</a>`;
+    document.body.innerHTML = `<div id="app"></div><a id="link" data-sol-link href="data:text/html,<h1>x</h1>">X</a>`;
     const link = document.getElementById("link") as HTMLAnchorElement;
     const notCanceled = dispatchLinkClick(link);
 
@@ -83,26 +89,44 @@ describe("sol-nav security", () => {
           headers: {
             "X-Sol-Fragment-Response": "true",
           },
-        }
-      )
+        },
+      ),
     );
     document.head.innerHTML = "";
     document.body.innerHTML = `<main data-sol-outlet="main"></main>`;
 
-    const nav = (window as unknown as {
-      __SOL_NAVIGATE__: (url: string, replace?: boolean) => Promise<void>;
-    }).__SOL_NAVIGATE__;
+    const nav = (
+      window as unknown as {
+        __SOL_NAVIGATE__: (url: string, replace?: boolean) => Promise<void>;
+      }
+    ).__SOL_NAVIGATE__;
     await nav("/assets");
     await nav("/assets");
 
-    expect(document.querySelectorAll('link[href="/static/panel.css"]')).toHaveLength(
-      1
-    );
-    expect(
-      document.querySelectorAll('script[src="/static/panel.client.ts"]')
-    ).toHaveLength(1);
-    expect(document.querySelector('[data-sol-outlet="main"]')?.innerHTML).toBe(
-      "<p>Assets</p>"
-    );
+    expect(document.querySelectorAll('link[href="/static/panel.css"]')).toHaveLength(1);
+    expect(document.querySelectorAll('script[src="/static/panel.client.ts"]')).toHaveLength(1);
+    expect(document.querySelector('[data-sol-outlet="main"]')?.innerHTML).toBe("<p>Assets</p>");
+  });
+
+  test("shared navigation port refreshes fresh fragments without adding history", async () => {
+    const runtime = window as unknown as {
+      __LUNA_NAVIGATION__: { navigate(url: string): Promise<void>; refresh(): Promise<void> };
+      __LUNA_UNLOAD_ALL__: (root: Element) => void;
+    };
+    const unload = vi.fn();
+    runtime.__LUNA_UNLOAD_ALL__ = unload;
+    const fragment = (value: string) =>
+      new Response(`<template data-sol-outlet="main"><p>${value}</p></template>`, {
+        headers: { "X-Sol-Fragment-Response": "true" },
+      });
+    document.body.innerHTML = '<main data-sol-outlet="main"></main>';
+    fetchMock.mockResolvedValueOnce(fragment("before"));
+    await runtime.__LUNA_NAVIGATION__.navigate("/refresh-test");
+    const length = history.length;
+    fetchMock.mockResolvedValueOnce(fragment("after"));
+    await runtime.__LUNA_NAVIGATION__.refresh();
+    expect(document.querySelector("main")?.textContent).toBe("after");
+    expect(history.length).toBe(length);
+    expect(unload).toHaveBeenCalledTimes(2);
   });
 });

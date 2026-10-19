@@ -93,6 +93,10 @@ fn action_result_to_response(c : Ctx, result : ActionResult) -> Unit {
       c.redirect(url)
     ClientFailure(status, message) =>
       @mars_response.send_json_error(c, message, status~)
+    FieldValidation(errors) => {
+      let data : Json = { "fieldErrors": Json(errors) }
+      @mars_response.send_json(c, data, status=422)
+    }
     ServerFailure(message) => {
       // Log the actual error (implementation depends on logging setup)
       let _ = message

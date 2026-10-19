@@ -13,6 +13,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { randomBytes, randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
+import { createServer } from "node:http";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, expect } from "@playwright/test";
@@ -27,6 +28,7 @@ const production = process.argv.includes("--production");
 const origin = "http://127.0.0.1:4186";
 let browser;
 let server;
+let redirectReceiver;
 let log = "";
 
 function run(command, args) {
@@ -68,7 +70,9 @@ try {
   // isolated fixture; no checked-in or development database files are changed.
   rmSync(join(fixture, "db/migrations"), { recursive: true, force: true });
   run(process.execPath, [voidCli, "db", "generate"]);
-  expect(readdirSync(join(fixture, "db/migrations")).some((name) => name.endsWith(".sql"))).toBe(true);
+  expect(readdirSync(join(fixture, "db/migrations")).some((name) => name.endsWith(".sql"))).toBe(
+    true,
+  );
   run(process.execPath, [voidCli, "db", "migrate"]);
   if (production) {
     run(process.execPath, [viteCli, "build"]);
@@ -124,13 +128,17 @@ try {
   const page = await context.newPage();
   const errors = [];
   const lunaRequests = [];
+  const formRequests = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() !== "error") return;
+    // Chromium reports the deliberately rejected form request in the console.
+    if (message.location().url === `${origin}/?add` && /status of 422/.test(message.text())) return;
+    errors.push(message.text());
   });
   page.on("request", (request) => {
-    if (/counter\.luna|counter\.luna-|counter\.luna_/.test(request.url()))
-      lunaRequests.push(request.url());
+    if (/counter\.luna|luna\.island/.test(request.url())) lunaRequests.push(request.url());
+    if (/note-form\.luna|form\.island/.test(request.url())) formRequests.push(request.url());
   });
   await page.goto("/");
   await expect(page.locator("[data-layout=root]")).toBeVisible();
@@ -139,6 +147,7 @@ try {
   await expect(page.locator("[data-island=react]")).toHaveAttribute("data-luna-mounted", "true");
   await expect(page.locator("[data-island=solid]")).toHaveAttribute("data-luna-mounted", "true");
   expect(lunaRequests).toEqual([]);
+  expect(formRequests).toEqual([]);
   await page.getByRole("button", { name: "React 0", exact: true }).click();
   await expect(page.getByRole("button", { name: "React 1", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Solid 0", exact: true }).click();
@@ -159,7 +168,16 @@ try {
       (node, index) => node === document.querySelectorAll("[data-counter]")[index],
     ),
   );
-  expect(domReused).toEqual([true, true, false, false]);
+  expect(domReused).toEqual([true, true, true, true]);
+  expect(
+    await page.evaluate(() =>
+      window.__ssrInputs.map(
+        (input, index) => input === document.querySelectorAll("[data-luna-draft]")[index],
+      ),
+    ),
+  ).toEqual([true, true]);
+  await expect(first.locator("input")).toHaveValue("typed 0");
+  await expect(second.locator("input")).toHaveValue("typed 1");
   const headers = { Origin: origin, "X-VoidPages": "true" };
   const invalid = await context.request.post("/?add", { headers, data: { title: "" } });
   expect(invalid.status()).toBe(422);
@@ -190,18 +208,131 @@ try {
     page.getByRole("button", { name: "Save", exact: true }).click(),
   ]);
   expect(formResponse?.status(), await formResponse?.text()).toBe(200);
-  expect(formResponse?.headers()["content-type"], await formResponse?.text()).toContain("text/html");
+  expect(formResponse?.headers()["content-type"], await formResponse?.text()).toContain(
+    "text/html",
+  );
   await expect(page.getByRole("listitem")).toHaveCount(2);
   await expect(page.getByRole("button", { name: "React 2", exact: true })).toBeVisible();
+  expect(formRequests).toEqual([]);
+  const islandForm = page.locator("[data-island=note-form]");
+  const formInput = islandForm.getByRole("textbox", { name: "Luna title", exact: true });
+  // A visible island must retain a draft entered before its JS loads.
+  await formInput.evaluate((input) => {
+    window.__ssrFormInput = input;
+    input.value = "Draft before hydration";
+  });
+  await islandForm.scrollIntoViewIfNeeded();
+  await expect(islandForm).toHaveAttribute("data-luna-mounted", "true");
+  expect(formRequests.length).toBeGreaterThan(0);
+  await expect(formInput).toHaveValue("Draft before hydration");
+  expect(await formInput.evaluate((input) => input === window.__ssrFormInput)).toBe(true);
+  await formInput.fill("x".repeat(101));
+  await islandForm.getByRole("button", { name: "Save with Luna", exact: true }).click();
+  await expect(islandForm.getByRole("alert")).not.toBeEmpty();
+  await expect(formInput).toHaveValue("x".repeat(101));
+  await expect(
+    islandForm.getByRole("button", { name: "Save with Luna", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByRole("listitem")).toHaveCount(2);
+  // Hold the response so the real browser can observe the pending state.
+  let finishAction;
+  const actionGate = new Promise((resolve) => {
+    finishAction = resolve;
+  });
+  await page.route("**/?add", async (route) => {
+    const response = await route.fetch();
+    await actionGate;
+    await route.fulfill({ response });
+  });
+  await formInput.fill("Luna form action");
+  await islandForm.getByRole("button", { name: "Save with Luna", exact: true }).click();
+  await expect(
+    islandForm.getByRole("button", { name: "Save with Luna", exact: true }),
+  ).toBeDisabled();
+  await expect(islandForm.locator("form")).toHaveAttribute("aria-busy", "true");
+  const reloaded = page.waitForNavigation();
+  finishAction();
+  await reloaded;
+  await page.unroute("**/?add");
+  await expect(page.getByRole("listitem")).toHaveCount(3);
+  await expect(page.getByRole("listitem").filter({ hasText: "Luna form action" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "React 3", exact: true })).toBeVisible();
+  await islandForm.scrollIntoViewIfNeeded();
+  await expect(islandForm).toHaveAttribute("data-luna-mounted", "true");
+  await expect(formInput).toHaveValue("");
+  await expect(islandForm.getByRole("alert")).toBeEmpty();
+
+  // A real same-origin 303 must still refresh the page after a successful write.
+  await page.route("**/?add", async (route) => {
+    await route.fetch();
+    await route.fulfill({ status: 303, headers: { Location: `${origin}/` } });
+  });
+  await formInput.fill("Redirected Luna action");
+  await Promise.all([
+    page.waitForNavigation(),
+    islandForm.getByRole("button", { name: "Save with Luna", exact: true }).click(),
+  ]);
+  await page.unroute("**/?add");
+  await expect(page.getByRole("listitem")).toHaveCount(4);
+  expect(page.url()).toBe(`${origin}/`);
+
+  // This loopback receiver permits CORS. The browser must reject redirects
+  // before sending even a preflight or the non-sensitive test form body to it.
+  const received = [];
+  redirectReceiver = createServer((request, response) => {
+    received.push(request.method);
+    request.resume();
+    response.writeHead(request.method === "OPTIONS" ? 204 : 200, {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Methods": "POST, PUT, PATCH, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "content-type",
+      "Content-Type": "application/json",
+    });
+    response.end();
+  });
+  await new Promise((resolve, reject) => {
+    redirectReceiver.once("error", reject);
+    redirectReceiver.listen(0, "127.0.0.1", resolve);
+  });
+  const receiverUrl = `http://127.0.0.1:${redirectReceiver.address().port}/unexpected`;
+  for (const status of [307, 308]) {
+    // Separate page so expected network errors do not hide main-page errors.
+    const boundaryPage = await context.newPage();
+    const scriptErrors = [];
+    boundaryPage.on("pageerror", (error) => scriptErrors.push(error.message));
+    await boundaryPage.goto("/");
+    const boundaryIsland = boundaryPage.locator("[data-island=note-form]");
+    await boundaryIsland.scrollIntoViewIfNeeded();
+    await expect(boundaryIsland).toHaveAttribute("data-luna-mounted", "true");
+    await boundaryPage.route("**/?add", (route) =>
+      route.fulfill({ status, headers: { Location: receiverUrl } }),
+    );
+    await boundaryIsland
+      .getByRole("textbox", { name: "Luna title", exact: true })
+      .fill("Blocked redirect probe");
+    await boundaryIsland.getByRole("button", { name: "Save with Luna", exact: true }).click();
+    await expect(boundaryIsland.getByRole("alert")).toHaveText(/fetch|network|load failed/i);
+    await expect(
+      boundaryIsland.getByRole("button", { name: "Save with Luna", exact: true }),
+    ).toBeEnabled();
+    await expect(
+      boundaryIsland.getByRole("textbox", { name: "Luna title", exact: true }),
+    ).toHaveValue("Blocked redirect probe");
+    expect(received).toEqual([]);
+    expect(boundaryPage.url()).toBe(`${origin}/`);
+    expect(scriptErrors).toEqual([]);
+    await boundaryPage.close();
+  }
   expect(errors).toEqual([]);
   console.log(
-    `Void adapter passed (${production ? "production" : "dev"}): packaged JS, auth/D1/actions, layouts, mixed React/Solid/Luna, visible scheduling, independent islands, HTML escaping, no-JS fallback. DOM reused: ${JSON.stringify(domReused)}`,
+    `Void adapter passed (${production ? "production" : "dev"}): packaged JS, auth/D1/actions, layouts, mixed React/Solid/Luna, visible scheduling, independent islands, island form validation/pending/reload, same-origin 303, blocked external 307/308, HTML escaping, no-JS fallback. DOM reused: ${JSON.stringify(domReused)}`,
   );
 } catch (error) {
   console.error(log.slice(-12_000));
   throw error;
 } finally {
   await browser?.close();
+  if (redirectReceiver) await new Promise((resolve) => redirectReceiver.close(resolve));
   if (server && server.exitCode === null && server.signalCode === null) {
     const exited = new Promise((done) => server.once("exit", done));
     server.kill("SIGTERM");

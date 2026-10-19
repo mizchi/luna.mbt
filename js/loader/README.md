@@ -81,3 +81,8 @@ export function hydrate(el, state, id) {
   // id: "counter"
 }
 ```
+
+## Benchmarks
+
+See [the shared lifecycle benchmark](./benchmarks.md) for Chromium measurements
+and the `just loader-bench --compare <git-ref>` command.

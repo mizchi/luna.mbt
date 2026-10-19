@@ -4,7 +4,8 @@
  * Compares Luna, Preact, and React performance for heavy DOM rendering.
  * Based on src/examples/game/main.mbt stress test pattern.
  */
-import { bench, describe } from "vitest";
+import { describe } from "vitest";
+import { bench } from "../../bench-utils";
 import {
   createElement,
   render as lunaRender,
@@ -15,6 +16,7 @@ import {
 // Preact
 import { h, render as preactRender } from "preact";
 import { useState } from "preact/hooks";
+import { flushSync as flushPreact } from "preact/compat";
 
 // React
 import React from "react";
@@ -34,17 +36,17 @@ const indices = Array.from({ length: TOTAL_CELLS }, (_, i) => i);
 // Cell types for game simulation
 type CellType = 0 | 1 | 2 | 3 | 4; // empty, player, player_bullet, enemy_bullet, enemy
 
-function randomCellType(): CellType {
-  const r = Math.random();
-  if (r < 0.9) return 0; // 90% empty
-  if (r < 0.92) return 1; // 2% player
-  if (r < 0.95) return 2; // 3% player_bullet
-  if (r < 0.98) return 3; // 3% enemy_bullet
-  return 4; // 2% enemy
-}
-
+let cellFrame = 0;
 function generateCellTypes(size: number = TOTAL_CELLS): CellType[] {
-  return Array.from({ length: size }, () => randomCellType());
+  const frame = cellFrame++;
+  return Array.from({ length: size }, (_, index) => {
+    const value = (index * 17 + frame * 31) % 100;
+    if (value < 90) return 0;
+    if (value < 92) return 1;
+    if (value < 95) return 2;
+    if (value < 98) return 3;
+    return 4;
+  });
 }
 
 // =============================================================================
@@ -52,6 +54,8 @@ function generateCellTypes(size: number = TOTAL_CELLS): CellType[] {
 // =============================================================================
 
 function createContainer(): HTMLDivElement {
+  // Every renderer receives the same initial frame and update frame.
+  cellFrame = 0;
   const container = document.createElement("div");
   document.body.appendChild(container);
   return container;
@@ -70,7 +74,7 @@ function cleanupContainer(container: HTMLDivElement) {
 
 // MoonBit tuple representation for attrs
 function attr(name: string, value: unknown) {
-  return { _0: name, _1: value };
+  return { _0: name === "className" ? "class" : name, _1: value };
 }
 
 const AttrValue = {
@@ -118,6 +122,19 @@ function lunaGridReactive(initialCellTypes: CellType[]) {
   );
 
   return { grid, setCellTypes };
+}
+
+function checkGrid(container: Element, types: CellType[]) {
+  const cells = container.querySelectorAll(".cell");
+  if (
+    cells.length !== types.length ||
+    [...cells].some((cell, i) => cell.className !== `cell c${types[i]}`)
+  ) {
+    throw new Error(
+      `Grid update did not commit: ${cells.length} cells, expected ${types.length}; ` +
+      `first ${cells[0]?.className}, expected cell c${types[0]}`,
+    );
+  }
 }
 
 // =============================================================================
@@ -184,6 +201,7 @@ describe("Grid Rendering - Initial Mount (2,500 cells)", () => {
         container = createContainer();
       },
       teardown: () => {
+        preactRender(null, container);
         cleanupContainer(container);
       },
     }
@@ -262,6 +280,7 @@ describe("Grid Rendering - With Reactive State (2,500 cells)", () => {
         container = createContainer();
       },
       teardown: () => {
+        preactRender(null, container);
         cleanupContainer(container);
       },
     }
@@ -307,6 +326,7 @@ describe("Grid Rendering - With Reactive State (2,500 cells)", () => {
 // =============================================================================
 
 describe("Grid Rendering - State Update (2,500 cells)", () => {
+  let expectedTypes: CellType[];
   // Luna state
   let lunaContainer: HTMLDivElement;
   let lunaSetCellTypes: ((types: CellType[]) => void) | null = null;
@@ -324,7 +344,8 @@ describe("Grid Rendering - State Update (2,500 cells)", () => {
     "Luna - Update All Cells",
     () => {
       if (lunaSetCellTypes) {
-        lunaSetCellTypes(generateCellTypes());
+        expectedTypes = generateCellTypes();
+        lunaSetCellTypes(expectedTypes);
       }
     },
     {
@@ -335,6 +356,7 @@ describe("Grid Rendering - State Update (2,500 cells)", () => {
         lunaRender(lunaContainer, grid);
       },
       teardown: () => {
+        checkGrid(lunaContainer, expectedTypes);
         cleanupContainer(lunaContainer);
         lunaSetCellTypes = null;
       },
@@ -345,7 +367,8 @@ describe("Grid Rendering - State Update (2,500 cells)", () => {
     "Preact - Update All Cells",
     () => {
       if (preactSetCellTypes) {
-        preactSetCellTypes(() => generateCellTypes());
+        expectedTypes = generateCellTypes();
+        flushPreact(() => preactSetCellTypes!(() => expectedTypes));
       }
     },
     {
@@ -365,6 +388,8 @@ describe("Grid Rendering - State Update (2,500 cells)", () => {
         preactRender(h(PreactStatefulGrid, null), preactContainer);
       },
       teardown: () => {
+        checkGrid(preactContainer, expectedTypes);
+        preactRender(null, preactContainer);
         cleanupContainer(preactContainer);
         preactSetCellTypes = null;
       },
@@ -375,8 +400,9 @@ describe("Grid Rendering - State Update (2,500 cells)", () => {
     "React - Update All Cells",
     () => {
       if (reactSetCellTypes) {
+        expectedTypes = generateCellTypes();
         flushSync(() => {
-          reactSetCellTypes!(generateCellTypes());
+          reactSetCellTypes!(expectedTypes);
         });
       }
     },
@@ -400,6 +426,7 @@ describe("Grid Rendering - State Update (2,500 cells)", () => {
         });
       },
       teardown: () => {
+        checkGrid(reactContainer, expectedTypes);
         if (reactRoot) {
           reactRoot.unmount();
         }
@@ -470,6 +497,7 @@ describe("Grid Rendering - Large Grid (5,000 cells)", () => {
         container = createContainer();
       },
       teardown: () => {
+        preactRender(null, container);
         cleanupContainer(container);
       },
     }
@@ -516,6 +544,14 @@ describe("Grid Rendering - Large Grid (5,000 cells)", () => {
 describe("List Operations - Add/Remove Items", () => {
   let container: HTMLDivElement;
   const ITEMS_COUNT = 1000;
+  const checkList = () => {
+    if (container.querySelectorAll("li").length !== ITEMS_COUNT + 100) {
+      throw new Error(
+        `List insertion did not commit: ${container.querySelectorAll("li").length} items, ` +
+        `expected ${ITEMS_COUNT + 100}`,
+      );
+    }
+  };
 
   // Luna list operations
   let lunaItems: ReturnType<typeof createSignal<number[]>>;
@@ -547,6 +583,7 @@ describe("List Operations - Add/Remove Items", () => {
         lunaRender(container, list);
       },
       teardown: () => {
+        checkList();
         cleanupContainer(container);
       },
     }
@@ -559,7 +596,10 @@ describe("List Operations - Add/Remove Items", () => {
     "Preact - Add 100 items to list",
     () => {
       if (preactSetItems) {
-        preactSetItems((prev) => [...prev, ...Array.from({ length: 100 }, (_, i) => prev.length + i)]);
+        flushPreact(() => preactSetItems!((prev) => [
+          ...prev,
+          ...Array.from({ length: 100 }, (_, i) => prev.length + i),
+        ]));
       }
     },
     {
@@ -579,6 +619,8 @@ describe("List Operations - Add/Remove Items", () => {
         preactRender(h(PreactList, null), container);
       },
       teardown: () => {
+        checkList();
+        preactRender(null, container);
         cleanupContainer(container);
         preactSetItems = null;
       },
@@ -620,6 +662,7 @@ describe("List Operations - Add/Remove Items", () => {
         });
       },
       teardown: () => {
+        checkList();
         if (reactRoot) {
           reactRoot.unmount();
         }

@@ -53,10 +53,7 @@ export default defineConfig({
           name: "browser",
           root: workspaceRoot,
           browser: browserConfig(),
-          include: [
-            "js/luna/tests/**/*.test.ts",
-            "js/wcssr/tests/**/*.browser.test.ts",
-          ],
+          include: ["js/luna/tests/**/*.test.ts", "js/wcssr/tests/**/*.browser.test.ts"],
           exclude: [
             ...commonExclude,
             "js/luna/tests/**/*.test.tsx",
@@ -75,6 +72,13 @@ export default defineConfig({
         },
       },
       {
+        define: { "process.env.NODE_ENV": '"production"' },
+        server: {
+          headers: {
+            "Cross-Origin-Opener-Policy": "same-origin",
+            "Cross-Origin-Embedder-Policy": "require-corp",
+          },
+        },
         test: {
           name: "bench",
           root: workspaceRoot,
@@ -87,7 +91,6 @@ export default defineConfig({
               "js/luna/benches/*.bench.ts",
               "js/wcssr/tests/*.bench.ts",
             ],
-            reporters: ["default"],
           },
         },
         oxc: {

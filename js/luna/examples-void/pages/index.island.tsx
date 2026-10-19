@@ -2,7 +2,9 @@ import { createElement } from "react";
 import { renderToString as renderReact } from "react-dom/server";
 import { createComponent } from "solid-js";
 import { renderToString as renderSolid, generateHydrationScript } from "solid-js/web";
-import { definePage, html, island, raw } from "@luna_ui/luna/void/server";
+import { definePage, html, island, lunaIsland, raw } from "@luna_ui/luna/void/server";
+import LunaCounter from "../src/counter.luna";
+import NoteForm from "../src/note-form.luna";
 import { ReactCounter } from "../src/react-counter";
 import { SolidCounter } from "../src/counter.solid";
 import type { Props } from "./index.server";
@@ -23,11 +25,15 @@ export default definePage<Props>(({ name, initialCount, titles }, page) => {
     ${island("react", props, { fallback: raw(renderReact(createElement(ReactCounter, props))) })}
     ${island("solid", props, { fallback: raw(renderSolid(() => createComponent(SolidCounter, props), { renderId: "void-solid" })) })}
     <div style="height:1200px" aria-hidden="true"></div>
-    ${island("luna", props, { strategy: "visible", fallback: html`<button data-counter="luna">Luna ${initialCount}</button>` })}
+    ${lunaIsland("luna", LunaCounter, props, { strategy: "visible" })}
     <div style="height:1200px" aria-hidden="true"></div>
-    ${island("luna", props, { strategy: "visible", fallback: html`<button data-counter="luna">Luna ${initialCount}</button>` })}
+    ${lunaIsland("luna", LunaCounter, props, { strategy: "visible" })}
+    <div style="height:1200px" aria-hidden="true"></div>
+    ${lunaIsland("note-form", NoteForm, {}, { strategy: "visible" })}
     <script>
       window.__ssrNodes = Array.from(document.querySelectorAll("[data-counter]"));
+      window.__ssrInputs = Array.from(document.querySelectorAll("[data-luna-draft]"));
+      window.__ssrInputs.forEach((input, index) => { input.value = "typed " + index; });
     </script>
   `;
 });

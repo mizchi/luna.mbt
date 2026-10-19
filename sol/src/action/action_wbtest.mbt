@@ -71,6 +71,17 @@ test "ActionResult::validation_error creates 422 error" {
 }
 
 ///|
+test "ActionResult::validation_errors preserves field errors" {
+  let fields = Map::from_array([("email", "Invalid email")])
+  let result = ActionResult::validation_errors(fields)
+  match result.kind {
+    FieldValidation(errors) =>
+      assert_eq(errors.get("email"), Some("Invalid email"))
+    _ => fail("expected field validation errors")
+  }
+}
+
+///|
 test "ActionResult::unauthorized creates 401 error" {
   let result = ActionResult::unauthorized()
   match result.kind {

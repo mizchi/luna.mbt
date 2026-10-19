@@ -38,13 +38,13 @@ pub fn create_router(Array[@routes.Routes], base? : String) -> BrowserRouter
 
 pub fn create_signal(Any) -> @signals.Signal[Any]
 
-pub fn debounced(@signals.Signal[Any], Int) -> @signals.Signal[Any]
+pub fn debounced(@signals.Signal[Any], Int32) -> @signals.Signal[Any]
 
 pub fn effect(() -> Unit) -> () -> Unit
 
 pub fn events() -> @mizchi/luna/dom.HandlerMap
 
-pub fn for_each(() -> Array[Any], (Any, Int) -> @mizchi/luna/dom.DomNode) -> @mizchi/luna/dom.DomNode
+pub fn for_each(() -> Array[Any], (Any, Int32) -> @mizchi/luna/dom.DomNode) -> @mizchi/luna/dom.DomNode
 
 pub fn fragment(Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.DomNode
 
@@ -135,6 +135,18 @@ pub fn run_with_owner(JsOwner, () -> Any) -> Any
 pub fn set(@signals.Signal[Any], Any) -> Unit
 
 pub fn show(() -> Bool, () -> @mizchi/luna/dom.DomNode) -> @mizchi/luna/dom.DomNode
+
+pub fn ssr_element(String, Array[(String, @mizchi/luna/dom.AttrValue)], Array[@core.Node[@js_core.Any, String]]) -> @core.Node[@js_core.Any, String]
+
+pub fn ssr_fragment(Array[@core.Node[@js_core.Any, String]]) -> @core.Node[@js_core.Any, String]
+
+pub fn ssr_hydrate(@mizchi/js_browser/dom.Element, @core.Node[@js_core.Any, String]) -> (String, () -> Unit)
+
+pub fn ssr_render(@core.Node[@js_core.Any, String]) -> String
+
+pub fn ssr_text(String) -> @core.Node[@js_core.Any, String]
+
+pub fn ssr_text_dyn(() -> String) -> @core.Node[@js_core.Any, String]
 
 pub fn state_error(JsAsyncState) -> Any
 

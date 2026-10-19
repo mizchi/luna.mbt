@@ -7,7 +7,8 @@ A lightweight reactive UI library with SolidJS-Like API. Implemented in MoonBit.
 - [API Reference](https://luna.mizchi.workers.dev/luna/api/js/)
 - [Tutorial](https://luna.mizchi.workers.dev/luna/tutorial/js/)
 - [Animation and easing](../../website/01_luna/07_animation/index.md)
-- [Void adapter](docs/void.md) — typed Void backends with Luna and mixed-renderer islands (repository build)
+- [Void adapter](docs/void.md) — typed Void backends with Luna SSR/hydration, island forms, and mixed-renderer islands (repository build)
+- [Sol / Void adapter contracts](docs/adapter-contracts.md) — shared form state, navigation ports, and island cleanup
 
 ## Quick Start
 
@@ -81,6 +82,18 @@ function Counter() {
 
 render(document.getElementById('app')!, <Counter />);
 ```
+
+## Server rendering and hydration
+
+Use `/** @jsxImportSource @luna_ui/luna/ssr */` in components shared by the
+server and client. This JSX runtime creates VNodes without accessing a DOM.
+`renderToString(() => <App />)` emits HTML with hydration markers;
+`hydrate(element, () => <App />)` attaches to that HTML and returns a disposer.
+Both functions are exported from `@luna_ui/luna/ssr`.
+
+For Void, `lunaIsland()` and `defineLunaIsland()` connect those two steps;
+see the [adapter guide](docs/void.md). The regular JSX runtime above continues
+to use the DOM renderer.
 
 ## API
 

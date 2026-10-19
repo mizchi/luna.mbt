@@ -44,6 +44,23 @@ extern "js" fn hydrate_set_inner_html(
 ) -> Unit =
   #| (elem, html) => { elem.innerHTML = html; }
 
+///|
+fn checked_bench_hydrate(
+  container : @js_dom.Element,
+  node : @luna.Node[@js.Any, String],
+) -> @client.HydrationResult {
+  let result = @client.hydrate(
+    container,
+    node,
+    recover_on_mismatch=false,
+    warn_on_mismatch=false,
+  )
+  if !result.is_success() {
+    abort("Invalid hydration benchmark fixture: " + result.get_message())
+  }
+  result
+}
+
 // =============================================================================
 // Basic Hydration
 // =============================================================================
@@ -55,7 +72,7 @@ test "hydrate_simple_text" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_simple_text", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -66,7 +83,7 @@ test "hydrate_simple_element" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_simple_element", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -84,7 +101,7 @@ test "hydrate_element_with_attrs" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_element_with_attrs", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -101,7 +118,7 @@ test "hydrate_nested_3" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_nested_3", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -118,7 +135,7 @@ test "hydrate_nested_5" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_nested_5", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -127,7 +144,7 @@ test "hydrate_nested_5" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_hydrate_list_node(count : Int) -> @luna.Node[@js.Any, String] {
+fn create_hydrate_list_node(count : Int32) -> @luna.Node[@js.Any, String] {
   let items : Array[@luna.Node[@js.Any, String]] = []
   for i in 0..<count {
     items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
@@ -142,7 +159,7 @@ test "hydrate_list_10" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_list_10", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -153,7 +170,7 @@ test "hydrate_list_100" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_list_100", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -169,7 +186,7 @@ test "hydrate_dynamic_text" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_dynamic_text", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -196,7 +213,7 @@ test "hydrate_dynamic_attrs" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_dynamic_attrs", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -214,7 +231,7 @@ test "hydrate_show_visible" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_show_visible", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -228,7 +245,7 @@ test "hydrate_show_hidden" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_show_hidden", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -246,7 +263,7 @@ test "hydrate_for_5_items" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_for_5_items", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -264,7 +281,7 @@ test "hydrate_for_20_items" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_for_20_items", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -291,7 +308,7 @@ fn create_hydrate_card(
 }
 
 ///|
-fn create_hydrate_page(card_count : Int) -> @luna.Node[@js.Any, String] {
+fn create_hydrate_page(card_count : Int32) -> @luna.Node[@js.Any, String] {
   let cards : Array[@luna.Node[@js.Any, String]] = []
   for i in 0..<card_count {
     cards.push(
@@ -301,13 +318,12 @@ fn create_hydrate_page(card_count : Int) -> @luna.Node[@js.Any, String] {
       ),
     )
   }
-  @luna.h("html", [], [
-    @luna.h("head", [], [@luna.h("title", [], [@luna.text("Test Page")])]),
-    @luna.h("body", [], [
-      @luna.h("header", [], [@luna.h("h1", [], [@luna.text("Welcome")])]),
-      @luna.h("main", [("class", @luna.attr_static("container"))], cards),
-      @luna.h("footer", [], [@luna.h("p", [], [@luna.text("Footer content")])]),
-    ]),
+  // Hydrate a page fragment inside the fixture div. HTML parsing strips
+  // document-level html/head/body tags in this context and forces recovery.
+  @luna.h("section", [], [
+    @luna.h("header", [], [@luna.h("h1", [], [@luna.text("Welcome")])]),
+    @luna.h("main", [("class", @luna.attr_static("container"))], cards),
+    @luna.h("footer", [], [@luna.h("p", [], [@luna.text("Footer content")])]),
   ])
 }
 
@@ -318,7 +334,7 @@ test "hydrate_page_10_cards" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_page_10_cards", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -329,7 +345,7 @@ test "hydrate_page_50_cards" (b : @bench.T) {
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_page_50_cards", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -352,7 +368,7 @@ test "hydrate_with_click_handler" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_with_click_handler", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }
 
@@ -381,6 +397,6 @@ test "hydrate_form_with_handlers" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_form_with_handlers", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@client.hydrate(container, node))
+    b.keep(checked_bench_hydrate(container, node))
   })
 }

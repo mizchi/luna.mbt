@@ -1,10 +1,7 @@
 /** A Void scheduling strategy. Rendering is delegated to each island module. */
 export type IslandStrategy = "load" | "idle" | "visible" | `media:${string}`;
-export type Dispose = () => void;
-
-export interface Island<P extends object = Record<string, unknown>> {
-  mount(element: Element, props: P): void | Dispose | Promise<void | Dispose>;
-}
+import type { Island } from "../../../loader/src/runtime/islands";
+export type { Dispose, Island } from "../../../loader/src/runtime/islands";
 
 export type IslandManifest = Record<string, () => Promise<{ default: Island<never> }>>;
 

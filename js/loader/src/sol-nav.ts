@@ -1,4 +1,6 @@
 /*! sol-nav v1 - CSR Navigation for Sol Framework */
+import type { NavigationPort } from "./runtime/navigation";
+import { sameOriginActionUrl } from "./runtime/http";
 
 // Use type alias instead of interface to avoid conflicts with global Window declarations
 type SolWindow = Window & {
@@ -9,19 +11,11 @@ type SolWindow = Window & {
   __SOL_NAVIGATE__: (url: string, replace?: boolean) => Promise<void>;
   __SOL_PREFETCH__: (url: string) => void;
   __SOL_CACHE__: Map<string, string>;
+  __LUNA_NAVIGATION__: NavigationPort;
 };
 
 // Type for setHTMLUnsafe which may not exist in older browsers
 type SetHTMLUnsafeMethod = ((html: string) => void) | undefined;
-
-const isBlockedLink = (href: string): boolean => {
-  const value = href.trim().toLowerCase();
-  return (
-    value.startsWith('javascript:') ||
-    value.startsWith('data:') ||
-    value.startsWith('vbscript:')
-  );
-};
 
 ((d: Document, w: SolWindow) => {
   let isNavigating = false;
@@ -29,7 +23,8 @@ const isBlockedLink = (href: string): boolean => {
 
   // Set HTML with Declarative Shadow DOM support
   const setHTML = (target: HTMLElement, html: string): void => {
-    const setHTMLUnsafe = (target as unknown as { setHTMLUnsafe?: SetHTMLUnsafeMethod }).setHTMLUnsafe;
+    const setHTMLUnsafe = (target as unknown as { setHTMLUnsafe?: SetHTMLUnsafeMethod })
+      .setHTMLUnsafe;
     if (setHTMLUnsafe) {
       // Modern browsers - setHTMLUnsafe processes Declarative Shadow DOM
       setHTMLUnsafe(html);
@@ -41,18 +36,18 @@ const isBlockedLink = (href: string): boolean => {
 
   const hasHeadAsset = (incoming: Element): boolean => {
     if (incoming instanceof HTMLLinkElement) {
-      const href = incoming.getAttribute('href');
-      if (!href || incoming.rel !== 'stylesheet') return true;
+      const href = incoming.getAttribute("href");
+      if (!href || incoming.rel !== "stylesheet") return true;
       return Array.from(
-        d.head.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href]')
-      ).some(node => node.getAttribute('href') === href);
+        d.head.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href]'),
+      ).some((node) => node.getAttribute("href") === href);
     }
     if (incoming instanceof HTMLScriptElement) {
-      const src = incoming.getAttribute('src');
-      if (!src || incoming.type !== 'module') return true;
+      const src = incoming.getAttribute("src");
+      if (!src || incoming.type !== "module") return true;
       return Array.from(
-        d.head.querySelectorAll<HTMLScriptElement>('script[type="module"][src]')
-      ).some(node => node.getAttribute('src') === src);
+        d.head.querySelectorAll<HTMLScriptElement>('script[type="module"][src]'),
+      ).some((node) => node.getAttribute("src") === src);
     }
     return true;
   };
@@ -69,16 +64,16 @@ const isBlockedLink = (href: string): boolean => {
   };
 
   // Update DOM from HTML response
-  const updateDOM = (html: string, isRerender = false): void => {
+  const updateDOM = (html: string): void => {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const doc = parser.parseFromString(html, "text/html");
 
     // Check if this is a fragment response (has template elements)
-    const templates = doc.querySelectorAll<HTMLTemplateElement>('template[data-sol-outlet]');
+    const templates = doc.querySelectorAll<HTMLTemplateElement>("template[data-sol-outlet]");
 
     if (templates.length > 0) {
       // Fragment response - update outlets
-      templates.forEach(tpl => {
+      templates.forEach((tpl) => {
         const name = tpl.dataset.solOutlet;
         const target = d.querySelector<HTMLElement>(`[data-sol-outlet="${name}"]`);
         if (target) {
@@ -89,25 +84,25 @@ const isBlockedLink = (href: string): boolean => {
       });
 
       // Update title
-      const titleTpl = doc.querySelector<HTMLTemplateElement>('template[data-sol-title]');
+      const titleTpl = doc.querySelector<HTMLTemplateElement>("template[data-sol-title]");
       if (titleTpl) {
-        d.title = titleTpl.textContent ?? '';
+        d.title = titleTpl.textContent ?? "";
       }
 
       const headAssetsTpl = doc.querySelector<HTMLTemplateElement>(
-        'template[data-sol-head-assets]'
+        "template[data-sol-head-assets]",
       );
       if (headAssetsTpl) {
         applyHeadAssets(Array.from(headAssetsTpl.content.children));
       }
     } else {
       applyHeadAssets(
-        doc.head.querySelectorAll('link[rel="stylesheet"][href],script[type="module"][src]')
+        doc.head.querySelectorAll('link[rel="stylesheet"][href],script[type="module"][src]'),
       );
 
       // Full page response - extract #app content
-      const app = doc.querySelector('#app');
-      const target = d.querySelector<HTMLElement>('#app');
+      const app = doc.querySelector("#app");
+      const target = d.querySelector<HTMLElement>("#app");
       if (app && target) {
         // Unload existing islands before updating DOM
         w.__LUNA_UNLOAD_ALL__?.(target);
@@ -115,26 +110,21 @@ const isBlockedLink = (href: string): boolean => {
       }
 
       // Update title from full page
-      const title = doc.querySelector('title');
+      const title = doc.querySelector("title");
       if (title) {
-        d.title = title.textContent ?? '';
+        d.title = title.textContent ?? "";
       }
     }
 
-    // Handle islands: scan for new ones or rerender existing ones
-    if (isRerender) {
-      // Rerender: call rerender on existing islands with updated state
-      w.__LUNA_RERENDER_ALL__?.();
-    } else {
-      // Initial: scan and hydrate new islands
-      w.__LUNA_SCAN__?.();
-    }
+    // The previous instances were disposed before replacement. Every new DOM needs a scan.
+    w.__LUNA_SCAN__?.();
     // Re-scan for Web Components
     w.__LUNA_WC_SCAN__?.();
   };
 
   // Navigate to URL with CSR
   const navigate = async (url: string, replace = false): Promise<void> => {
+    url = sameOriginActionUrl(url);
     if (isNavigating) return;
     isNavigating = true;
 
@@ -143,24 +133,26 @@ const isBlockedLink = (href: string): boolean => {
 
       // Show cached content immediately if available (Stale-While-Revalidate)
       if (cachedHtml) {
-        updateDOM(cachedHtml, false);
+        updateDOM(cachedHtml);
         // Update history immediately for cached content
         if (replace) {
-          w.history.replaceState({ sol: true }, '', url);
+          w.history.replaceState({ sol: true }, "", url);
         } else {
-          w.history.pushState({ sol: true }, '', url);
+          w.history.pushState({ sol: true }, "", url);
         }
         w.scrollTo(0, 0);
       }
 
       // Always fetch from server (default behavior: AlwaysFetch)
       const res = await fetch(url, {
-        headers: { 'X-Sol-Fragment': 'true' }
+        headers: { "X-Sol-Fragment": "true" },
+        mode: "same-origin",
+        credentials: "same-origin",
       });
       const html = await res.text();
 
       // Update cache if fragment response
-      if (res.headers.get('X-Sol-Fragment-Response')) {
+      if (res.headers.get("X-Sol-Fragment-Response")) {
         cache.set(url, html);
         // Clear cache after 5 minutes
         setTimeout(() => cache.delete(url), 5 * 60 * 1000);
@@ -170,16 +162,16 @@ const isBlockedLink = (href: string): boolean => {
       if (cachedHtml) {
         // Check if content actually changed
         if (html !== cachedHtml) {
-          updateDOM(html, true);
+          updateDOM(html);
         }
       } else {
         // No cache, update DOM with fetched content
-        updateDOM(html, false);
+        updateDOM(html);
         // Update history for non-cached navigation
         if (replace) {
-          w.history.replaceState({ sol: true }, '', url);
+          w.history.replaceState({ sol: true }, "", url);
         } else {
-          w.history.pushState({ sol: true }, '', url);
+          w.history.pushState({ sol: true }, "", url);
         }
         w.scrollTo(0, 0);
       }
@@ -193,56 +185,72 @@ const isBlockedLink = (href: string): boolean => {
 
   // Prefetch URL
   const prefetch = (url: string): void => {
+    try {
+      url = sameOriginActionUrl(url);
+    } catch {
+      return;
+    }
     if (cache.has(url)) return;
     fetch(url, {
-      headers: { 'X-Sol-Fragment': 'true' }
+      headers: { "X-Sol-Fragment": "true" },
+      mode: "same-origin",
+      credentials: "same-origin",
     })
-      .then(res => res.text())
-      .then(html => {
+      .then((res) => res.text())
+      .then((html) => {
         cache.set(url, html);
         setTimeout(() => cache.delete(url), 5 * 60 * 1000);
       })
-      .catch(() => { /* ignore */ });
+      .catch(() => {
+        /* ignore */
+      });
   };
 
   // Click handler for sol-link elements
-  d.addEventListener('click', (e: MouseEvent) => {
+  d.addEventListener("click", (e: MouseEvent) => {
     const target = e.target as Element | null;
-    const link = target?.closest<HTMLAnchorElement>('[data-sol-link]');
+    const link = target?.closest<HTMLAnchorElement>("[data-sol-link]");
     if (!link) return;
 
-    const href = link.getAttribute('href');
+    const href = link.getAttribute("href");
     if (!href) return;
 
-    // Skip blocked protocol links
-    if (isBlockedLink(href)) return;
+    try {
+      sameOriginActionUrl(href);
+    } catch {
+      return;
+    }
 
     // Skip external links
-    if (href.startsWith('http') || href.startsWith('//')) return;
+    if (href.startsWith("http") || href.startsWith("//")) return;
 
     // Skip if modifier key pressed (allow new tab)
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
     e.preventDefault();
-    const replace = link.hasAttribute('data-sol-replace');
+    const replace = link.hasAttribute("data-sol-replace");
     navigate(href, replace);
   });
 
   // Hover prefetch
-  d.addEventListener('mouseenter', (e: MouseEvent) => {
-    const target = e.target as Element | null;
-    if (!target?.closest) return;
-    const link = target.closest<HTMLAnchorElement>('[data-sol-link][data-sol-prefetch]');
-    if (link) {
-      const href = link.getAttribute('href');
-      if (href && !isBlockedLink(href) && !href.startsWith('http') && !href.startsWith('//')) {
-        prefetch(href);
+  d.addEventListener(
+    "mouseenter",
+    (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      if (!target?.closest) return;
+      const link = target.closest<HTMLAnchorElement>("[data-sol-link][data-sol-prefetch]");
+      if (link) {
+        const href = link.getAttribute("href");
+        if (href && !href.startsWith("http") && !href.startsWith("//")) {
+          prefetch(href);
+        }
       }
-    }
-  }, { capture: true });
+    },
+    { capture: true },
+  );
 
   // Handle browser back/forward
-  w.addEventListener('popstate', (e: PopStateEvent) => {
+  w.addEventListener("popstate", (e: PopStateEvent) => {
     // Only handle our own history entries or if no state
     if ((e.state as { sol?: boolean } | null)?.sol || !e.state) {
       navigate(w.location.href, true);
@@ -253,4 +261,11 @@ const isBlockedLink = (href: string): boolean => {
   w.__SOL_NAVIGATE__ = navigate;
   w.__SOL_PREFETCH__ = prefetch;
   w.__SOL_CACHE__ = cache;
+  w.__LUNA_NAVIGATION__ = {
+    navigate: (url) => navigate(url),
+    refresh: () => {
+      cache.clear();
+      return navigate(w.location.href, true);
+    },
+  };
 })(document, window as unknown as SolWindow);

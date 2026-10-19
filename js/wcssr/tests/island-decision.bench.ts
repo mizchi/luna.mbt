@@ -9,7 +9,8 @@
  * Run: pnpm bench
  */
 
-import { describe, bench, beforeAll, afterAll } from 'vitest';
+import { describe } from "vitest";
+import { bench } from "../../bench-utils";
 
 // ============================================
 // Signal Implementation (same as test)
@@ -403,12 +404,13 @@ describe('Signal Propagation: WC vs Plain DOM', () => {
     document.body.appendChild(container);
 
     const signal = createSignal(0);
-    const tags: string[] = [];
+    const tags = Array.from({ length: 5 }, (_, level) =>
+      getUniqueTagName(`wc-nested-signal-${level}`)
+    );
 
     // Create 5 nested levels
     for (let level = 0; level < 5; level++) {
-      const tagName = getUniqueTagName(`wc-nested-signal-${level}`);
-      tags.push(tagName);
+      const tagName = tags[level];
 
       const childTag = level < 4 ? tags[level + 1] : null;
 
@@ -438,6 +440,7 @@ describe('Signal Propagation: WC vs Plain DOM', () => {
 
     // Insert outermost
     container.innerHTML = `<${tags[0]}></${tags[0]}>`;
+    if (signal.subscriberCount() !== 5) throw new Error('Expected five mounted WC subscribers');
 
     // Update signal 100 times (all 5 levels update)
     for (let i = 0; i < 100; i++) {
@@ -482,7 +485,7 @@ describe('Memory & Initialization: WC vs Plain DOM', () => {
 
     const tagName = getUniqueTagName('wc-mass-create');
 
-    container.innerHTML = Array.from(
+    container.setHTMLUnsafe(Array.from(
       { length: 100 },
       (_, i) => `
       <${tagName} data-id="${i}">
@@ -494,7 +497,11 @@ describe('Memory & Initialization: WC vs Plain DOM', () => {
         </template>
       </${tagName}>
     `
-    ).join('');
+    ).join(''));
+
+    if (!container.firstElementChild?.shadowRoot) {
+      throw new Error('Declarative shadow root was not attached');
+    }
 
     document.body.removeChild(container);
   });
@@ -675,12 +682,11 @@ describe('Context Propagation Patterns', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    const tags: string[] = [];
+    const tags = Array.from({ length: 10 }, (_, level) => getUniqueTagName(`wc-ctx-${level}`));
 
     // Create 10 nested WC levels, passing context via attributes
     for (let level = 0; level < 10; level++) {
-      const tagName = getUniqueTagName(`wc-ctx-${level}`);
-      tags.push(tagName);
+      const tagName = tags[level];
 
       const childTag = level < 9 ? tags[level + 1] : null;
 
@@ -707,6 +713,9 @@ describe('Context Propagation Patterns', () => {
     let current: HTMLElement | null = container.querySelector(tags[0]);
     for (let i = 1; i < 10 && current; i++) {
       current = current.shadowRoot?.querySelector(tags[i]) as HTMLElement | null;
+    }
+    if (current?.getAttribute('data-theme') !== 'dark' || !current.shadowRoot?.querySelector('.leaf')) {
+      throw new Error('Context did not reach the tenth shadow root');
     }
 
     document.body.removeChild(container);

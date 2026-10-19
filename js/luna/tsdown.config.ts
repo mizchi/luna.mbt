@@ -20,11 +20,18 @@ export default defineConfig([
       ),
       void: "src/void/plugin.ts",
       "void/client": "src/void/client.ts",
+      "void/hydrate": "src/void/hydrate.ts",
+      "void/scheduler": "src/void/scheduler.ts",
+      "void/form": "src/void/form.ts",
+      "sol/form": "src/sol/form.ts",
       "void/server": "src/void/server.ts",
+      ssr: "src/ssr.ts",
+      "ssr/jsx-runtime": "src/ssr/jsx-runtime.ts",
+      "ssr/jsx-dev-runtime": "src/ssr/jsx-dev-runtime.ts",
     },
     format: ["esm"],
-    // Declarations use this package's TypeScript 6 API; the workspace CLI uses 7.
-    dts: true,
+    // Native declaration emission needs a config above both Luna and the loader.
+    dts: { tsconfig: "../tsconfig.luna-build.json" },
     outDir: "dist",
     clean: true,
     minify: true,
@@ -41,7 +48,7 @@ export default defineConfig([
   {
     entry: ["src/css/index.ts"],
     format: ["esm"],
-    dts: true,
+    dts: { tsconfig: "../tsconfig.luna-build.json" },
     outDir: "dist/css",
     minify: false,
     outExtensions() {
@@ -51,7 +58,7 @@ export default defineConfig([
   {
     entry: ["src/css/runtime.ts"],
     format: ["esm"],
-    dts: true,
+    dts: { tsconfig: "../tsconfig.luna-build.json" },
     outDir: "dist/css",
     minify: false,
     outExtensions() {
@@ -61,7 +68,7 @@ export default defineConfig([
   {
     entry: ["src/vite-plugin.ts"],
     format: ["esm"],
-    dts: true,
+    dts: { tsconfig: "../tsconfig.luna-build.json" },
     outDir: "dist",
     minify: false,
     // Bundle CSS module into plugin
