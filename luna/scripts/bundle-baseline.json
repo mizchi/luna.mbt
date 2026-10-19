@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-18T17:17:03.047Z",
+  "generatedAt": "2026-10-19T13:22:15.231Z",
   "entries": [
     {
       "id": "boot",
@@ -44,8 +44,8 @@
       "files": [
         "js/loader/dist/hydration.js"
       ],
-      "bytes": 3103,
-      "gzip": 1061
+      "bytes": 3186,
+      "gzip": 1092
     },
     {
       "id": "lib",
@@ -62,11 +62,12 @@
       "exportKey": ".",
       "file": "js/loader/dist/wc-loader.js",
       "files": [
+        "js/loader/dist/islands-CB2K98oV.js",
         "js/loader/dist/lib.js",
         "js/loader/dist/wc-loader.js"
       ],
-      "bytes": 2467,
-      "gzip": 1337
+      "bytes": 3667,
+      "gzip": 1961
     },
     {
       "id": "router",
@@ -142,19 +143,20 @@
       "files": [
         "js/loader/dist/sol-nav.js"
       ],
-      "bytes": 2898,
-      "gzip": 1251
+      "bytes": 3335,
+      "gzip": 1442
     },
     {
       "id": "wc",
       "exportKey": "./wc",
       "file": "js/loader/dist/wc-loader.js",
       "files": [
+        "js/loader/dist/islands-CB2K98oV.js",
         "js/loader/dist/lib.js",
         "js/loader/dist/wc-loader.js"
       ],
-      "bytes": 2467,
-      "gzip": 1337
+      "bytes": 3667,
+      "gzip": 1961
     }
   ]
 }

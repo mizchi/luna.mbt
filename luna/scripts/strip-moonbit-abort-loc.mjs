@@ -2,6 +2,7 @@
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
+import { annotateConstructorPurity } from "./moonbit-constructor-purity.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, "..", "..");
@@ -23,6 +24,8 @@ function createStats() {
     abortReturnsReplaced: 0,
     boundCheckFunctionReplaced: 0,
     boundCheckCallsRemoved: 0,
+    constructorsWrapped: 0,
+    allocationsAnnotated: 0,
   };
 }
 
@@ -30,7 +33,9 @@ function totalReplaced(stats) {
   return (
     stats.abortReturnsReplaced +
     stats.boundCheckFunctionReplaced +
-    stats.boundCheckCallsRemoved
+    stats.boundCheckCallsRemoved +
+    stats.constructorsWrapped +
+    stats.allocationsAnnotated
   );
 }
 
@@ -70,7 +75,7 @@ export function postProcessMoonbitJs(source) {
   const out = [];
   const stats = createStats();
 
-  for (let i = 0; i < lines.length; ) {
+  for (let i = 0; i < lines.length;) {
     const line = lines[i];
 
     if (line.startsWith(BOUND_CHECK_FN_PREFIX)) {
@@ -96,7 +101,10 @@ export function postProcessMoonbitJs(source) {
     i += 1;
   }
 
-  return { output: out.join("\n"), replaced: totalReplaced(stats), stats };
+  const purity = annotateConstructorPurity(out.join("\n"));
+  stats.constructorsWrapped = purity.constructorsWrapped;
+  stats.allocationsAnnotated = purity.allocationsAnnotated;
+  return { output: purity.output, replaced: totalReplaced(stats), stats };
 }
 
 async function processTarget(relativePath) {
@@ -118,10 +126,15 @@ async function main() {
   for (const item of results) {
     const rel = item.fullPath.replace(`${PROJECT_ROOT}/`, "");
     if (item.changed) {
-      const { abortReturnsReplaced, boundCheckFunctionReplaced, boundCheckCallsRemoved } =
-        item.stats;
+      const {
+        abortReturnsReplaced,
+        boundCheckFunctionReplaced,
+        boundCheckCallsRemoved,
+        constructorsWrapped,
+        allocationsAnnotated,
+      } = item.stats;
       console.log(
-        `patched ${rel} (${item.replaced} changes: abort=${abortReturnsReplaced}, bound_check_fn=${boundCheckFunctionReplaced}, bound_check_calls=${boundCheckCallsRemoved})`
+        `patched ${rel} (${item.replaced} changes: abort=${abortReturnsReplaced}, bound_check_fn=${boundCheckFunctionReplaced}, bound_check_calls=${boundCheckCallsRemoved}, constructors=${constructorsWrapped}, allocations=${allocationsAnnotated})`,
       );
     } else {
       console.log(`ok ${rel} (no changes)`);
