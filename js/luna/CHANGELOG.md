@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.24.2 (2026-10-21)
+
+- Update the packaged Void integration guide with published-package setup, renderer entry points, mixed islands, hydration, forms, and authentication examples.
+- Link the adapter contract and examples from the published npm documentation.
+
 ## 0.24.1 (2026-10-20)
 
 - Hydrate Void islands by reusing server-rendered DOM and support shared action forms.
