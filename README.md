@@ -44,8 +44,7 @@ moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
 ```
 
 npm wrappers exist for users who already have node but not moon. The
-[`@luna_ui/*`](https://www.npmjs.com/org/luna_ui) family is published in
-the current Sol npm wrapper release is `0.21.1`:
+[`@luna_ui/*`](https://www.npmjs.com/org/luna_ui) family is published on npm:
 
 ```sh
 pnpm add -g @luna_ui/sol      # SSR framework CLI
@@ -59,9 +58,11 @@ pnpm add @luna_ui/wcr            # web-component reactive bindings
 pnpm add @luna_ui/testing        # test helpers
 ```
 
-The repository build also provides a [Void adapter](js/luna/docs/void.md) through
-`@luna_ui/luna/void`: Void Pages loaders/actions with delayed Luna islands and
-optional React/Solid islands. Run `just test-void-e2e` for the isolated D1 example.
+The published `@luna_ui/luna@0.24.1` package also provides a
+[Void adapter](js/luna/docs/void.md) through `@luna_ui/luna/void`: typed Void
+loaders/actions, Luna SSR with delayed hydration, island forms, and optional
+React/Solid islands. The guide covers installation and the authenticated D1
+example. Run `just test-void-e2e` to verify it in isolation.
 
 ## Layout
 

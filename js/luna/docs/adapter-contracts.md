@@ -65,7 +65,7 @@ The common renderer contract is `mount(element, props) => void | Dispose | Promi
 The removal observer scans mounted instances only after an element is removed.
 Insertions and text-only removals do not trigger a full scan; ancestor removal and
 connected reparenting retain the same disposal rules. See the
-[Chromium lifecycle benchmark](../../loader/benchmarks.md) for measurements.
+[Chromium lifecycle benchmark](https://github.com/mizchi/luna.mbt/blob/main/js/loader/benchmarks.md) for measurements.
 
 WC modules use the browser's URL-based module cache. Multiple instances share a module without a separate component-name cache; different URLs (including HMR query strings) remain independent. Unload disposes instances, while code updates use a new module URL.
 
