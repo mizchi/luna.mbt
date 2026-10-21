@@ -41,12 +41,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: node scripts/generate-examples.mjs
 
-      # astra binary lives at _build/js/release/build/mizchi/astra/cmd/astra/astra.js,
-      # produced by `moon build --target js --release`. Workspace-wide build
-      # also handles luna's tsdown step which reads moonbit-built api.js files.
-      - run: moon build --target js --release
-
-      - run: pnpm -r build
+      # Build the MoonBit binaries and npm wrappers used by Astra without
+      # running unrelated example builds, matching the GitHub Pages workflow.
+      - run: pnpm build:npm
 
       - name: astra build (SSG)
         working-directory: website
