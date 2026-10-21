@@ -5,25 +5,49 @@ The `@luna_ui/luna/void` subpaths connect Luna's JavaScript build to
 loaders, actions, validation, and head metadata. The adapter owns the HTML
 document and explicitly registered client islands.
 
-Tested with Void **1.1.11**, Vite **8.3.4**, and Node **24.21.0**. The adapter
-uses Void's virtual renderer entry points; keep the exact Void peer version
-until its integration contract has been tested against another release.
-The SSR JSX additions described below are available in the repository build.
+## Install
 
-Luna's prepack hook and `just build-void` build only the MoonBit modules imported
-by the npm wrapper; they do not regenerate unrelated Sol/Astra examples.
+The SSR, hydration, and form adapters are published in **`@luna_ui/luna@0.24.1`**.
+Consumers use the built JavaScript and declarations; MoonBit and a local Luna
+build are not required.
 
-The workspace keeps Sol's existing SQLite v12 build permission and leaves
-Void's unused SQLite v13 dependency unbuilt. This uses pnpm 10.19+'s
-[version-specific build permissions](https://pnpm.io/10.x/settings#onlybuiltdependencies).
-Void's Cloudflare plugin also requires the example's Wrangler 4.151.0.
+In a Void Pages application:
+
+```sh
+pnpm add @luna_ui/luna@0.24.1
+pnpm add -D void@1.1.12 vite@8.3.4
+```
+
+The tested baseline is Void **1.1.12**, Vite **8.3.4**, and Node **24.21.0**;
+Luna requires Node **24.15.0+**. Keep Void pinned to the exact peer version:
+the adapter uses its virtual renderer entry points. For the Cloudflare target,
+also install the tested Wrangler version:
+
+```sh
+pnpm add -D wrangler@4.151.2
+```
+
+## Entry points
+
+| Import | Purpose |
+| --- | --- |
+| `@luna_ui/luna/void` | `voidLuna()` Vite plugin and explicit island registration |
+| `@luna_ui/luna/void/server` | `definePage`, `html`, `raw`, `island`, and `lunaIsland` |
+| `@luna_ui/luna/ssr` | Shared server/client VNodes, `renderToString`, and `hydrate` |
+| `@luna_ui/luna/void/hydrate` | `defineLunaIsland()` for SSR JSX; reuses existing DOM |
+| `@luna_ui/luna/void/client` | `defineLunaIsland()` for DOM-only components; replaces fallback HTML; also exports the `Island` type |
+| `@luna_ui/luna/void/scheduler` | Renderer-free `initLunaIslands()`; used automatically by the plugin |
+| `@luna_ui/luna/void/form` | Router-free `useIslandForm()` for Void actions |
+
+Use the hydration entry for components rendered by `lunaIsland()`. The
+DOM-only client entry has the same helper name but a different rendering
+contract. Import `Island` with `import type` when adapting another renderer.
 
 ## Vite configuration
 
-Add `void` to the application, and use a local build or tarball of this package
-until a release containing the SSR subpaths is published. Do not enable another
-Void Pages adapter such as `@void/react/plugin` alongside `voidLuna()`; they
-provide the same virtual modules. React and Solid can instead register islands
+Replace an existing Void Pages renderer plugin with `voidLuna()`; do not enable
+another one, such as `@void/react/plugin`, alongside it. They provide the same
+virtual modules. React and Solid can instead register individual islands
 through the shared `mount()` contract below.
 
 ```ts
@@ -32,7 +56,10 @@ import { voidPlugin } from "void";
 import { voidLuna } from "@luna_ui/luna/void";
 
 export default defineConfig({
-  plugins: [voidPlugin(), voidLuna({ islands: { counter: "./src/luna.island.tsx" } })],
+  plugins: [
+    voidPlugin(),
+    voidLuna({ islands: { counter: "./src/luna.island.tsx" } }),
+  ],
 });
 ```
 
@@ -40,6 +67,28 @@ Paths in `islands` resolve from Vite's configured root. The adapter reads Void's
 configured pages directory, including `sourceDir`; `pagesDir` can override it.
 Only registered island modules enter the client manifest. Server page and
 layout modules stay on the server.
+
+The examples use `pages/` and `src/` at the application root. Keep the generated
+Void TypeScript configuration and enable automatic JSX:
+
+```json
+{
+  "extends": "./.void/tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["void/env", "node", "vite/client"]
+  },
+  "include": ["pages", "src", "*.config.ts"]
+}
+```
+
+Each shared Luna component below selects `@luna_ui/luna/ssr` with a file-level
+`@jsxImportSource` pragma. This also lets React and Solid components use their
+own JSX runtimes in the same application.
 
 ## Loader and page
 
@@ -122,6 +171,18 @@ import Counter from "./counter.luna";
 export default defineLunaIsland(Counter);
 ```
 
+The filename alone does not register or hydrate the component. Its path must
+appear in `voidLuna({ islands })`, and its ID must match the `lunaIsland()` call.
+Keep the shared component and client boundary in separate modules so the server
+does not import browser scheduling code.
+
+After adding these files, generate Void's types and start Vite:
+
+```sh
+pnpm exec void prepare
+pnpm exec vite
+```
+
 The `@luna_ui/luna/ssr` JSX runtime produces VNodes that work on both the server
 and client. Pass a function child to track signal updates. `defineLunaIsland()`
 hydrates these VNodes into the existing DOM and returns its disposer. Buttons,
@@ -164,27 +225,87 @@ Any registered module may default-export `Island<Props>`:
 import { createElement } from "react";
 import { hydrateRoot } from "react-dom/client";
 import type { Island } from "@luna_ui/luna/void/client";
-import Counter from "./Counter";
+import { ReactCounter } from "./react-counter";
 
 export default {
   mount(element, props) {
-    const root = hydrateRoot(element, createElement(Counter, props));
+    const root = hydrateRoot(element, createElement(ReactCounter, props));
     return () => root.unmount();
   },
 } satisfies Island<{ initialCount: number }>;
 ```
 
 `mount(element, props)` may return a cleanup function or a promise of one.
-The host page provides that renderer's SSR markup with
-`fallback: raw(renderToString(...))`. Solid hydration needs a matching
-`renderId` on the server and client, and `generateHydrationScript()` in the
-document. The [working example](../examples-void/) includes both renderers.
+For React, supply matching SSR markup with
+`island("react", props, { fallback: raw(renderReact(createElement(ReactCounter, props))) })`,
+where `renderReact` is `renderToString` from `react-dom/server`. The adapter
+passes the same serialized props to the client and calls the returned disposer
+when the island is removed.
+
+Solid also uses `hydrate`, with the same `renderId` on the server and client:
+
+```ts
+// src/solid-island.ts
+import { createComponent } from "solid-js";
+import { hydrate } from "solid-js/web";
+import type { Island } from "@luna_ui/luna/void/client";
+import { SolidCounter } from "./counter.solid";
+
+export default {
+  mount(element, props) {
+    return hydrate(() => createComponent(SolidCounter, props), element, {
+      renderId: "void-solid",
+    });
+  },
+} satisfies Island<{ initialCount: number }>;
+```
+
+```ts
+// pages/index.island.tsx (Solid-only host page)
+import { createComponent } from "solid-js";
+import { generateHydrationScript, renderToString } from "solid-js/web";
+import { definePage, html, island, raw } from "@luna_ui/luna/void/server";
+import { SolidCounter } from "../src/counter.solid";
+import type { Props } from "./index.server";
+
+export default definePage<Props>(({ initialCount }) => {
+  const props = { initialCount };
+  const markup = renderToString(() => createComponent(SolidCounter, props), {
+    renderId: "void-solid",
+  });
+  return html`
+    ${raw(generateHydrationScript())}
+    ${island("solid", props, { fallback: raw(markup) })}
+  `;
+});
+```
+
+Include Solid's hydration script once per document. Give each independently
+rendered Solid root a distinct `renderId`; for repeated instances, send the ID
+in the island props and use it on both sides. The constant above is for one
+Solid island instance.
+
+Register `react` and `solid` in `voidLuna({ islands })` just like `counter`.
+Compile `*.solid.tsx` with `vite-plugin-solid` using
+`solid({ include: /\.solid\.tsx$/, ssr: true })`, and retain Luna's SSR JSX
+pragma on `*.luna.tsx`. The
+[complete Vite configuration](https://github.com/mizchi/luna.mbt/blob/main/js/luna/examples-void/vite.config.ts)
+includes the React dependency settings for Void's Cloudflare worker environment.
+The [working example](https://github.com/mizchi/luna.mbt/tree/main/js/luna/examples-void)
+contains the shared React/Solid counter components and a host page mixing all
+three renderers. Each island owns its renderer root; context and component
+state stay within that renderer.
 
 ## Island forms
 
 Import `useIslandForm` from `@luna_ui/luna/void/form` inside a Luna component.
 This follows Void's island form API and needs no SPA router or React/Solid
 runtime. The separate entry keeps forms out of islands that do not use them.
+
+`useIslandForm(defaults)` provides typed field state and awaitable submission
+methods. It is the Luna counterpart of Void's island helper, rather than the
+router-dependent `useForm(url, defaults)` / `<Form>` API. Create it inside the
+component, and do not destructure reactive properties before rendering.
 
 ```tsx
 /** @jsxImportSource @luna_ui/luna/ssr */
@@ -195,7 +316,7 @@ export default function NoteForm() {
   const form = useIslandForm({ title: "" });
   const [failure, setFailure] = createSignal("");
   return (
-    <form onSubmit={async (event: Event) => {
+    <form method="post" action="/?addForm" onSubmit={async (event: Event) => {
       event.preventDefault();
       setFailure("");
       try {
@@ -205,6 +326,7 @@ export default function NoteForm() {
       }
     }}>
       <input
+        name="title"
         aria-label="Title"
         ref={(input) => form.setData("title", (input as HTMLInputElement).value)}
         value={() => form.data.title}
@@ -246,9 +368,15 @@ responses from navigating.
 The helper is safe to create during SSR. It currently submits JSON values;
 file uploads and generated action-URL/body inference are not included. Field
 names and values are inferred from `defaults`, and URL arguments are strings.
-For a no-JS fallback, add a native `method`, `action`, and input `name`, with a
-server action that parses form fields and redirects after success. The
-[note form example](../examples-void/src/note-form.luna.tsx) includes this setup.
+The example posts JSON to the named `add` action when hydrated and uses the
+native `addForm` action before hydration or when JavaScript is disabled. Both
+actions must exist in the companion `.server.ts` file. The
+[matching backend](https://github.com/mizchi/luna.mbt/blob/main/js/luna/examples-void/pages/index.server.ts)
+validates input, requires a session, and writes owner-scoped D1 notes.
+Its `addForm` action parses form fields and returns a 303 after success;
+Void's JSON body validator is used by `add` instead. The
+[note form component](https://github.com/mizchi/luna.mbt/blob/main/js/luna/examples-void/src/note-form.luna.tsx)
+shows the complete setup.
 
 ## Supported behavior and limits
 
@@ -256,7 +384,7 @@ server action that parses form fields and redirects after success. The
   navigation, including pages without the `.island` suffix. There is no Void
   SPA router, `Link`/`useForm` Context, or automatic client loader refresh.
   Standard actions and their JSON protocol remain in Void.
-- Void 1.1.11 island actions return `{ success: true }` or 422 JSON errors.
+- Void 1.1.12 island actions return `{ success: true }` or 422 JSON errors.
   Its `withValidator({ body })` reads JSON. For a native form, parse fields
   with `c.req.parseBody()`, validate them, and return an explicit 303 redirect
   after a successful write (see the example's `addForm` action). Inline form
@@ -299,15 +427,42 @@ It compares DOM object identities: React, Solid, and Luna preserve their
 buttons, and Luna retains its input nodes and values entered before activation.
 No Cloudflare account or remote deployment is required.
 
-To edit the sample interactively after building the package:
+## Run the repository example
+
+The repository example uses a workspace dependency. Contributors need MoonBit
+and the repository dependencies; published-package consumers can use the
+installation instructions above. `just build-void` builds the MoonBit modules
+used by Luna and its npm artifacts, without regenerating Sol/Astra examples.
 
 ```sh
+pnpm install --frozen-lockfile
 just build-void
+pnpm --filter @luna_ui/void-example exec void prepare
 pnpm --filter @luna_ui/void-example exec void db migrate
 pnpm --filter @luna_ui/void-example dev
 ```
 
-The example requires a session before `/` can load. Create one through the
-same-origin `/api/auth/sign-up/email` endpoint with `name`, `email`, and a
-password of at least 12 characters. The example is a backend/renderer fixture
-and does not include a signup screen.
+The example requires a session before `/` can load and has no signup screen.
+At the local Vite origin, run this in the browser console to create a demo
+account and reload with its session cookie:
+
+```js
+const response = await fetch("/api/auth/sign-up/email", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    name: "Luna demo",
+    email: "luna-demo@example.com",
+    password: "luna-local-demo-password",
+  }),
+});
+if (!response.ok) throw new Error(await response.text());
+location.reload();
+```
+
+For an existing demo account, use `/api/auth/sign-in/email` with `email` and
+`password` instead. Auth configuration requires at least 12 password characters.
+After editing `db/schema.ts`, generate a migration with
+`pnpm --filter @luna_ui/void-example exec void db generate`, then apply it with
+`void db migrate` in that same package. These commands operate on the local D1
+state; the E2E command above always uses an isolated database.
