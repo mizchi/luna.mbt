@@ -50,6 +50,8 @@ pub fn static_div(@core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
 pub fn static_span(@core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
+pub fn vnode(@core.Node[@js_core.Any, String]) -> @mizchi/luna/dom.DomNode
+
 // Errors
 
 // Types and methods

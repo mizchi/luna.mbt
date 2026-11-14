@@ -950,6 +950,30 @@ pub fn static_div(node : @luna.Node[Unit, String]) -> @element.DomNode {
 }
 
 ///|
+/// Use a `@core.Node` inside the `@element` DSL.
+///
+/// `luna_components` and `@luna.h` build `@core.Node[E, String]`, while the
+/// browser DSL (`@element.div`, `for_each`, `show`, ...) composes
+/// `@element.DomNode`. This renders the node to the DOM now, with its
+/// reactive text and attributes and its event handlers live, so an APG
+/// component can sit among DSL elements:
+///
+/// ```moonbit nocheck
+/// let expanded = @resource.signal(0)
+/// @element.section([
+///   @element.h2([@element.text("FAQ")]),
+///   @client.vnode(@components.accordion_interactive("faq", items, expanded)),
+/// ])
+/// ```
+///
+/// Its effects belong to the owner that is current when `vnode` is called,
+/// so they are disposed with the surrounding `show` / `for_each` row /
+/// root, like DSL content.
+pub fn vnode(node : @luna.Node[@js.Any, String]) -> @element.DomNode {
+  @element.raw_node(render_vnode_to_dom(node))
+}
+
+///|
 /// Create a static span block (convenience wrapper for static_block)
 pub fn static_span(node : @luna.Node[Unit, String]) -> @element.DomNode {
   static_block("span", node)
