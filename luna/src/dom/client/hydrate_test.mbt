@@ -1113,13 +1113,17 @@ test "dom for_each handles fragment items" {
     @element.fragment([@element.text(item), @element.text("-")])
   })
   @element.render_to(container, node)
-  assert_true(get_inner_html(container).contains("A-B-"))
+  // Fragment rows carry a `<!--row-->` anchor; compare the content around it
+  fn rows_html() {
+    get_inner_html(container).replace_all(old="<!--row-->", new="")
+  }
+  assert_true(rows_html().contains("A-B-"))
   items.set(["B", "A"])
-  let reordered = get_inner_html(container)
+  let reordered = rows_html()
   assert_true(reordered.contains("B-A-"))
   assert_false(reordered.contains("A-B-"))
   items.set([])
-  let cleared = get_inner_html(container)
+  let cleared = rows_html()
   assert_false(cleared.contains("A"))
   assert_false(cleared.contains("B"))
 }

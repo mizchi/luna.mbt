@@ -130,6 +130,7 @@ import {
   svgNs,
   mathmlNs,
   forEach,
+  forEachIndexed,
   // Timer utilities
   debounced as _debounced,
   // Route definitions
@@ -533,10 +534,8 @@ export function For<T>(props: ForProps<T>): any {
   // each should be a getter function
   const getter = typeof each === "function" ? each : () => each;
 
-  return forEach(getter, (item, index) => {
-    // Wrap index in a getter for SolidJS compatibility
-    return children(item, () => index);
-  });
+  // The index getter follows the row as the list changes (SolidJS's For)
+  return forEachIndexed(getter, (item, index) => children(item, index));
 }
 
 /**
@@ -971,6 +970,7 @@ export {
   svgNs,
   mathmlNs,
   forEach,
+  forEachIndexed,
   // Route definitions
   routePage,
   routePageTitled,

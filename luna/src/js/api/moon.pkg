@@ -45,6 +45,7 @@ options(
         "has_owner:hasOwner",
         "on_mount:onMount",
         "for_each:forEach",
+        "for_each_indexed:forEachIndexed",
         "text",
         "text_dyn:textDyn",
         "render_to:render",
