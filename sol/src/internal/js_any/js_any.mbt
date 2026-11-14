@@ -65,7 +65,7 @@ extern "js" fn ffi_json_stringify(data : @js.Any) -> String =
 ///|
 pub fn any_to_json(data : @js.Any) -> Json? {
   let raw = ffi_json_stringify(data)
-  let json : Json = @json.parse(raw.view()) catch { _ => return None }
+  let json : Json = @json.parse(raw.clamped_view()) catch { _ => return None }
   Some(json)
 }
 

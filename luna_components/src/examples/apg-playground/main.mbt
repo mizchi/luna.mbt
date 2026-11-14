@@ -71,6 +71,7 @@ fn btn(
 // =============================================================================
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Section {
   // Input Components
   Button
@@ -101,7 +102,7 @@ pub(all) enum Section {
   Link
   Landmarks
   Table
-} derive(Eq, Debug)
+}
 
 ///|
 fn section_name(section : Section) -> String {

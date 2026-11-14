@@ -7,13 +7,14 @@
 
 ///|
 /// Component types that can be discovered
+#derive(Eq, Debug)
 pub(all) enum ComponentType {
   Header
   Footer
   Toc
   Breadcrumb
   PrevNext
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ComponentType with @debug.Debug::{to_repr}

@@ -36,6 +36,7 @@ pub(all) struct RawHandler(async (PageProps) -> @web_http.Response)
 ///|
 /// Cache strategy for CSR navigation
 /// Controls how the client handles navigation to the same page
+#derive(Eq, Debug)
 pub(all) enum CacheStrategy {
   /// Always fetch from server (default)
   /// Each navigation triggers a fresh server request
@@ -43,7 +44,7 @@ pub(all) enum CacheStrategy {
   /// Stale-While-Revalidate
   /// Shows cached content immediately, then fetches and updates in background
   StaleWhileRevalidate
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CacheStrategy with @debug.Debug::{to_repr}
@@ -200,6 +201,7 @@ pub struct CompiledSolRoute {
 
 ///|
 /// Route kind
+#derive(Eq, Debug)
 pub enum SolRouteKind {
   Page
   GetApi
@@ -212,7 +214,7 @@ pub enum SolRouteKind {
   RawPut
   RawDelete
   RawPatch
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SolRouteKind with @debug.Debug::{to_repr}

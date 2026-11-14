@@ -8,6 +8,7 @@
 
 ///|
 /// Rendering mode for dynamic routes
+#derive(Eq, Debug)
 pub(all) enum RenderMode {
   /// Server-side rendering (rendered on each request)
   Ssr
@@ -15,7 +16,7 @@ pub(all) enum RenderMode {
   Isr(revalidate~ : Int)
   /// SPA mode (client-side only)
   Spa
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RenderMode with @debug.Debug::{to_repr}
@@ -54,6 +55,7 @@ pub fn RenderMode::revalidate_seconds(self : RenderMode) -> Int? {
 
 ///|
 /// Fallback configuration for unmatched routes
+#derive(Eq, Debug)
 pub(all) enum FallbackConfig {
   /// Return 404 page
   NotFound(path~ : String)
@@ -61,7 +63,7 @@ pub(all) enum FallbackConfig {
   Spa(entry~ : String)
   /// Fallback to SPA for specific prefix only
   SpaPrefix(prefix~ : String, entry~ : String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FallbackConfig with @debug.Debug::{to_repr}
@@ -101,6 +103,7 @@ pub fn FallbackConfig::spa_entry(self : FallbackConfig) -> String? {
 
 ///|
 /// HTTP methods for API routes
+#derive(Eq, Debug)
 pub(all) enum HttpMethod {
   Get
   Post
@@ -108,7 +111,7 @@ pub(all) enum HttpMethod {
   Delete
   Patch
   All
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend HttpMethod with @debug.Debug::{to_repr}
@@ -149,6 +152,7 @@ pub fn HttpMethod::from_string(s : String) -> HttpMethod? {
 
 ///|
 /// Supported file types for pages
+#derive(Eq, Debug)
 pub(all) enum FileType {
   /// MoonBit source file (.mbt)
   MoonBit
@@ -160,7 +164,7 @@ pub(all) enum FileType {
   Html
   /// Unknown file type
   Unknown
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FileType with @debug.Debug::{to_repr}

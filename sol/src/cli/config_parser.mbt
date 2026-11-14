@@ -473,7 +473,7 @@ fn validate_config_keys(obj : Map[String, Json]) -> Unit {
 /// Parse sol.config.json
 pub fn parse_sol_config(json_str : String) -> SolConfig? {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Object(obj) else { return None }
     let islands = @json_utils.extract_string_array(obj, "islands")
     let routes = @json_utils.extract_string(obj, "routes", "app/server")

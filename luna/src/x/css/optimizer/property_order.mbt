@@ -3,6 +3,7 @@
 
 ///|
 /// Property category enum for grouping related properties
+#derive(Eq, Compare, Debug)
 pub enum PropertyCategory {
   // Box model (outer to inner)
   Position // position, top, right, bottom, left, z-index
@@ -27,7 +28,7 @@ pub enum PropertyCategory {
   // Other
   Cursor // cursor, pointer-events
   Other // everything else
-} derive(Eq, Compare, Debug)
+}
 
 ///|
 pub extend PropertyCategory with @debug.Debug::{to_repr}

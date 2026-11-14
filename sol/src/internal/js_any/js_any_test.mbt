@@ -8,9 +8,10 @@ test "json_obj creates object from pairs" {
 }
 
 ///|
+#derive(ToJson, FromJson)
 priv struct StatusPayload {
   status : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 extend StatusPayload with ToJson::{to_json}

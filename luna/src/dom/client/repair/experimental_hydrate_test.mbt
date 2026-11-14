@@ -7,9 +7,10 @@ using @test {assert_eq}
 /// Experimental Hydration Tests - jsdom based testing
 
 // Test enum for action
+#derive(Debug)
 enum TestAction {
   TestAction
-} derive(Debug)
+}
 
 ///|
 impl Show for TestAction with fn output(_self, logger) {

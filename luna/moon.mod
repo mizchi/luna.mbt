@@ -16,7 +16,7 @@ import {
   "mizchi/x@0.6.1",
   // Override x's lower bound with the release using moon.mod.
   "moonbitlang/regexp@0.3.6",
-  "moonbitlang/lexer@0.4.3",
+  "moonbitlang/lexer@0.4.5",
 }
 
 readme = "README.md"

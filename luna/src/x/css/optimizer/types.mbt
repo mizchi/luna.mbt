@@ -3,10 +3,11 @@
 
 ///|
 /// A single CSS declaration (property: value)
+#derive(Eq, Compare, Hash, Debug)
 pub struct Declaration {
   property : String
   value : String
-} derive(Eq, Compare, Hash, Debug)
+}
 
 ///|
 pub extend Declaration with @debug.Debug::{to_repr}
@@ -22,51 +23,56 @@ pub extend Declaration with Eq::{not_equal, equal}
 
 ///|
 /// A CSS rule: selector -> declarations
+#derive(Debug)
 pub struct Rule {
   selector : String
   declarations : Array[Declaration]
-} derive(Debug)
+}
 
 ///|
 pub extend Rule with @debug.Debug::{to_repr}
 
 ///|
 /// A class usage instance (which classes appear together on an element)
+#derive(Debug)
 pub struct ClassUsage {
   /// Classes used on this element
   classes : Array[String]
   /// Source location for debugging
   source : String
-} derive(Debug)
+}
 
 ///|
 pub extend ClassUsage with @debug.Debug::{to_repr}
 
 ///|
 /// Co-occurrence pair with frequency
+#derive(Debug)
 pub struct CoOccurrence {
   class_a : String
   class_b : String
   frequency : Int
-} derive(Debug)
+}
 
 ///|
 pub extend CoOccurrence with @debug.Debug::{to_repr}
 
 ///|
 /// A frequent pattern: set of classes that often appear together
+#derive(Debug)
 pub struct FrequentPattern {
   classes : Array[String]
   frequency : Int
   /// Combined CSS size if merged
   potential_savings : Int
-} derive(Debug)
+}
 
 ///|
 pub extend FrequentPattern with @debug.Debug::{to_repr}
 
 ///|
 /// Merge suggestion
+#derive(Debug)
 pub struct MergeSuggestion {
   /// Original classes to merge
   original_classes : Array[String]
@@ -78,13 +84,14 @@ pub struct MergeSuggestion {
   usage_count : Int
   /// Bytes saved by merging
   bytes_saved : Int
-} derive(Debug)
+}
 
 ///|
 pub extend MergeSuggestion with @debug.Debug::{to_repr}
 
 ///|
 /// Analysis result
+#derive(Debug)
 pub struct AnalysisResult {
   /// All class usages found
   usages : Array[ClassUsage]
@@ -94,7 +101,7 @@ pub struct AnalysisResult {
   patterns : Array[FrequentPattern]
   /// Merge suggestions
   suggestions : Array[MergeSuggestion]
-} derive(Debug)
+}
 
 ///|
 pub extend AnalysisResult with @debug.Debug::{to_repr}

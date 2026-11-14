@@ -26,12 +26,13 @@ pub(open) trait FileStat {
 ///|
 /// Platform-independent file statistics
 /// Used as the return type for stat_sync across all platforms
+#derive(Eq, Debug)
 pub(all) struct StatInfo {
   is_file : Bool
   is_directory : Bool
   mtime_ms : Float
   size : Int
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend StatInfo with @debug.Debug::{to_repr}

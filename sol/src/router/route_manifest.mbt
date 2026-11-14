@@ -1,6 +1,7 @@
 ///| Route ownership manifest for Sol/host Worker composition.
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum RouteManifestMethod {
   Any
   Get
@@ -8,7 +9,7 @@ pub(all) enum RouteManifestMethod {
   Put
   Delete
   Patch
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RouteManifestMethod with @debug.Debug::{to_repr}
@@ -17,13 +18,14 @@ pub extend RouteManifestMethod with @debug.Debug::{to_repr}
 pub extend RouteManifestMethod with Eq::{not_equal, equal}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum RouteManifestOwner {
   SolPage
   SolApi
   Raw
   StaticAsset
   Reserved
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RouteManifestOwner with @debug.Debug::{to_repr}
@@ -32,11 +34,12 @@ pub extend RouteManifestOwner with @debug.Debug::{to_repr}
 pub extend RouteManifestOwner with Eq::{not_equal, equal}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum RouteManifestMatchKind {
   Exact
   Pattern
   Prefix
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RouteManifestMatchKind with @debug.Debug::{to_repr}
