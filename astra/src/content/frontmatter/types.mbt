@@ -83,12 +83,13 @@ pub fn Frontmatter::default() -> Frontmatter {
 
 ///|
 /// Outline (table of contents) configuration
+#derive(ToJson, FromJson)
 pub(all) struct OutlineConfig {
   /// Minimum heading level (default: 2)
   level_min : Int
   /// Maximum heading level (default: 3)
   level_max : Int
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend OutlineConfig with @json.FromJson::{from_json}
@@ -98,12 +99,13 @@ pub extend OutlineConfig with ToJson::{to_json}
 
 ///|
 /// Navigation link for prev/next
+#derive(ToJson, FromJson)
 pub(all) struct NavLink {
   /// Display text
   text : String
   /// Link URL
   link : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend NavLink with @json.FromJson::{from_json}

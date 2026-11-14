@@ -58,7 +58,7 @@ fn[FS : @env.FileSystem] read_mod_info_from_path_with_fs(
 
 ///|
 fn read_mod_info_from_json(content : String) -> (String, String) {
-  let json = @json.parse(content.view()) catch { _ => return ("", "") }
+  let json = @json.parse(content.clamped_view()) catch { _ => return ("", "") }
   match json {
     Object(obj) => {
       let name = match obj.get("name") {

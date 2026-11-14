@@ -18,10 +18,11 @@ pub struct Style {
 ///|
 /// Attribute values shared by SSR and client rendering. Pass these through the
 /// renderer's attribute API; they are not pre-escaped HTML.
+#derive(Eq, Debug)
 pub(all) struct StyleAttrs {
   class_name : String
   style : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend StyleAttrs with @debug.Debug::{to_repr}

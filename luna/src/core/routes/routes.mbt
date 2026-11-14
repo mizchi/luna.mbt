@@ -62,6 +62,7 @@ pub(all) struct CatchAllInfo {
 
 ///|
 /// Route kind
+#derive(Eq, Debug)
 pub enum RoutesKind {
   /// Server component page
   Page
@@ -69,7 +70,7 @@ pub enum RoutesKind {
   GetApi
   /// POST API
   PostApi
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RoutesKind with @debug.Debug::{to_repr}

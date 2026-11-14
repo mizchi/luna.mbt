@@ -28,7 +28,7 @@ pub fn ActionContext::from_ctx(
 ///|
 /// Decode an action request body as typed JSON.
 pub fn[T : FromJson] decode_action_body(body : String) -> T? {
-  let json : Json = @json.parse(body.view()) catch { _ => return None }
+  let json : Json = @json.parse(body.clamped_view()) catch { _ => return None }
   let value : T = @json.from_json(json) catch { _ => return None }
   Some(value)
 }

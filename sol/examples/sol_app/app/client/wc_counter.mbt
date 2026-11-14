@@ -18,9 +18,10 @@ pub let wc_counter_css : String =
 
 ///|
 /// Props for WC Counter
+#derive(ToJson, FromJson)
 pub(all) struct WcCounterProps {
   initial_count : Int
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend WcCounterProps with @json.FromJson::{from_json}

@@ -167,7 +167,7 @@ fn runtime_label(runtime : ServerRuntime) -> String {
 ///|
 fn moon_mod_has_dep(content : String, dep : String) -> Bool {
   try {
-    let parsed = @json.parse(content.view())
+    let parsed = @json.parse(content.clamped_view())
     guard parsed is Object(obj) else { return false }
     match obj.get("deps") {
       Some(Object(deps)) => deps.get(dep) is Some(_)
@@ -186,7 +186,7 @@ fn moon_mod_has_dep(content : String, dep : String) -> Bool {
 /// Extract the top-level `version` field from a moon.mod / moon.mod.json string.
 fn moon_mod_version(content : String) -> String? {
   try {
-    let parsed = @json.parse(content.view())
+    let parsed = @json.parse(content.clamped_view())
     guard parsed is Object(obj) else { return None }
     match obj.get("version") {
       Some(String(v)) => Some(v)

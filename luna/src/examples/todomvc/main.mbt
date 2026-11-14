@@ -34,18 +34,20 @@ using @resource {type Signal, signal, effect, memo}
 // =============================================================================
 
 ///|
+#derive(Eq, FromJson, ToJson)
 struct Todo {
   id : Int
   title : String
   completed : Bool
-} derive(Eq, FromJson, ToJson)
+}
 
 ///|
+#derive(Eq)
 priv enum Filter {
   All
   Active
   Completed
-} derive(Eq)
+}
 
 // =============================================================================
 // Hash Routing

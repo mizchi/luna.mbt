@@ -6,11 +6,12 @@ using @test {assert_eq}
 
 ///|
 /// Todo item structure
+#derive(Debug)
 struct Todo {
   id : Int
   text : String
   completed : Bool
-} derive(Debug)
+}
 
 ///|
 /// Create a Todo app component

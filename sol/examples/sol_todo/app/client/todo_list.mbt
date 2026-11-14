@@ -4,10 +4,11 @@
 
 ///|
 /// Props for the todo stats island
+#derive(ToJson, FromJson)
 pub(all) struct TodoListProps {
   total : Int
   completed : Int
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend TodoListProps with @json.FromJson::{from_json}

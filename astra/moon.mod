@@ -7,7 +7,7 @@ import {
   "mizchi/js_node@0.13.0",
   "mizchi/luna@0.25.2",
   "mizchi/mars@0.3.13",
-  "mizchi/markdown@0.8.3",
+  "mizchi/markdown@0.8.4",
   "mizchi/js@0.13.0",
   "mizchi/npm_typed@0.1.18",
   "mizchi/process_pool@0.1.4",
