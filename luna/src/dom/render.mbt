@@ -151,8 +151,9 @@ pub fn attr_dynamic_bool(getter : () -> Bool) -> AttrValue {
 ///|
 /// HTML boolean attributes whose presence alone means "on", so the string
 /// "false" would still turn them on. The renderer removes them on "false"
-/// and writes them as `""` on "true". `name` is matched lowercased, as HTML
-/// stores attribute names (`readOnly` is `readonly`). (`disabled` and `checked` are handled
+/// and writes them as `""` on "true". Only on HTML elements, where `name`
+/// is matched lowercased, as HTML stores attribute names (`readOnly` is
+/// `readonly`); SVG and other namespaces keep their attributes as written. (`disabled` and `checked` are handled
 /// separately and keep their existing behaviour.)
 fn is_html_boolean_attr(name : String) -> Bool {
   match name {
@@ -267,8 +268,9 @@ fn apply_static_attr(
     } else {
       elem.removeAttribute("disabled")
     }
-  } else if is_html_boolean_attr(name.to_lower()) {
-    let name = name.to_lower()
+  } else if is_html_element(elem) && is_html_boolean_attr(name.to_lower()) {
+    // `name` is passed as written: an HTML element lowercases it on set and
+    // remove alike, so the two stay paired (`remove_attr` uses it as is too)
     if value == "false" {
       elem.removeAttribute(name)
     } else if value == "true" {
@@ -280,6 +282,10 @@ fn apply_static_attr(
     elem.setAttribute(name, value)
   }
 }
+
+///|
+extern "js" fn is_html_element(elem : @js_dom.Element) -> Bool =
+  #|(el) => el.namespaceURI === "http://www.w3.org/1999/xhtml"
 
 ///|
 /// Apply an event handler

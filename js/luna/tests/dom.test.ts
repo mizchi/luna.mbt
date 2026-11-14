@@ -229,6 +229,25 @@ describe("DOM API", () => {
       expect(video.getAttribute("muted")).toBe("");
     });
 
+    test("HTML boolean rules do not apply to SVG attributes", () => {
+      const [on, setOn] = createSignal(true);
+      const node = createElementNs(
+        svgNs(),
+        "svg",
+        [
+          attr("readOnly", AttrValue.Static("false")),
+          attr("hidden", attrDynamicBool(on)),
+        ],
+        []
+      );
+      render(container, node);
+      const svg = container.querySelector("svg")!;
+      expect(svg.getAttribute("readOnly")).toBe("false");
+      expect(svg.hasAttribute("hidden")).toBe(true);
+      setOn(false);
+      expect(svg.hasAttribute("hidden")).toBe(false);
+    });
+
     test("aria-* \"false\" is kept as a value", () => {
       const node = createElement(
         "button",
