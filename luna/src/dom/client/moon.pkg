@@ -2,6 +2,7 @@ import {
   "mizchi/luna/core",
   "mizchi/luna",
   "mizchi/luna/js/resource",
+  "mizchi/signals",
   "mizchi/luna/core/render",
   "mizchi/luna/dom" @element,
   "mizchi/js_core" @js,

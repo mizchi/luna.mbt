@@ -245,6 +245,7 @@ fn render_vnode_to_dom_with_ids(
   node : @luna.Node[@js.Any, String],
   island_ids : IslandIdAllocator,
 ) -> @js_dom.Node {
+  let scope_owner = @resource.get_owner()
   let doc = @js_dom.document()
   match node {
     @core.Text(content) => doc.createTextNode(content).as_node()
@@ -314,7 +315,7 @@ fn render_vnode_to_dom_with_ids(
       let initial_show = @resource.untracked(fn() { cond() })
       if initial_show {
         let (rendered, dispose) = @resource.untracked(fn() {
-          render_vnode_to_dom_with_dispose_with_ids(child_fn(), island_ids)
+          render_scoped(scope_owner, child_fn, island_ids)
         })
         current_dispose.val = Some(dispose)
         // Collect actual nodes before inserting (Fragment children get moved)
@@ -342,8 +343,8 @@ fn render_vnode_to_dom_with_ids(
               // as dependencies of this Show's effect. This prevents infinite
               // loops when nested Show components access signals.
               let (rendered, dispose) = @resource.untracked(fn() {
-                render_vnode_to_dom_with_dispose_with_ids(
-                  child_fn(),
+                render_scoped(scope_owner,
+                  child_fn,
                   island_ids,
                 )
               })
@@ -391,7 +392,7 @@ fn render_vnode_to_dom_with_ids(
       let initial_items = @resource.untracked(fn() { render_fn() })
       for item in initial_items {
         let (rendered, dispose) = @resource.untracked(fn() {
-          render_vnode_to_dom_with_dispose_with_ids(item, island_ids)
+          render_scoped(scope_owner, fn() { item }, island_ids)
         })
         let nodes_to_track = collect_dom_nodes(rendered)
         if nodes_to_track.length() == 0 {
@@ -432,7 +433,7 @@ fn render_vnode_to_dom_with_ids(
             placeholder,
             new_items,
             fn(item, _idx) {
-              render_vnode_to_dom_with_dispose_with_ids(item, island_ids)
+              render_scoped(scope_owner, fn() { item }, island_ids)
             },
           )
         })
@@ -501,6 +502,56 @@ fn render_vnode_to_dom_with_dispose_with_ids(
   @resource.create_root_with_dispose(fn() {
     render_vnode_to_dom_with_ids(node, island_ids)
   })
+}
+
+///|
+/// Render what `make` builds in a root owned by `owner`, the owner current
+/// when the enclosing control-flow node was rendered. Content a `show` /
+/// `for` / `switch` / error boundary renders later runs inside an effect,
+/// where that owner is no longer current: a root created there had no
+/// parent, so its effects outlived the scope that rendered the node. `make`
+/// is called inside the root, so effects a component factory creates while
+/// building its node belong to the root too.
+fn render_scoped(
+  owner : @signals.Owner?,
+  make : () -> @luna.Node[@js.Any, String],
+  island_ids : IslandIdAllocator,
+) -> (@js_dom.Node, () -> Unit) {
+  @resource.with_parent_owner(owner, fn() {
+    @resource.create_root_with_dispose(fn() {
+      render_vnode_to_dom_with_ids(make(), island_ids)
+    })
+  })
+}
+
+///|
+/// `render_scoped` for an error boundary's factories, which can raise: the
+/// root is disposed and the error raised again for the boundary to catch.
+fn render_scoped_raising(
+  owner : @signals.Owner?,
+  make : () -> @luna.Node[@js.Any, String] raise,
+  island_ids : IslandIdAllocator,
+) -> (@js_dom.Node, () -> Unit) raise {
+  let failure : Ref[Error?] = Ref(None)
+  let (rendered, dispose) = @resource.with_parent_owner(owner, fn() {
+    @resource.create_root_with_dispose(fn() {
+      let node = make() catch {
+        err => {
+          failure.val = Some(err)
+          return None
+        }
+      }
+      Some(render_vnode_to_dom_with_ids(node, island_ids))
+    })
+  })
+  match (rendered, failure.val) {
+    (Some(node), _) => (node, dispose)
+    (None, Some(err)) => {
+      dispose()
+      raise err
+    }
+    (None, None) => abort("render_scoped_raising: no node and no error")
+  }
 }
 
 ///|
@@ -595,6 +646,7 @@ fn render_error_boundary_to_dom(
   boundary : @luna.VErrorBoundary[@js.Any, String],
   island_ids : IslandIdAllocator,
 ) -> @js_dom.Node {
+  let scope_owner = @resource.get_owner()
   let doc = @js_dom.document()
   let container = doc.createDocumentFragment()
   let container_node = container.as_node()
@@ -625,8 +677,8 @@ fn render_error_boundary_to_dom(
     content_nodes.clear()
     // Re-render children
     try {
-      let (child_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
-        (boundary.children)(),
+      let (child_node, dispose) = render_scoped_raising(scope_owner,
+        boundary.children,
         island_ids,
       )
       current_dispose.val = Some(dispose)
@@ -643,8 +695,8 @@ fn render_error_boundary_to_dom(
       err => {
         error_state.val = Some(err)
         try {
-          let (fallback_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
-            (boundary.fallback)(err, reset_ref.val),
+          let (fallback_node, dispose) = render_scoped_raising(scope_owner,
+            fn() raise { (boundary.fallback)(err, reset_ref.val) },
             island_ids,
           )
           current_dispose.val = Some(dispose)
@@ -667,8 +719,8 @@ fn render_error_boundary_to_dom(
 
   // Initial render
   try {
-    let (child_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
-      (boundary.children)(),
+    let (child_node, dispose) = render_scoped_raising(scope_owner,
+      boundary.children,
       island_ids,
     )
     current_dispose.val = Some(dispose)
@@ -681,8 +733,8 @@ fn render_error_boundary_to_dom(
     err => {
       error_state.val = Some(err)
       try {
-        let (fallback_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
-          (boundary.fallback)(err, reset_ref.val),
+        let (fallback_node, dispose) = render_scoped_raising(scope_owner,
+          fn() raise { (boundary.fallback)(err, reset_ref.val) },
           island_ids,
         )
         current_dispose.val = Some(dispose)
@@ -706,6 +758,7 @@ fn render_switch_to_dom(
   switch_node : @luna.VSwitch[@js.Any, String],
   island_ids : IslandIdAllocator,
 ) -> @js_dom.Node {
+  let scope_owner = @resource.get_owner()
   let doc = @js_dom.document()
   let placeholder = doc.createComment("switch")
   let current_nodes : Array[@js_dom.Node] = []
@@ -732,8 +785,8 @@ fn render_switch_to_dom(
   let fragment = doc.createDocumentFragment()
   let fragment_node = fragment.as_node()
   if initial_case >= 0 {
-    let (node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
-      (switch_node.cases[initial_case].render)(),
+    let (node, dispose) = render_scoped(scope_owner,
+      switch_node.cases[initial_case].render,
       island_ids,
     )
     current_dispose.val = Some(dispose)
@@ -745,8 +798,8 @@ fn render_switch_to_dom(
   } else if initial_case == -1 {
     match switch_node.fallback {
       Some(fallback_fn) => {
-        let (node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
-          fallback_fn(),
+        let (node, dispose) = render_scoped(scope_owner,
+          fallback_fn,
           island_ids,
         )
         current_dispose.val = Some(dispose)
@@ -797,8 +850,8 @@ fn render_switch_to_dom(
     // as dependencies of this Switch's effect
     if new_case >= 0 {
       let (node, dispose) = @resource.untracked(fn() {
-        render_vnode_to_dom_with_dispose_with_ids(
-          (switch_node.cases[new_case].render)(),
+        render_scoped(scope_owner,
+          switch_node.cases[new_case].render,
           island_ids,
         )
       })
@@ -814,7 +867,7 @@ fn render_switch_to_dom(
       match switch_node.fallback {
         Some(fallback_fn) => {
           let (node, dispose) = @resource.untracked(fn() {
-            render_vnode_to_dom_with_dispose_with_ids(fallback_fn(), island_ids)
+            render_scoped(scope_owner, fallback_fn, island_ids)
           })
           current_dispose.val = Some(dispose)
           if placeholder.parentNode() is Some(par) {
@@ -947,6 +1000,30 @@ pub fn static_block(
 /// Create a static div block (convenience wrapper for static_block)
 pub fn static_div(node : @luna.Node[Unit, String]) -> @element.DomNode {
   static_block("div", node)
+}
+
+///|
+/// Use a `@core.Node` inside the `@element` DSL.
+///
+/// `luna_components` and `@luna.h` build `@core.Node[E, String]`, while the
+/// browser DSL (`@element.div`, `for_each`, `show`, ...) composes
+/// `@element.DomNode`. This renders the node to the DOM now, with its
+/// reactive text and attributes and its event handlers live, so an APG
+/// component can sit among DSL elements:
+///
+/// ```moonbit nocheck
+/// let expanded = @resource.signal(0)
+/// @element.section([
+///   @element.h2([@element.text("FAQ")]),
+///   @client.vnode(@components.accordion_interactive("faq", items, expanded)),
+/// ])
+/// ```
+///
+/// Its effects belong to the owner that is current when `vnode` is called,
+/// so they are disposed with the surrounding `show` / `for_each` row /
+/// root, like DSL content.
+pub fn vnode(node : @luna.Node[@js.Any, String]) -> @element.DomNode {
+  @element.raw_node(render_vnode_to_dom(node))
 }
 
 ///|

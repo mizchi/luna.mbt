@@ -165,6 +165,14 @@ pub fn[T : ToDomNode] dom_children(items : Array[T]) -> Array[DomNode] {
 }
 
 ///|
+/// Create a Raw DomNode from a @js_dom.Node: an external node that takes
+/// part in reconciliation like Luna's own (see `static_node` for one that
+/// is skipped)
+pub fn raw_node(node : @js_dom.Node) -> DomNode {
+  Raw(node)
+}
+
+///|
 /// Create a Static DomNode from a @js_dom.Node
 /// Static nodes are skipped during reconciliation and hydration
 pub fn static_node(node : @js_dom.Node) -> DomNode {
