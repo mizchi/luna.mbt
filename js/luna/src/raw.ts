@@ -45,6 +45,7 @@ export {
   svgNs,
   mathmlNs,
   forEach,
+  forEachIndexed,
   // Utilities
   debounced,
   // Router

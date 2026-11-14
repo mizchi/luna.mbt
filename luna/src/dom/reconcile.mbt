@@ -87,6 +87,65 @@ pub fn[T] ItemEntry::new_with_nodes_and_dispose(
 }
 
 ///|
+/// Prepare a freshly rendered row for insertion.
+///
+/// A row that renders as several nodes, or as a lone comment (a `show` or
+/// `for_each` placeholder), can gain nodes after it is rendered: nested
+/// `for_each` / `show` insert before their own placeholder. A row's node
+/// list captured at render time would then miss them, and moving or
+/// removing the row would leave them behind. Such a row gets an anchor
+/// comment in front, and `entry_nodes` walks from the anchor to the row's
+/// last node each time instead.
+///
+/// Returns the node to insert and the row's nodes (empty when the row
+/// rendered nothing; callers add an "empty" placeholder then).
+fn prepare_row(dom : @js_dom.Node) -> (@js_dom.Node, Array[@js_dom.Node]) {
+  let nodes = collect_dom_nodes(dom)
+  if nodes.length() == 0 {
+    return (dom, nodes)
+  }
+  if nodes.length() == 1 && nodes[0].nodeType() != 8 {
+    return (dom, nodes)
+  }
+  let doc = @js_dom.document()
+  let anchor = doc.createComment("row")
+  if dom.nodeType() == 11 {
+    dom.insertBefore(anchor, dom.firstChild()) |> ignore
+    let with_anchor = [anchor]
+    for node in nodes {
+      with_anchor.push(node)
+    }
+    (dom, with_anchor)
+  } else {
+    let frag = doc.createDocumentFragment().as_node()
+    frag.appendChild(anchor) |> ignore
+    frag.appendChild(dom) |> ignore
+    (frag, [anchor, dom])
+  }
+}
+
+///|
+/// The nodes a row holds now: from its first node to its last, including
+/// any a nested `for_each` / `show` inserted after the row was rendered.
+/// Falls back to the nodes captured at render time when the range is broken
+/// (the last node was detached by someone else).
+fn[T] entry_nodes(entry : ItemEntry[T]) -> Array[@js_dom.Node] {
+  if ref_equal(entry.dom, entry.last) {
+    return [entry.dom]
+  }
+  let out : Array[@js_dom.Node] = []
+  let mut cur : @js_dom.Node? = Some(entry.dom)
+  while cur is Some(node) {
+    out.push(node)
+    if ref_equal(node, entry.last) {
+      return out
+    }
+    cur = node.nextSibling()
+  }
+  entry.nodes
+}
+
+///|
 /// Build a reference-keyed index map for old entries
 fn[T] build_entry_index_map(entries : Array[ItemEntry[T]]) -> @js.Any {
   let map = ref_map_new()
@@ -192,7 +251,7 @@ pub fn[T] reconcile_items(
     for entry in old_entries {
       // Dispose first to run cleanups, then remove DOM
       (entry.dispose)()
-      safe_remove_nodes(parent, entry.nodes)
+      safe_remove_nodes(parent, entry_nodes(entry))
     }
     return []
   }
@@ -202,12 +261,12 @@ pub fn[T] reconcile_items(
   if has_duplicate_refs(new_items) {
     for entry in old_entries {
       (entry.dispose)()
-      safe_remove_nodes(parent, entry.nodes)
+      safe_remove_nodes(parent, entry_nodes(entry))
     }
     let fresh_entries : Array[ItemEntry[T]] = []
     for i, item in new_items {
       let dom = render_item(item, i)
-      let nodes = collect_dom_nodes(dom)
+      let (dom, nodes) = prepare_row(dom)
       if nodes.length() == 0 {
         let placeholder = @js_dom.document().createComment("empty")
         parent.insertBefore(placeholder, Some(end_marker)) |> ignore
@@ -249,7 +308,7 @@ pub fn[T] reconcile_items(
       // The node is at correct position if its nextSibling equals cursor
       if entry.nodes.length() > 0 {
         if !next_sibling_is(entry.last, cursor.val) {
-          move_nodes_before(parent, entry.nodes, cursor.val)
+          move_nodes_before(parent, entry_nodes(entry), cursor.val)
         }
         cursor.val = entry.dom
       }
@@ -257,7 +316,7 @@ pub fn[T] reconcile_items(
     } else {
       // Create new DOM node
       let dom = render_item(item, i)
-      let nodes = collect_dom_nodes(dom)
+      let (dom, nodes) = prepare_row(dom)
       if nodes.length() == 0 {
         let placeholder = @js_dom.document().createComment("empty")
         parent.insertBefore(placeholder, Some(cursor.val)) |> ignore
@@ -284,7 +343,7 @@ pub fn[T] reconcile_items(
     if !used_indices[i] {
       // Dispose first to run cleanups, then remove DOM
       (entry.dispose)()
-      safe_remove_nodes(parent, entry.nodes)
+      safe_remove_nodes(parent, entry_nodes(entry))
     }
   }
   new_entries
@@ -365,7 +424,7 @@ pub fn[T] reconcile_items_with_dispose(
   if n == 0 {
     for entry in old_entries {
       (entry.dispose)()
-      safe_remove_nodes(parent, entry.nodes)
+      safe_remove_nodes(parent, entry_nodes(entry))
     }
     return []
   }
@@ -375,12 +434,12 @@ pub fn[T] reconcile_items_with_dispose(
   if has_duplicate_refs(new_items) {
     for entry in old_entries {
       (entry.dispose)()
-      safe_remove_nodes(parent, entry.nodes)
+      safe_remove_nodes(parent, entry_nodes(entry))
     }
     let fresh_entries : Array[ItemEntry[T]] = []
     for i, item in new_items {
       let (dom, dispose) = render_item(item, i)
-      let nodes = collect_dom_nodes(dom)
+      let (dom, nodes) = prepare_row(dom)
       if nodes.length() == 0 {
         let placeholder = @js_dom.document().createComment("empty")
         parent.insertBefore(placeholder, Some(end_marker)) |> ignore
@@ -415,7 +474,7 @@ pub fn[T] reconcile_items_with_dispose(
       used_indices[old_index] = true
       if entry.nodes.length() > 0 {
         if !next_sibling_is(entry.last, cursor.val) {
-          move_nodes_before(parent, entry.nodes, cursor.val)
+          move_nodes_before(parent, entry_nodes(entry), cursor.val)
         }
         cursor.val = entry.dom
       }
@@ -423,7 +482,7 @@ pub fn[T] reconcile_items_with_dispose(
     } else {
       // Create new DOM node with dispose
       let (dom, dispose) = render_item(item, i)
-      let nodes = collect_dom_nodes(dom)
+      let (dom, nodes) = prepare_row(dom)
       if nodes.length() == 0 {
         let placeholder = @js_dom.document().createComment("empty")
         parent.insertBefore(placeholder, Some(cursor.val)) |> ignore
@@ -446,7 +505,7 @@ pub fn[T] reconcile_items_with_dispose(
   for i, entry in old_entries {
     if !used_indices[i] {
       (entry.dispose)()
-      safe_remove_nodes(parent, entry.nodes)
+      safe_remove_nodes(parent, entry_nodes(entry))
     }
   }
   new_entries

@@ -199,6 +199,15 @@ pub fn for_each(
   @element.for_each(items, render_item)
 }
 
+///|
+/// List rendering whose index is a getter that follows the row
+pub fn for_each_indexed(
+  items : () -> Array[Any],
+  render_item : (Any, () -> Int) -> @element.DomNode,
+) -> @element.DomNode {
+  @element.for_each_indexed(items, render_item)
+}
+
 // ============================================================================
 // Re-export from @element for JS API
 // ============================================================================

@@ -50,6 +50,8 @@ pub fn events() -> @mizchi/luna/dom.HandlerMap
 
 pub fn for_each(() -> Array[Any], (Any, Int32) -> @mizchi/luna/dom.DomNode) -> @mizchi/luna/dom.DomNode
 
+pub fn for_each_indexed(() -> Array[Any], (Any, () -> Int32) -> @mizchi/luna/dom.DomNode) -> @mizchi/luna/dom.DomNode
+
 pub fn fragment(Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.DomNode
 
 pub fn get(@signals.Signal[Any]) -> Any
