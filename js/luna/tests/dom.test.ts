@@ -4,6 +4,8 @@ import {
   textDyn,
   createElement,
   createElementNs,
+  attrDynamicOpt,
+  attrDynamicBool,
   svgNs,
   mathmlNs,
   render,
@@ -12,7 +14,9 @@ import {
   jsx,
   jsxs,
   Fragment,
+  fragment,
   forEach,
+  forEachIndexed,
   For,
   Show,
   createSignal,
@@ -185,6 +189,100 @@ describe("DOM API", () => {
       expect(btn?.hasAttribute("disabled")).toBe(false);
     });
 
+    test("boolean attributes are removed on \"false\"", () => {
+      const [hidden, setHidden] = createSignal(true);
+      const node = createElement(
+        "div",
+        [
+          attr("hidden", AttrValue.Dynamic(() => String(hidden()))),
+          attr("open", AttrValue.Static("false")),
+        ],
+        []
+      );
+      render(container, node);
+      const div = container.querySelector("div")!;
+      expect(div.getAttribute("hidden")).toBe("");
+      expect(div.hasAttribute("open")).toBe(false);
+
+      setHidden(false);
+      expect(div.hasAttribute("hidden")).toBe(false);
+      expect(div.hidden).toBe(false);
+
+      setHidden(true);
+      expect(div.hidden).toBe(true);
+    });
+
+    test("aria-* \"false\" is kept as a value", () => {
+      const node = createElement(
+        "button",
+        [attr("aria-expanded", AttrValue.Static("false"))],
+        []
+      );
+      render(container, node);
+      expect(container.querySelector("button")?.getAttribute("aria-expanded")).toBe("false");
+    });
+
+    test("attrDynamicOpt removes the attribute while the getter returns undefined", () => {
+      const [current, setCurrent] = createSignal<string | undefined>(undefined);
+      const node = createElement(
+        "a",
+        [attr("aria-current", attrDynamicOpt(() => current()))],
+        []
+      );
+      render(container, node);
+      const a = container.querySelector("a")!;
+      expect(a.hasAttribute("aria-current")).toBe(false);
+
+      setCurrent("page");
+      expect(a.getAttribute("aria-current")).toBe("page");
+
+      setCurrent(undefined);
+      expect(a.hasAttribute("aria-current")).toBe(false);
+    });
+
+    test("attrDynamicOpt removes class and style too", () => {
+      const [on, setOn] = createSignal(true);
+      const node = createElement(
+        "div",
+        [
+          attr("class", attrDynamicOpt(() => (on() ? "active" : null))),
+          attr("style", attrDynamicOpt(() => (on() ? "color: red" : null))),
+        ],
+        []
+      );
+      render(container, node);
+      const div = container.querySelector("div")!;
+      expect(div.getAttribute("class")).toBe("active");
+      expect(div.getAttribute("style")).toBe("color: red");
+
+      setOn(false);
+      expect(div.hasAttribute("class")).toBe(false);
+      expect(div.hasAttribute("style")).toBe(false);
+    });
+
+    test("attrDynamicBool toggles any attribute by presence", () => {
+      const [busy, setBusy] = createSignal(false);
+      const node = createElement(
+        "div",
+        [
+          attr("data-busy", attrDynamicBool(busy)),
+          attr("inert", attrDynamicBool(busy)),
+        ],
+        []
+      );
+      render(container, node);
+      const div = container.querySelector("div")!;
+      expect(div.hasAttribute("data-busy")).toBe(false);
+      expect(div.hasAttribute("inert")).toBe(false);
+
+      setBusy(true);
+      expect(div.getAttribute("data-busy")).toBe("");
+      expect(div.getAttribute("inert")).toBe("");
+
+      setBusy(false);
+      expect(div.hasAttribute("data-busy")).toBe(false);
+    });
+
     test("createElement with dynamic style", () => {
       const [style, setStyle] = createSignal("color: blue");
       const node = createElement(
@@ -341,6 +439,87 @@ describe("DOM API", () => {
 
       setItems([]);
       expect(container.querySelectorAll("span").length).toBe(0);
+    });
+  });
+
+  describe("forEach rows with content added after render", () => {
+    // A row that renders as a fragment whose content grows later (a nested
+    // forEach, a show) must move and go away with everything it holds.
+    const objects = (...names: string[]) => names.map((name) => ({ name }));
+
+    test("a nested forEach row moves with the children it gained", () => {
+      const rows = objects("A", "B");
+      const [outer, setOuter] = createSignal(rows);
+      const inner = new Map(rows.map((r) => [r, createSignal<string[]>([])]));
+      const node = forEach(outer, (row: { name: string }) =>
+        fragment([
+          createElement("h3", [], [text(row.name)]),
+          forEach(inner.get(row)![0], (c: string) =>
+            createElement("p", [], [text(`${row.name}${c}`)])
+          ),
+        ])
+      );
+      mount(container, node);
+      inner.get(rows[0])![1](["1", "2"]);
+      expect(container.textContent).toBe("AA1A2B");
+
+      setOuter([rows[1], rows[0]]);
+      expect(container.textContent).toBe("BAA1A2");
+
+      setOuter([rows[1]]);
+      expect(container.textContent).toBe("B");
+      expect(container.querySelectorAll("p").length).toBe(0);
+    });
+
+    test("a show row moves with the content it revealed", () => {
+      const rows = objects("A", "B");
+      const [outer, setOuter] = createSignal(rows);
+      const [open, setOpen] = createSignal(false);
+      const node = forEach(outer, (row: { name: string }) =>
+        show(
+          () => row.name === "A" && open(),
+          () => createElement("p", [], [text("detail")])
+        )
+      );
+      mount(container, node);
+      setOpen(true);
+      expect(container.textContent).toBe("detail");
+
+      setOuter([rows[1]]);
+      expect(container.querySelectorAll("p").length).toBe(0);
+    });
+  });
+
+  describe("forEachIndexed / For index", () => {
+    test("the index getter follows the row when the list changes", () => {
+      const [a, b, c] = [{ n: "a" }, { n: "b" }, { n: "c" }];
+      const [items, setItems] = createSignal([a, b, c]);
+      const node = forEachIndexed(items, (item: { n: string }, index: () => number) =>
+        createElement("li", [], [textDyn(() => `${index()}${item.n}`)])
+      );
+      mount(container, node);
+      expect(container.textContent).toBe("0a1b2c");
+
+      setItems([b, c]);
+      expect(container.textContent).toBe("0b1c");
+
+      setItems([c, a, b]);
+      expect(container.textContent).toBe("0c1a2b");
+    });
+
+    test("For passes an index getter that stays current", () => {
+      const [a, b] = [{ n: "a" }, { n: "b" }];
+      const [items, setItems] = createSignal([a, b]);
+      const node = For({
+        each: items,
+        children: (item: { n: string }, index: () => number) =>
+          createElement("li", [], [textDyn(() => `${index()}${item.n}`)]),
+      });
+      mount(container, node);
+      expect(container.textContent).toBe("0a1b");
+
+      setItems([b]);
+      expect(container.textContent).toBe("0b");
     });
   });
 
@@ -702,6 +881,41 @@ describe("DOM API", () => {
 
       setFill("green");
       expect(rectEl?.getAttribute("fill")).toBe("green");
+    });
+
+    // `className` on an SVG element is a read-only SVGAnimatedString: assigning to it is ignored
+    // (and throws in strict mode), so a class must be written with setAttribute.
+    test("createElementNs applies a static class to SVG elements", () => {
+      const path = createElementNs(
+        svgNs(),
+        "path",
+        [attr("class", AttrValue.Static("icon-stroke")), attr("d", AttrValue.Static("M0 0 L10 10"))],
+        []
+      );
+      const svg = createElementNs(svgNs(), "svg", [attr("className", AttrValue.Static("icon"))], [path]);
+      render(container, svg);
+
+      expect(container.querySelector("svg")?.getAttribute("class")).toBe("icon");
+      expect(container.querySelector("path")?.getAttribute("class")).toBe("icon-stroke");
+      expect(container.querySelector("svg.icon path.icon-stroke")).not.toBeNull();
+    });
+
+    test("createElementNs updates a dynamic class on SVG elements", () => {
+      const [active, setActive] = createSignal(false);
+      const svg = createElementNs(
+        svgNs(),
+        "svg",
+        [attr("className", AttrValue.Dynamic(() => (active() ? "icon is-active" : "icon")))],
+        []
+      );
+      render(container, svg);
+
+      const svgEl = container.querySelector("svg");
+      expect(svgEl?.getAttribute("class")).toBe("icon");
+      setActive(true);
+      expect(svgEl?.getAttribute("class")).toBe("icon is-active");
+      setActive(false);
+      expect(svgEl?.getAttribute("class")).toBe("icon");
     });
 
     test("SVG can be nested inside regular HTML elements", () => {

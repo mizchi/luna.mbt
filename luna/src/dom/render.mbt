@@ -111,6 +111,108 @@ pub fn create_element(
 }
 
 ///|
+/// Value a dynamic attribute getter returns to mean "no attribute".
+/// Only `attr_dynamic_opt` / `attr_dynamic_bool` produce it; the renderer
+/// compares by value, so it is a string no markup would write.
+let absent_attr_value : String = "\u{0}luna:absent"
+
+///|
+/// A dynamic attribute that is removed while `getter` returns `None`.
+///
+/// `attr_dynamic` always calls `setAttribute`, so an attribute such as
+/// `aria-current`, `aria-activedescendant` or `href` could be changed but
+/// never taken away. Use this in `dyn_attrs` instead:
+///
+/// ```moonbit nocheck
+/// dyn_attrs=[("aria-current", attr_dynamic_opt(fn() {
+///   if selected.get() { Some("page") } else { None }
+/// }))]
+/// ```
+pub fn attr_dynamic_opt(getter : () -> String?) -> AttrValue {
+  Dynamic(fn() {
+    match getter() {
+      Some(v) => v
+      None => absent_attr_value
+    }
+  })
+}
+
+///|
+/// A dynamic boolean attribute: present (as `""`) while `getter` returns
+/// `true`, removed while it returns `false`. Works for any attribute name,
+/// including ones the renderer does not know to be boolean (`data-*`,
+/// custom elements' flags).
+pub fn attr_dynamic_bool(getter : () -> Bool) -> AttrValue {
+  Dynamic(fn() { if getter() { "" } else { absent_attr_value } })
+}
+
+///|
+/// HTML boolean attributes whose presence alone means "on", so the string
+/// "false" would still turn them on. The renderer removes them on "false"
+/// and writes them as `""` on "true". (`disabled` and `checked` are handled
+/// separately and keep their existing behaviour.)
+fn is_html_boolean_attr(name : String) -> Bool {
+  match name {
+    "hidden"
+    | "inert"
+    | "open"
+    | "required"
+    | "readonly"
+    | "multiple"
+    | "selected"
+    | "autofocus"
+    | "novalidate"
+    | "formnovalidate"
+    | "allowfullscreen"
+    | "async"
+    | "defer"
+    | "autoplay"
+    | "controls"
+    | "loop"
+    | "muted"
+    | "playsinline"
+    | "reversed"
+    | "default"
+    | "ismap"
+    | "itemscope"
+    | "nomodule" => true
+    _ => false
+  }
+}
+
+///|
+/// Apply one attribute value, static or the latest from a dynamic getter
+fn apply_attr_value(
+  elem : @js_dom.Element,
+  name : String,
+  value : String,
+) -> Unit {
+  if value == absent_attr_value {
+    remove_attr(elem, name)
+  } else if name == "style" {
+    apply_style_string(elem, value)
+  } else {
+    apply_static_attr(elem, name, value)
+  }
+}
+
+///|
+/// Take an attribute away, including the ones the renderer sets as properties
+fn remove_attr(elem : @js_dom.Element, name : String) -> Unit {
+  if name == "value" {
+    elem.as_any()._set("value", @js.any("")) |> ignore
+  } else if name == "checked" {
+    elem.as_any()._set("checked", @js.any(false)) |> ignore
+  } else if name == "__innerHTML" {
+    elem.as_any()._set("innerHTML", @js.any("")) |> ignore
+  } else if name == "className" {
+    elem.removeAttribute("class")
+  } else {
+    elem.removeAttribute(name)
+  }
+}
+
+///|
 /// Apply a single attribute to an element
 fn apply_attribute(
   elem : @js_dom.Element,
@@ -118,21 +220,11 @@ fn apply_attribute(
   value : AttrValue,
 ) -> Unit {
   match value {
-    Static(s) =>
-      if name == "style" {
-        apply_style_string(elem, s)
-      } else {
-        apply_static_attr(elem, name, s)
-      }
+    Static(s) => apply_attr_value(elem, name, s)
     Dynamic(getter) => {
       // RenderEffect for DOM updates (synchronous)
       let _ = @resource.render_effect(fn() {
-        let new_value = getter()
-        if name == "style" {
-          apply_style_string(elem, new_value)
-        } else {
-          apply_static_attr(elem, name, new_value)
-        }
+        apply_attr_value(elem, name, getter())
       })
     }
     Handler(handler) =>
@@ -153,7 +245,9 @@ fn apply_static_attr(
   value : String,
 ) -> Unit {
   if name == "className" || name == "class" {
-    elem.setClassName(value)
+    // `className` is a read-only SVGAnimatedString on SVG elements: assigning to it is ignored,
+    // or throws in strict mode. The `class` attribute works on HTML and SVG alike.
+    elem.setAttribute("class", value)
   } else if name == "__innerHTML" {
     // dangerouslySetInnerHTML - set innerHTML as property
     elem.as_any()._set("innerHTML", @js.any(value)) |> ignore
@@ -168,6 +262,14 @@ fn apply_static_attr(
       elem.setAttribute("disabled", "")
     } else {
       elem.removeAttribute("disabled")
+    }
+  } else if is_html_boolean_attr(name) {
+    if value == "false" {
+      elem.removeAttribute(name)
+    } else if value == "true" {
+      elem.setAttribute(name, "")
+    } else {
+      elem.setAttribute(name, value)
     }
   } else {
     elem.setAttribute(name, value)
@@ -314,6 +416,16 @@ extern "js" fn same_node(a : @js_dom.Node, b : @js_dom.Node) -> Bool =
 ///|
 /// Conditional rendering - shows content when condition is true
 /// Creates a child owner for proper cleanup when content is hidden
+///
+/// Hidden content is unmounted, not hidden: its nodes leave the document
+/// and its state is disposed. When the element must stay in the document
+/// while it is not shown (an `aria-controls` / `aria-labelledby` target, a
+/// form whose input should survive closing, a `<dialog>`), toggle `hidden`
+/// on it instead:
+///
+/// ```moonbit nocheck
+/// div(id="panel", dyn_attrs=[("hidden", attr_dynamic_bool(fn() { !open.get() }))], [...])
+/// ```
 pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("show")
@@ -558,9 +670,93 @@ pub fn loading(
 /// Items are tracked by reference equality (JavaScript ===).
 /// When items are reordered, their DOM nodes are moved rather than recreated.
 /// Each item gets its own owner scope for proper cleanup when removed.
+///
+/// The `Int` passed to `render_item` is the row's index when it was
+/// rendered and does not change when rows before it are added or removed.
+/// Use `for_each_indexed` when a row shows or uses its position.
 pub fn[T] for_each(
   items : () -> Array[T],
   render_item : (T, Int) -> DomNode,
+) -> DomNode {
+  for_each_impl(items, render_item, fn(_) {  })
+}
+
+///|
+/// List rendering like `for_each`, with the index as a getter that follows
+/// the row: after the list changes, `index()` is the row's current position.
+/// Reading it inside a reactive context (`text_node`, `attr_dynamic`, an
+/// effect) updates that part of the row in place.
+pub fn[T] for_each_indexed(
+  items : () -> Array[T],
+  render_item : (T, () -> Int) -> DomNode,
+) -> DomNode {
+  // Index signals of rows rendered since the last reconcile, and of the
+  // rows on screen, both keyed by item reference (a queue per reference,
+  // so duplicate references each keep one)
+  let pending = index_slots_new()
+  let live : Ref[@js.Any] = Ref(index_slots_new())
+  for_each_impl(
+    items,
+    fn(item, i) {
+      let index : @resource.Signal[Int] = @resource.signal(i)
+      index_slots_put(pending, @js.any(item), @js.any(index))
+      render_item(item, fn() { index.get() })
+    },
+    fn(current) {
+      let next = index_slots_new()
+      for i, item in current {
+        let key = @js.any(item)
+        let slot = index_slots_take(pending, key)
+        let slot = if @js.is_nullish(slot) {
+          index_slots_take(live.val, key)
+        } else {
+          slot
+        }
+        if !@js.is_nullish(slot) {
+          let index : @resource.Signal[Int] = slot.cast()
+          if index.peek() != i {
+            index.set(i)
+          }
+          index_slots_put(next, key, slot)
+        }
+      }
+      index_slots_clear(pending)
+      live.val = next
+    },
+  )
+}
+
+///|
+extern "js" fn index_slots_new() -> @js.Any =
+  #|() => new Map()
+
+///|
+extern "js" fn index_slots_put(
+  slots : @js.Any,
+  key : @js.Any,
+  value : @js.Any,
+) -> Unit =
+  #|(m, k, v) => { const a = m.get(k); if (a) a.push(v); else m.set(k, [v]); }
+
+///|
+extern "js" fn index_slots_take(slots : @js.Any, key : @js.Any) -> @js.Any =
+  #|(m, k) => {
+  #|  const a = m.get(k);
+  #|  if (!a) return undefined;
+  #|  const v = a.shift();
+  #|  if (a.length === 0) m.delete(k);
+  #|  return v;
+  #|}
+
+///|
+extern "js" fn index_slots_clear(slots : @js.Any) -> Unit =
+  #|(m) => { m.clear(); }
+
+///|
+fn[T] for_each_impl(
+  items : () -> Array[T],
+  render_item : (T, Int) -> DomNode,
+  on_reconciled : (Array[T]) -> Unit,
 ) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("for")
@@ -586,7 +782,7 @@ pub fn[T] for_each(
   let initial_items = @resource.untracked(fn() { items() })
   for i, item in initial_items {
     let (dom, dispose) = @resource.untracked(fn() { render_with_scope(item, i) })
-    let nodes = collect_dom_nodes(dom)
+    let (dom, nodes) = prepare_row(dom)
     if nodes.length() == 0 {
       let placeholder = doc.createComment("empty")
       fragment.as_node().appendChild(placeholder) |> ignore
@@ -601,6 +797,7 @@ pub fn[T] for_each(
     }
   }
   fragment.as_node().appendChild(placeholder) |> ignore
+  @resource.untracked(fn() { on_reconciled(initial_items) })
 
   // RenderEffect for DOM updates (synchronous)
   let _ = @resource.render_effect(fn() {
@@ -616,6 +813,7 @@ pub fn[T] for_each(
       reconcile_for_each_with_dispose(
         entries, placeholder, new_items, render_with_scope,
       )
+      on_reconciled(new_items)
     })
   })
   Raw(fragment.as_node())

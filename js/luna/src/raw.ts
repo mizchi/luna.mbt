@@ -40,9 +40,12 @@ export {
   Fragment,
   createElement,
   createElementNs,
+  attrDynamicOpt,
+  attrDynamicBool,
   svgNs,
   mathmlNs,
   forEach,
+  forEachIndexed,
   // Utilities
   debounced,
   // Router

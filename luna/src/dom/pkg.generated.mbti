@@ -10,11 +10,17 @@ import {
 // Values
 pub fn a(href? : String, target? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub fn abbr(title? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn article(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn aside(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn attr_dynamic(() -> String) -> AttrValue
+
+pub fn attr_dynamic_bool(() -> Bool) -> AttrValue
+
+pub fn attr_dynamic_opt(() -> String?) -> AttrValue
 
 pub fn attr_dynamic_style(() -> String) -> AttrValue
 
@@ -24,11 +30,19 @@ pub fn attr_static(String) -> AttrValue
 
 pub fn attr_style(String) -> AttrValue
 
+pub fn b(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn blockquote(cite? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn br(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
 
 pub fn button(disabled? : Bool, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, dyn_disabled? : () -> Bool, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn[T : ToNode] children(Array[T]) -> Array[Node]
+
+pub fn caption(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn cite(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn clear(DomElement) -> Unit
 
@@ -36,11 +50,21 @@ pub fn clear_jsdom(@mizchi/js_browser/dom.Element) -> Unit
 
 pub fn code(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub fn col(span? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn colgroup(span? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn create_element(String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn create_element_ns(String, String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn[T] debounced(@signals.Signal[T], Int) -> @signals.Signal[T]
+
+pub fn dd(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn details(open? : Bool, name? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn dialog(open? : Bool, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn div(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
@@ -48,13 +72,25 @@ pub fn[T : ToDomNode] dom_children(Array[T]) -> Array[DomNode]
 
 pub fn[T : ToDomNode] dom_node(T) -> DomNode
 
+pub fn dl(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn dt(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn em(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn events() -> HandlerMap
 
+pub fn fieldset(disabled? : Bool, name? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn figcaption(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn figure(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn footer_(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn[T] for_each(() -> Array[T], (T, Int) -> DomNode) -> DomNode
+
+pub fn[T] for_each_indexed(() -> Array[T], (T, () -> Int) -> DomNode) -> DomNode
 
 pub fn form(action? : String, http_method? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
@@ -76,6 +112,8 @@ pub fn header_(id? : String, class? : String, style? : String, dyn_class? : () -
 
 pub fn hr(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
 
+pub fn i(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn img(src? : String, alt? : String, width? : String, height? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
 
 pub fn[T] index_each(() -> Array[T], (() -> T, Int) -> DomNode) -> DomNode
@@ -88,7 +126,11 @@ pub fn jsx(String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn jsxs(String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub fn kbd(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn label(for_? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn legend(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn li(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
@@ -97,6 +139,8 @@ pub fn loading(when~ : () -> Bool, fallback~ : () -> DomNode, () -> DomNode) -> 
 pub fn main_(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub let mathml_ns : String
+
+pub fn mark(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn mount(DomElement, DomNode) -> Unit
 
@@ -142,11 +186,19 @@ pub fn section(id? : String, class? : String, style? : String, dyn_class? : () -
 
 pub fn show(() -> Bool, () -> DomNode) -> DomNode
 
+pub fn small(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn span(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn static_node(@mizchi/js_browser/dom.Node) -> DomNode
 
 pub fn strong(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn sub(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn summary(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn sup(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn svg(width? : String, height? : String, viewBox? : String, xmlns? : String, fill? : String, stroke? : String, role? : String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
@@ -204,6 +256,12 @@ pub fn svg_tspan(x? : String, y? : String, dx? : String, dy? : String, id? : Str
 
 pub fn svg_use(href? : String, x? : String, y? : String, width? : String, height? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
 
+pub fn table(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn tbody(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn td(colspan? : String, rowspan? : String, headers? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn text(String) -> DomNode
 
 pub fn text_dyn(() -> String) -> DomNode
@@ -217,6 +275,16 @@ pub fn[T : Show] text_of(@signals.Signal[T]) -> DomNode
 pub fn[T : Show] text_sig(@signals.Signal[T]) -> DomNode
 
 pub fn textarea(name? : String, placeholder? : String, disabled? : Bool, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn tfoot(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn th(scope? : String, colspan? : String, rowspan? : String, headers? : String, abbr? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn thead(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn time(datetime? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn tr(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn ul(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js_browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
