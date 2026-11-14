@@ -18,12 +18,13 @@ pub struct ParseResult {
 
 ///|
 /// Parse error
+#derive(Debug, Eq)
 pub struct ParseError {
   /// Line number (1-based)
   line : Int
   /// Error message
   message : String
-} derive(Debug, Eq)
+}
 
 ///|
 pub extend ParseError with Eq::{not_equal, equal}
@@ -136,6 +137,12 @@ pub fn parse_moonbit_with_options(
       continue
     }
 
+    // Attribute lines (`#derive(...)`) sit between a doc comment and its
+    // declaration: keep the pending doc and annotations for the declaration
+    if line.has_prefix("#") {
+      i = i + 1
+      continue
+    }
     // Reset pending state for other non-empty lines
     if line.length() > 0 && !line.has_prefix("//") && !line.has_prefix("/*") {
       pending_doc = None

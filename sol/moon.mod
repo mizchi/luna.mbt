@@ -23,8 +23,8 @@ import {
   "mizchi/oci_wasm@0.5.1",
   "mizchi/mwac@0.2.2",
   "mizchi/x@0.6.1",
-  "moonbitlang/lexer@0.4.3",
-  "mizchi/wit@0.3.3",
+  "moonbitlang/lexer@0.4.5",
+  "mizchi/wit@0.4.1",
 }
 
 readme = "README.md"

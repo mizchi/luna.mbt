@@ -114,6 +114,7 @@ pub fn JsxComponentEmbed::new(tag : String) -> JsxComponentEmbed {
 
 ///|
 /// MDX attribute value types
+#derive(Eq, Debug)
 pub(all) enum MdxAttrValue {
   /// String literal: prop="value" or prop='value'
   StringLiteral(String)
@@ -121,7 +122,7 @@ pub(all) enum MdxAttrValue {
   Expression(String)
   /// Boolean: prop (true when present)
   Boolean
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MdxAttrValue with @debug.Debug::{to_repr}
@@ -132,12 +133,13 @@ pub extend MdxAttrValue with Eq::{not_equal, equal}
 ///|
 /// CLS (Cumulative Layout Shift) optimization hints
 /// Used to prevent layout shifts when components load
+#derive(Eq, Debug)
 pub(all) struct ClsHints {
   /// Expected width (CSS value, e.g., "200px", "100%")
   width : String?
   /// Expected height (CSS value, e.g., "100px", "auto")
   height : String?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ClsHints with @debug.Debug::{to_repr}

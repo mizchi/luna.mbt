@@ -392,7 +392,7 @@ fn write_ogp_config(config : @astra.OgpConfig, buf : StringBuilder) -> Unit {
 /// Parse SsgConfig from JSON string
 pub fn ssg_config_from_json(json_str : String) -> @astra.SsgConfig? {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Object(obj) else { return None }
     parse_ssg_config_obj(obj)
   } catch {
@@ -1077,7 +1077,7 @@ fn write_frontmatter(fm : @astra.Frontmatter, buf : StringBuilder) -> Unit {
 /// Parse Array[PageMeta] from JSON string
 pub fn pages_from_json(json_str : String) -> Array[@astra.PageMeta] {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Array(arr) else { return [] }
     let result : Array[@astra.PageMeta] = []
     for item in arr {
@@ -1305,7 +1305,7 @@ pub fn sidebar_to_json(sidebar : Array[@astra.SidebarGroup]) -> String {
 /// Parse Array[SidebarGroup] from JSON string
 pub fn sidebar_from_json(json_str : String) -> Array[@astra.SidebarGroup] {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Array(arr) else { return [] }
     parse_sidebar_groups(arr)
   } catch {

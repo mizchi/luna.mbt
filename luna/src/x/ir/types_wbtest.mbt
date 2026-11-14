@@ -504,3 +504,17 @@ test "parse_typescript_to_moonbit - cross-language codegen" {
   assert_true(moonbit_code.contains("checked : Bool"))
   assert_true(moonbit_code.contains("label : String?"))
 }
+
+///|
+test "parse_moonbit: @island struct keeps its annotation across #derive" {
+  let source =
+    #|/// @island
+    #|/// Counter props
+    #|#derive(ToJson, FromJson)
+    #|pub struct CounterProps {
+    #|  count: Int
+    #|}
+  let result = parse_moonbit(source)
+  assert_eq(result.errors.length(), 0)
+  assert_true(result.schema.definitions.contains("CounterProps"))
+}

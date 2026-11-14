@@ -83,13 +83,14 @@ fn[Res : FromJson] TypedActionResponse::from_action_response(
 
 ///|
 /// UI-facing action phase for common form/action states
+#derive(Eq, Debug)
 pub enum ActionPhase {
   Idle
   Pending
   Succeeded
   Failed
   Redirecting
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ActionPhase with @debug.Debug::{to_repr}

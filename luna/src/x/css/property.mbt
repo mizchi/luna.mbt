@@ -4,6 +4,7 @@
 ///|
 /// CSS property names. Values still use CSS string syntax.
 /// Standard and experimental unprefixed MDN names; strings remain an escape hatch.
+#derive(Eq, Debug)
 pub(all) enum Property {
   AccentColor
   AlignContent
@@ -535,7 +536,7 @@ pub(all) enum Property {
   Y
   ZIndex
   Zoom
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Property with @debug.Debug::{to_repr}

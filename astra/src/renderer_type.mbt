@@ -4,6 +4,7 @@
 
 ///|
 /// Renderer types supported by Sol SSG
+#derive(Eq, Debug)
 pub(all) enum RendererType {
   /// Markdown renderer - converts .md to HTML via markdown parser
   MarkdownRenderer
@@ -19,7 +20,7 @@ pub(all) enum RendererType {
   ClientOnlyRenderer
   /// MDX renderer - Markdown with JSX components
   MdxRenderer
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RendererType with @debug.Debug::{to_repr}

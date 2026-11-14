@@ -176,6 +176,7 @@ pub fn ApiRouteEntry::new(
 
 ///|
 /// Component type based on directory structure
+#derive(Debug)
 pub(all) enum ComponentType {
   /// client/ + server/ → SSR + Hydration
   SsrComponent
@@ -183,7 +184,7 @@ pub(all) enum ComponentType {
   ClientOnlyComponent
   /// server/ only → SSR only (no hydration)
   ServerOnlyComponent
-} derive(Debug)
+}
 
 ///|
 pub extend ComponentType with @debug.Debug::{to_repr}

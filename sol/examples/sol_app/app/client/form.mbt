@@ -3,10 +3,11 @@
 
 ///|
 /// Props passed from server
+#derive(ToJson, FromJson)
 pub(all) struct ContactFormProps {
   initial_name : String
   initial_email : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend ContactFormProps with @json.FromJson::{from_json}
@@ -15,16 +16,18 @@ pub extend ContactFormProps with @json.FromJson::{from_json}
 pub extend ContactFormProps with ToJson::{to_json}
 
 ///|
+#derive(ToJson)
 priv struct ContactSubmitRequest {
   name : String
   email : String
-} derive(ToJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct ContactSubmitResponse {
   success : Bool
   message : String
-} derive(FromJson)
+}
 
 ///|
 /// Contact form component with two-way data binding and Server Action submission
