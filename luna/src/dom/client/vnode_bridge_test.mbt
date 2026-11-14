@@ -145,3 +145,31 @@ test "effects of content a nested core show revealed later stop with the outer s
   label.set("b")
   assert_eq(runs.val, before)
 }
+
+///|
+test "effects a core show's factory creates directly stop when it hides" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let inner = @resource.signal(false)
+  let label = @resource.signal("a")
+  let runs = Ref(0)
+  let node = @element.div([
+    @client.vnode(
+      @luna.show(fn() { inner.get() }, fn() {
+        let _ = @resource.render_effect(fn() {
+          runs.val += 1
+          label.get() |> ignore
+        })
+        @luna.h("p", [], [@luna.text("inner")])
+      }),
+    ),
+  ])
+  @element.render_to(container, node)
+  inner.set(true)
+  assert_true(get_inner_html(container).contains("<p>inner</p>"))
+  inner.set(false)
+  let before = runs.val
+  label.set("b")
+  assert_eq(runs.val, before)
+}
