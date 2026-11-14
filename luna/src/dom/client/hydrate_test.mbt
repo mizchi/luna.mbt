@@ -1095,7 +1095,8 @@ test "render_vnode_to_dom For handles fragment items" {
   })
   let dom_node = @client.render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
-  assert_true(get_inner_html(container).contains("A-B-"))
+  // Each fragment row carries a row anchor, initial render and update alike.
+  assert_true(get_inner_html(container).contains("<!--row-->A-<!--row-->B-"))
   items.set(["C"])
   let inner = get_inner_html(container)
   assert_true(inner.contains("C-"))

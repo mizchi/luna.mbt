@@ -99,7 +99,7 @@ pub fn[T] ItemEntry::new_with_nodes_and_dispose(
 ///
 /// Returns the node to insert and the row's nodes (empty when the row
 /// rendered nothing; callers add an "empty" placeholder then).
-fn prepare_row(dom : @js_dom.Node) -> (@js_dom.Node, Array[@js_dom.Node]) {
+pub fn prepare_row(dom : @js_dom.Node) -> (@js_dom.Node, Array[@js_dom.Node]) {
   let nodes = collect_dom_nodes(dom)
   if nodes.length() == 0 {
     return (dom, nodes)
