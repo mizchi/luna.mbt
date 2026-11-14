@@ -217,6 +217,113 @@ const elements: ElementDef[] = [
   { tag: "em", description: "Create em element" },
   { tag: "code", description: "Create code element" },
   { tag: "pre", description: "Create pre element" },
+  { tag: "b", description: "Create b element" },
+  { tag: "i", description: "Create i element" },
+  { tag: "small", description: "Create small element" },
+  { tag: "sub", description: "Create sub element" },
+  { tag: "sup", description: "Create sup element" },
+  { tag: "kbd", description: "Create kbd element" },
+  { tag: "mark", description: "Create mark element" },
+  { tag: "cite", description: "Create cite element" },
+  {
+    tag: "abbr",
+    description: "Create abbr element",
+    attrs: [
+      { name: "title", type: "string" },
+    ],
+  },
+  {
+    tag: "time",
+    description: "Create time element",
+    attrs: [
+      { name: "datetime", type: "string" },
+    ],
+  },
+  {
+    tag: "blockquote",
+    description: "Create blockquote element",
+    attrs: [
+      { name: "cite", type: "string" },
+    ],
+  },
+  { tag: "figure", description: "Create figure element" },
+  { tag: "figcaption", description: "Create figcaption element" },
+
+  // Description lists
+  { tag: "dl", description: "Create dl element" },
+  { tag: "dt", description: "Create dt element" },
+  { tag: "dd", description: "Create dd element" },
+
+  // Tables
+  { tag: "table", description: "Create table element" },
+  { tag: "caption", description: "Create caption element" },
+  {
+    tag: "colgroup",
+    description: "Create colgroup element",
+    attrs: [
+      { name: "span", type: "string" },
+    ],
+  },
+  {
+    tag: "col",
+    description: "Create col element",
+    attrs: [
+      { name: "span", type: "string" },
+    ],
+    isVoid: true,
+    hasChildren: false,
+  },
+  { tag: "thead", description: "Create thead element" },
+  { tag: "tbody", description: "Create tbody element" },
+  { tag: "tfoot", description: "Create tfoot element" },
+  { tag: "tr", description: "Create tr element" },
+  {
+    tag: "th",
+    description: "Create th element",
+    attrs: [
+      { name: "scope", type: "string" },
+      { name: "colspan", type: "string" },
+      { name: "rowspan", type: "string" },
+      { name: "headers", type: "string" },
+      { name: "abbr", type: "string" },
+    ],
+  },
+  {
+    tag: "td",
+    description: "Create td element",
+    attrs: [
+      { name: "colspan", type: "string" },
+      { name: "rowspan", type: "string" },
+      { name: "headers", type: "string" },
+    ],
+  },
+
+  // Interactive
+  {
+    tag: "details",
+    description: "Create details element",
+    attrs: [
+      { name: "open", type: "bool" },
+      { name: "name", type: "string" },
+    ],
+  },
+  { tag: "summary", description: "Create summary element" },
+  {
+    tag: "dialog",
+    description: "Create dialog element",
+    attrs: [
+      { name: "open", type: "bool" },
+    ],
+  },
+  {
+    tag: "fieldset",
+    description: "Create fieldset element",
+    attrs: [
+      { name: "disabled", type: "bool" },
+      { name: "name", type: "string" },
+    ],
+  },
+  { tag: "legend", description: "Create legend element" },
 
   // =============================================================================
   // SVG Elements (namespace: svg)

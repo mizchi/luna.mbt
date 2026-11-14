@@ -40,6 +40,8 @@ export {
   Fragment,
   createElement,
   createElementNs,
+  attrDynamicOpt,
+  attrDynamicBool,
   svgNs,
   mathmlNs,
   forEach,

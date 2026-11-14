@@ -282,6 +282,25 @@ pub fn create_element(
 }
 
 ///|
+/// A dynamic attribute removed while `getter` returns `undefined` or `null`
+pub fn attr_dynamic_opt(getter : () -> @js.Any) -> @element.AttrValue {
+  @element.attr_dynamic_opt(fn() {
+    let v = getter()
+    if @js.is_nullish(v) {
+      None
+    } else {
+      Some(v.cast())
+    }
+  })
+}
+
+///|
+/// A dynamic boolean attribute: present as `""` while `getter` returns true
+pub fn attr_dynamic_bool(getter : () -> Bool) -> @element.AttrValue {
+  @element.attr_dynamic_bool(getter)
+}
+
+///|
 /// Create an element with namespace (for SVG, MathML, etc.)
 pub fn create_element_ns(
   ns : String,

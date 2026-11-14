@@ -704,6 +704,480 @@ pub fn pre(
   create_element("pre", props, children)
 }
 
+///|
+/// Create b element
+pub fn b(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("b", props, children)
+}
+
+///|
+/// Create i element
+pub fn i(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("i", props, children)
+}
+
+///|
+/// Create small element
+pub fn small(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("small", props, children)
+}
+
+///|
+/// Create sub element
+pub fn sub(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("sub", props, children)
+}
+
+///|
+/// Create sup element
+pub fn sup(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("sup", props, children)
+}
+
+///|
+/// Create kbd element
+pub fn kbd(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("kbd", props, children)
+}
+
+///|
+/// Create mark element
+pub fn mark(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("mark", props, children)
+}
+
+///|
+/// Create cite element
+pub fn cite(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("cite", props, children)
+}
+
+///|
+/// Create abbr element
+pub fn abbr(
+  title? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if title is Some(v) {
+    props.push(("title", static_attr(v)))
+  }
+  create_element("abbr", props, children)
+}
+
+///|
+/// Create time element
+pub fn time(
+  datetime? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if datetime is Some(v) {
+    props.push(("datetime", static_attr(v)))
+  }
+  create_element("time", props, children)
+}
+
+///|
+/// Create blockquote element
+pub fn blockquote(
+  cite? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if cite is Some(v) {
+    props.push(("cite", static_attr(v)))
+  }
+  create_element("blockquote", props, children)
+}
+
+///|
+/// Create figure element
+pub fn figure(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("figure", props, children)
+}
+
+///|
+/// Create figcaption element
+pub fn figcaption(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("figcaption", props, children)
+}
+
+///|
+/// Create dl element
+pub fn dl(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("dl", props, children)
+}
+
+///|
+/// Create dt element
+pub fn dt(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("dt", props, children)
+}
+
+///|
+/// Create dd element
+pub fn dd(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("dd", props, children)
+}
+
+///|
+/// Create table element
+pub fn table(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("table", props, children)
+}
+
+///|
+/// Create caption element
+pub fn caption(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("caption", props, children)
+}
+
+///|
+/// Create colgroup element
+pub fn colgroup(
+  span? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if span is Some(v) {
+    props.push(("span", static_attr(v)))
+  }
+  create_element("colgroup", props, children)
+}
+
+///|
+/// Create col element
+pub fn col(
+  span? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if span is Some(v) {
+    props.push(("span", static_attr(v)))
+  }
+  create_element("col", props, [])
+}
+
+///|
+/// Create thead element
+pub fn thead(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("thead", props, children)
+}
+
+///|
+/// Create tbody element
+pub fn tbody(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("tbody", props, children)
+}
+
+///|
+/// Create tfoot element
+pub fn tfoot(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("tfoot", props, children)
+}
+
+///|
+/// Create tr element
+pub fn tr(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("tr", props, children)
+}
+
+///|
+/// Create th element
+pub fn th(
+  scope? : String,
+  colspan? : String,
+  rowspan? : String,
+  headers? : String,
+  abbr? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if scope is Some(v) {
+    props.push(("scope", static_attr(v)))
+  }
+  if colspan is Some(v) {
+    props.push(("colspan", static_attr(v)))
+  }
+  if rowspan is Some(v) {
+    props.push(("rowspan", static_attr(v)))
+  }
+  if headers is Some(v) {
+    props.push(("headers", static_attr(v)))
+  }
+  if abbr is Some(v) {
+    props.push(("abbr", static_attr(v)))
+  }
+  create_element("th", props, children)
+}
+
+///|
+/// Create td element
+pub fn td(
+  colspan? : String,
+  rowspan? : String,
+  headers? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if colspan is Some(v) {
+    props.push(("colspan", static_attr(v)))
+  }
+  if rowspan is Some(v) {
+    props.push(("rowspan", static_attr(v)))
+  }
+  if headers is Some(v) {
+    props.push(("headers", static_attr(v)))
+  }
+  create_element("td", props, children)
+}
+
+///|
+/// Create details element
+pub fn details(
+  open? : Bool,
+  name? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if open is Some(true) {
+    props.push(("open", static_attr("")))
+  }
+  if name is Some(v) {
+    props.push(("name", static_attr(v)))
+  }
+  create_element("details", props, children)
+}
+
+///|
+/// Create summary element
+pub fn summary(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("summary", props, children)
+}
+
+///|
+/// Create dialog element
+pub fn dialog(
+  open? : Bool,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if open is Some(true) {
+    props.push(("open", static_attr("")))
+  }
+  create_element("dialog", props, children)
+}
+
+///|
+/// Create fieldset element
+pub fn fieldset(
+  disabled? : Bool,
+  name? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  if disabled is Some(true) {
+    props.push(("disabled", static_attr("")))
+  }
+  if name is Some(v) {
+    props.push(("name", static_attr(v)))
+  }
+  create_element("fieldset", props, children)
+}
+
+///|
+/// Create legend element
+pub fn legend(
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props = build_attrs(id, class, style, attrs)
+  create_element("legend", props, children)
+}
+
 // =============================================================================
 // Text and Fragment helpers
 // =============================================================================
