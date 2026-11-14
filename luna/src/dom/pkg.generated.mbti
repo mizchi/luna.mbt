@@ -16,6 +16,10 @@ pub fn aside(id? : String, class? : String, style? : String, dyn_class? : () -> 
 
 pub fn attr_dynamic(() -> String) -> AttrValue
 
+pub fn attr_dynamic_bool(() -> Bool) -> AttrValue
+
+pub fn attr_dynamic_opt(() -> String?) -> AttrValue
+
 pub fn attr_dynamic_style(() -> String) -> AttrValue
 
 pub fn attr_handler((@js_core.Any) -> Unit) -> AttrValue
