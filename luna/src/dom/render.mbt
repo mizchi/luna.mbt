@@ -514,9 +514,93 @@ pub fn loading(
 /// Items are tracked by reference equality (JavaScript ===).
 /// When items are reordered, their DOM nodes are moved rather than recreated.
 /// Each item gets its own owner scope for proper cleanup when removed.
+///
+/// The `Int` passed to `render_item` is the row's index when it was
+/// rendered and does not change when rows before it are added or removed.
+/// Use `for_each_indexed` when a row shows or uses its position.
 pub fn[T] for_each(
   items : () -> Array[T],
   render_item : (T, Int) -> DomNode,
+) -> DomNode {
+  for_each_impl(items, render_item, fn(_) {  })
+}
+
+///|
+/// List rendering like `for_each`, with the index as a getter that follows
+/// the row: after the list changes, `index()` is the row's current position.
+/// Reading it inside a reactive context (`text_node`, `attr_dynamic`, an
+/// effect) updates that part of the row in place.
+pub fn[T] for_each_indexed(
+  items : () -> Array[T],
+  render_item : (T, () -> Int) -> DomNode,
+) -> DomNode {
+  // Index signals of rows rendered since the last reconcile, and of the
+  // rows on screen, both keyed by item reference (a queue per reference,
+  // so duplicate references each keep one)
+  let pending = index_slots_new()
+  let live : Ref[@js.Any] = Ref(index_slots_new())
+  for_each_impl(
+    items,
+    fn(item, i) {
+      let index : @resource.Signal[Int] = @resource.signal(i)
+      index_slots_put(pending, @js.any(item), @js.any(index))
+      render_item(item, fn() { index.get() })
+    },
+    fn(current) {
+      let next = index_slots_new()
+      for i, item in current {
+        let key = @js.any(item)
+        let slot = index_slots_take(pending, key)
+        let slot = if @js.is_nullish(slot) {
+          index_slots_take(live.val, key)
+        } else {
+          slot
+        }
+        if !@js.is_nullish(slot) {
+          let index : @resource.Signal[Int] = slot.cast()
+          if index.peek() != i {
+            index.set(i)
+          }
+          index_slots_put(next, key, slot)
+        }
+      }
+      index_slots_clear(pending)
+      live.val = next
+    },
+  )
+}
+
+///|
+extern "js" fn index_slots_new() -> @js.Any =
+  #|() => new Map()
+
+///|
+extern "js" fn index_slots_put(
+  slots : @js.Any,
+  key : @js.Any,
+  value : @js.Any,
+) -> Unit =
+  #|(m, k, v) => { const a = m.get(k); if (a) a.push(v); else m.set(k, [v]); }
+
+///|
+extern "js" fn index_slots_take(slots : @js.Any, key : @js.Any) -> @js.Any =
+  #|(m, k) => {
+  #|  const a = m.get(k);
+  #|  if (!a) return undefined;
+  #|  const v = a.shift();
+  #|  if (a.length === 0) m.delete(k);
+  #|  return v;
+  #|}
+
+///|
+extern "js" fn index_slots_clear(slots : @js.Any) -> Unit =
+  #|(m) => { m.clear(); }
+
+///|
+fn[T] for_each_impl(
+  items : () -> Array[T],
+  render_item : (T, Int) -> DomNode,
+  on_reconciled : (Array[T]) -> Unit,
 ) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("for")
@@ -542,7 +626,7 @@ pub fn[T] for_each(
   let initial_items = @resource.untracked(fn() { items() })
   for i, item in initial_items {
     let (dom, dispose) = @resource.untracked(fn() { render_with_scope(item, i) })
-    let nodes = collect_dom_nodes(dom)
+    let (dom, nodes) = prepare_row(dom)
     if nodes.length() == 0 {
       let placeholder = doc.createComment("empty")
       fragment.as_node().appendChild(placeholder) |> ignore
@@ -557,6 +641,7 @@ pub fn[T] for_each(
     }
   }
   fragment.as_node().appendChild(placeholder) |> ignore
+  @resource.untracked(fn() { on_reconciled(initial_items) })
 
   // RenderEffect for DOM updates (synchronous)
   let _ = @resource.render_effect(fn() {
@@ -572,6 +657,7 @@ pub fn[T] for_each(
       reconcile_for_each_with_dispose(
         entries, placeholder, new_items, render_with_scope,
       )
+      on_reconciled(new_items)
     })
   })
   Raw(fragment.as_node())

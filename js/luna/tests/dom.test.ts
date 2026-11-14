@@ -12,7 +12,9 @@ import {
   jsx,
   jsxs,
   Fragment,
+  fragment,
   forEach,
+  forEachIndexed,
   For,
   Show,
   createSignal,
@@ -341,6 +343,87 @@ describe("DOM API", () => {
 
       setItems([]);
       expect(container.querySelectorAll("span").length).toBe(0);
+    });
+  });
+
+  describe("forEach rows with content added after render", () => {
+    // A row that renders as a fragment whose content grows later (a nested
+    // forEach, a show) must move and go away with everything it holds.
+    const objects = (...names: string[]) => names.map((name) => ({ name }));
+
+    test("a nested forEach row moves with the children it gained", () => {
+      const rows = objects("A", "B");
+      const [outer, setOuter] = createSignal(rows);
+      const inner = new Map(rows.map((r) => [r, createSignal<string[]>([])]));
+      const node = forEach(outer, (row: { name: string }) =>
+        fragment([
+          createElement("h3", [], [text(row.name)]),
+          forEach(inner.get(row)![0], (c: string) =>
+            createElement("p", [], [text(`${row.name}${c}`)])
+          ),
+        ])
+      );
+      mount(container, node);
+      inner.get(rows[0])![1](["1", "2"]);
+      expect(container.textContent).toBe("AA1A2B");
+
+      setOuter([rows[1], rows[0]]);
+      expect(container.textContent).toBe("BAA1A2");
+
+      setOuter([rows[1]]);
+      expect(container.textContent).toBe("B");
+      expect(container.querySelectorAll("p").length).toBe(0);
+    });
+
+    test("a show row moves with the content it revealed", () => {
+      const rows = objects("A", "B");
+      const [outer, setOuter] = createSignal(rows);
+      const [open, setOpen] = createSignal(false);
+      const node = forEach(outer, (row: { name: string }) =>
+        show(
+          () => row.name === "A" && open(),
+          () => createElement("p", [], [text("detail")])
+        )
+      );
+      mount(container, node);
+      setOpen(true);
+      expect(container.textContent).toBe("detail");
+
+      setOuter([rows[1]]);
+      expect(container.querySelectorAll("p").length).toBe(0);
+    });
+  });
+
+  describe("forEachIndexed / For index", () => {
+    test("the index getter follows the row when the list changes", () => {
+      const [a, b, c] = [{ n: "a" }, { n: "b" }, { n: "c" }];
+      const [items, setItems] = createSignal([a, b, c]);
+      const node = forEachIndexed(items, (item: { n: string }, index: () => number) =>
+        createElement("li", [], [textDyn(() => `${index()}${item.n}`)])
+      );
+      mount(container, node);
+      expect(container.textContent).toBe("0a1b2c");
+
+      setItems([b, c]);
+      expect(container.textContent).toBe("0b1c");
+
+      setItems([c, a, b]);
+      expect(container.textContent).toBe("0c1a2b");
+    });
+
+    test("For passes an index getter that stays current", () => {
+      const [a, b] = [{ n: "a" }, { n: "b" }];
+      const [items, setItems] = createSignal([a, b]);
+      const node = For({
+        each: items,
+        children: (item: { n: string }, index: () => number) =>
+          createElement("li", [], [textDyn(() => `${index()}${item.n}`)]),
+      });
+      mount(container, node);
+      expect(container.textContent).toBe("0a1b");
+
+      setItems([b]);
+      expect(container.textContent).toBe("0b");
     });
   });
 
