@@ -696,7 +696,7 @@ fn render_error_boundary_to_dom(
         error_state.val = Some(err)
         try {
           let (fallback_node, dispose) = render_scoped_raising(scope_owner,
-            fn() { (boundary.fallback)(err, reset_ref.val) },
+            fn() raise { (boundary.fallback)(err, reset_ref.val) },
             island_ids,
           )
           current_dispose.val = Some(dispose)
@@ -734,7 +734,7 @@ fn render_error_boundary_to_dom(
       error_state.val = Some(err)
       try {
         let (fallback_node, dispose) = render_scoped_raising(scope_owner,
-          fn() { (boundary.fallback)(err, reset_ref.val) },
+          fn() raise { (boundary.fallback)(err, reset_ref.val) },
           island_ids,
         )
         current_dispose.val = Some(dispose)

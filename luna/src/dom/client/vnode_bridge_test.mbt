@@ -173,3 +173,26 @@ test "effects a core show's factory creates directly stop when it hides" {
   label.set("b")
   assert_eq(runs.val, before)
 }
+
+///|
+test "a for_each row of vnode(core show) leaves nothing behind when removed" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let rows = @resource.signal([1, 2])
+  let open = @resource.signal(false)
+  let node = @element.for_each(fn() { rows.get() }, fn(row, _) {
+    @client.vnode(
+      @luna.show(fn() { open.get() }, fn() {
+        @luna.h("p", [], [@luna.text("row \{row}")])
+      }),
+    )
+  })
+  @element.render_to(container, node)
+  open.set(true)
+  assert_true(get_inner_html(container).contains("<p>row 1</p>"))
+  rows.set([2])
+  let html = get_inner_html(container)
+  assert_false(html.contains("row 1"))
+  assert_true(html.contains("<p>row 2</p>"))
+}
