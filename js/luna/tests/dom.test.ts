@@ -212,6 +212,42 @@ describe("DOM API", () => {
       expect(div.hidden).toBe(true);
     });
 
+    test("boolean attributes match case-insensitively; disableremoteplayback is one", () => {
+      const node = createElement(
+        "video",
+        [
+          attr("readOnly", AttrValue.Static("false")),
+          attr("disableRemotePlayback", AttrValue.Static("false")),
+          attr("Muted", AttrValue.Static("true")),
+        ],
+        []
+      );
+      render(container, node);
+      const video = container.querySelector("video")!;
+      expect(video.hasAttribute("readonly")).toBe(false);
+      expect(video.hasAttribute("disableremoteplayback")).toBe(false);
+      expect(video.getAttribute("muted")).toBe("");
+    });
+
+    test("HTML boolean rules do not apply to SVG attributes", () => {
+      const [on, setOn] = createSignal(true);
+      const node = createElementNs(
+        svgNs(),
+        "svg",
+        [
+          attr("readOnly", AttrValue.Static("false")),
+          attr("hidden", attrDynamicBool(on)),
+        ],
+        []
+      );
+      render(container, node);
+      const svg = container.querySelector("svg")!;
+      expect(svg.getAttribute("readOnly")).toBe("false");
+      expect(svg.hasAttribute("hidden")).toBe(true);
+      setOn(false);
+      expect(svg.hasAttribute("hidden")).toBe(false);
+    });
+
     test("aria-* \"false\" is kept as a value", () => {
       const node = createElement(
         "button",
