@@ -394,7 +394,10 @@ fn render_vnode_to_dom_with_ids(
         let (rendered, dispose) = @resource.untracked(fn() {
           render_scoped(scope_owner, fn() { item }, island_ids)
         })
-        let nodes_to_track = collect_dom_nodes(rendered)
+        // Same row preparation as reconcile: a row whose content can grow
+        // later (a core Show that starts hidden) gets an anchor first, so
+        // removing the row removes what was revealed since.
+        let (row, nodes_to_track) = @element.prepare_row(rendered)
         if nodes_to_track.length() == 0 {
           let empty = doc.createComment("empty")
           fragment_node.appendChild(empty) |> ignore
@@ -411,7 +414,7 @@ fn render_vnode_to_dom_with_ids(
               item, nodes_to_track, dispose,
             ),
           )
-          fragment_node.appendChild(rendered) |> ignore
+          fragment_node.appendChild(row) |> ignore
         }
       }
       // Append placeholder at end
