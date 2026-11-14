@@ -371,6 +371,16 @@ fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
 ///|
 /// Conditional rendering - shows content when condition is true
 /// Creates a child owner for proper cleanup when content is hidden
+///
+/// Hidden content is unmounted, not hidden: its nodes leave the document
+/// and its state is disposed. When the element must stay in the document
+/// while it is not shown (an `aria-controls` / `aria-labelledby` target, a
+/// form whose input should survive closing, a `<dialog>`), toggle `hidden`
+/// on it instead:
+///
+/// ```moonbit nocheck
+/// div(id="panel", dyn_attrs=[("hidden", attr_dynamic_bool(fn() { !open.get() }))], [...])
+/// ```
 pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("show")
