@@ -18,12 +18,13 @@ pub struct ParseResult {
 
 ///|
 /// Parse error
+#derive(Debug, Eq)
 pub struct ParseError {
   /// Line number (1-based)
   line : Int
   /// Error message
   message : String
-} derive(Debug, Eq)
+}
 
 ///|
 pub extend ParseError with Eq::{not_equal, equal}

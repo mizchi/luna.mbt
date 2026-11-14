@@ -4,11 +4,12 @@
 
 ///|
 /// JSON-serializable node representation
+#derive(Eq, Debug)
 pub enum JsonNode {
   Element(JsonElement)
   Text(String)
   Fragment(Array[JsonNode])
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend JsonNode with @debug.Debug::{to_repr}
@@ -18,11 +19,12 @@ pub extend JsonNode with Eq::{not_equal, equal}
 
 ///|
 /// JSON element structure
+#derive(Eq, Debug)
 pub struct JsonElement {
   tag : String
   attrs : Map[String, JsonAttrValue]
   children : Array[JsonNode]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend JsonElement with @debug.Debug::{to_repr}
@@ -32,11 +34,12 @@ pub extend JsonElement with Eq::{not_equal, equal}
 
 ///|
 /// Attribute value in JSON representation
+#derive(Eq, Debug)
 pub enum JsonAttrValue {
   Static(String)
   Dynamic(String) // Evaluated value at render time
   Handler // Placeholder for event handlers
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend JsonAttrValue with @debug.Debug::{to_repr}

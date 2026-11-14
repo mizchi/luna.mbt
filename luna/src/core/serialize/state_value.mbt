@@ -6,6 +6,7 @@
 
 ///|
 /// Supported state value types for serialization
+#derive(Debug, Eq)
 pub enum StateValue {
   Null
   Bool(Bool)
@@ -13,7 +14,7 @@ pub enum StateValue {
   Number(Double)
   Str(String)
   Arr(Array[StateValue])
-} derive(Debug, Eq)
+}
 
 ///|
 pub extend StateValue with Eq::{not_equal, equal}

@@ -3,6 +3,7 @@
 ///|
 /// Typed pseudo-classes and pseudo-elements. Functional arguments use CSS syntax.
 /// Compound selectors and names outside this catalog can still use String.
+#derive(Eq, Debug)
 pub(all) enum Pseudo {
   Active
   After
@@ -68,7 +69,7 @@ pub(all) enum Pseudo {
   Valid
   Visited
   Where(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Pseudo with @debug.Debug::{to_repr}

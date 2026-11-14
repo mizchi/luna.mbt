@@ -7,9 +7,10 @@ using @test {assert_eq}
 /// Tests for JSON Renderer
 
 // Test enum for action
+#derive(Debug)
 enum TestAction {
   Increment
-} derive(Debug)
+}
 
 ///|
 impl Show for TestAction with fn output(_self, logger) {

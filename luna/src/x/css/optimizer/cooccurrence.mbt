@@ -77,10 +77,11 @@ pub fn top_cooccurrences(
 
 ///|
 /// Edge in adjacency list
+#derive(Debug)
 pub struct Edge {
   target : String
   weight : Int
-} derive(Debug)
+}
 
 ///|
 pub extend Edge with @debug.Debug::{to_repr}

@@ -157,7 +157,7 @@ pub fn escape_json_string(s : String) -> String {
 /// Parse JSON string to StateValue
 pub fn state_value_from_json(json : String) -> StateValue? {
   try {
-    let json_value = @json.parse(json.view())
+    let json_value = @json.parse(json.clamped_view())
     json_value_to_state_value(json_value)
   } catch {
     _ => None
@@ -168,7 +168,7 @@ pub fn state_value_from_json(json : String) -> StateValue? {
 /// Parse JSON array string to Array[StateValue]
 pub fn state_values_from_json(json : String) -> Array[StateValue]? {
   try {
-    let json_value = @json.parse(json.view())
+    let json_value = @json.parse(json.clamped_view())
     guard json_value is Array(arr) else { return None }
     let result : Array[StateValue] = []
     for item in arr {

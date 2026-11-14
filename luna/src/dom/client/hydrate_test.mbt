@@ -4,10 +4,11 @@
 /// Hydration Tests
 
 // Test enum for action
+#derive(Debug)
 enum TestAction {
   Increment
   TestAction
-} derive(Debug)
+}
 
 ///|
 impl Show for TestAction with fn output(self, logger) {

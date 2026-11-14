@@ -368,7 +368,7 @@ fn[FS : @env.FileSystem] read_exports_from_pkg_with_fs(
   } else {
     let legacy_path = @path.join2(island_dir, "moon.pkg.json")
     let content = fs.read_file_sync(legacy_path) catch { _ => return [] }
-    @json.parse(content.view()) catch {
+    @json.parse(content.clamped_view()) catch {
       _ => return []
     }
   }

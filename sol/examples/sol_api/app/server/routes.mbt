@@ -34,34 +34,38 @@ pub fn config() -> @sol.RouterConfig {
 // =============================================================================
 
 ///|
+#derive(ToJson)
 priv struct HealthResponse {
   status : String
   timestamp : String
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ItemListResponse {
   items : Array[Item]
   total : Int32
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct StatsResponse {
   total_items : Int32
   last_updated : String
-} derive(ToJson)
+}
 
 // =============================================================================
 // In-memory data store
 // =============================================================================
 
 ///|
+#derive(ToJson)
 priv struct Item {
   id : Int32
   name : String
   description : String
   created_at : String
-} derive(ToJson)
+}
 
 ///|
 let items_store : Ref[Array[Item]] = { val: [], }
@@ -120,10 +124,11 @@ fn find_item_index(id : Int32) -> Int32? {
 // =============================================================================
 
 ///|
+#derive(FromJson)
 priv struct CreateItemRequest {
   name : String
   description : String
-} derive(FromJson)
+}
 
 // =============================================================================
 // API Handlers — guard let early-return pattern

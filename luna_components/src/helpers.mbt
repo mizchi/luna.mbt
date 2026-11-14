@@ -29,6 +29,7 @@ pub fn reset_id_counter() -> Unit {
 
 ///|
 /// Common key codes for keyboard navigation
+#derive(Eq, Debug)
 pub(all) enum KeyCode {
   Enter
   Space
@@ -40,7 +41,7 @@ pub(all) enum KeyCode {
   End
   Tab
   Escape
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend KeyCode with @debug.Debug::{to_repr}

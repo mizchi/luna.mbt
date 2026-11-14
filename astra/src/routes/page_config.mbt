@@ -108,7 +108,7 @@ pub fn ComponentConfig::default() -> ComponentConfig {
 /// Parse page.json content
 pub fn parse_page_config(json_str : String) -> PageConfig? {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Object(obj) else { return None }
     parse_page_config_object(obj)
   } catch {

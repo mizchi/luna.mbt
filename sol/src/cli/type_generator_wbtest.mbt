@@ -350,3 +350,27 @@ test "moonbit_type_to_typescript_type: handles nested arrays and optionals" {
 test "default_json_value: unknown custom types fall back to object" {
   assert_eq(default_json_value("@app.CustomType"), "{}")
 }
+
+///|
+test "generate_types_mbt: derives are written as an attribute" {
+  let props = sample_counter_props()
+  let content = generate_types_mbt([
+    sample_counter_props(),
+    {
+      ..props,
+      name: "OtherProps",
+      raw_definition: "pub(all) struct OtherProps {\n  n : Int\n} derive(ToJson, FromJson, Eq)",
+    },
+  ])
+  assert_true(
+    content.contains(
+      "#derive(ToJson, FromJson)\npub(all) struct CounterProps {",
+    ),
+  )
+  assert_true(
+    content.contains(
+      "#derive(ToJson, FromJson, Eq)\npub(all) struct OtherProps {\n  n : Int\n}\n",
+    ),
+  )
+  assert_false(content.contains("} derive("))
+}

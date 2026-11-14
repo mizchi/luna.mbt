@@ -262,7 +262,7 @@ pub struct IslandManifest {
 /// Parse island manifest from JSON string
 pub fn parse_island_manifest(json_str : String) -> IslandManifest? {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Object(obj) else { return None }
     let output_dir = match obj.get("output_dir") {
       Some(String(s)) => s
