@@ -68,3 +68,50 @@ test "vnode effects are disposed with the surrounding show" {
   assert_eq(runs.val, before)
   assert_false(get_inner_html(container).contains("<p>"))
 }
+
+///|
+test "hiding a show removes content a nested core show revealed later" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let outer = @resource.signal(true)
+  let inner = @resource.signal(false)
+  let node = @element.show(fn() { outer.get() }, fn() {
+    @client.vnode(
+      @luna.show(fn() { inner.get() }, fn() {
+        @luna.h("p", [], [@luna.text("inner")])
+      }),
+    )
+  })
+  @element.render_to(container, node)
+  inner.set(true)
+  assert_true(get_inner_html(container).contains("<p>inner</p>"))
+  outer.set(false)
+  assert_false(get_inner_html(container).contains("inner"))
+}
+
+///|
+test "hiding a show removes content a nested element show revealed later" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let outer = @resource.signal(true)
+  let inner = @resource.signal(false)
+  let node = @element.show(fn() { outer.get() }, fn() {
+    @element.fragment([
+      @element.text("head"),
+      @element.show(fn() { inner.get() }, fn() {
+        @element.p([@element.text("inner")])
+      }),
+    ])
+  })
+  @element.render_to(container, node)
+  inner.set(true)
+  assert_true(get_inner_html(container).contains("<p>inner</p>"))
+  outer.set(false)
+  let html = get_inner_html(container)
+  assert_false(html.contains("inner"))
+  assert_false(html.contains("head"))
+  outer.set(true)
+  assert_true(get_inner_html(container).contains("head"))
+}

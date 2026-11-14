@@ -269,6 +269,49 @@ fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
 }
 
 ///|
+/// Give content that can grow after it is rendered a fixed start.
+///
+/// Content of several nodes, or a lone comment (a nested `show` / `for_each`
+/// placeholder), gains nodes later: nested blocks insert before their own
+/// placeholder. A `<!--show-content-->` anchor in front lets `live_range`
+/// find everything between it and the last node when the content is removed.
+fn anchor_content(nodes : Array[@js_dom.Node]) -> Array[@js_dom.Node] {
+  if nodes.length() == 0 || (nodes.length() == 1 && nodes[0].nodeType() != 8) {
+    return nodes
+  }
+  let anchor = @js_dom.document().createComment("show-content")
+  let with_anchor = [anchor]
+  for node in nodes {
+    with_anchor.push(node)
+  }
+  with_anchor
+}
+
+///|
+/// The nodes from the first of `nodes` to the last, as they are in the
+/// document now; the captured list when that range is no longer intact
+fn live_range(nodes : Array[@js_dom.Node]) -> Array[@js_dom.Node] {
+  if nodes.length() < 2 {
+    return nodes
+  }
+  let last = nodes[nodes.length() - 1]
+  let out : Array[@js_dom.Node] = []
+  let mut cur : @js_dom.Node? = Some(nodes[0])
+  while cur is Some(node) {
+    out.push(node)
+    if same_node(node, last) {
+      return out
+    }
+    cur = node.nextSibling()
+  }
+  nodes
+}
+
+///|
+extern "js" fn same_node(a : @js_dom.Node, b : @js_dom.Node) -> Bool =
+  #|(a, b) => a === b
+
+///|
 /// Conditional rendering - shows content when condition is true
 /// Creates a child owner for proper cleanup when content is hidden
 pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
@@ -287,7 +330,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
         render_fn()
       })
       current_dispose.val = Some(dispose)
-      collect_child_nodes(dom.to_dom())
+      anchor_content(collect_child_nodes(dom.to_dom()))
     })
   }
 
@@ -339,8 +382,9 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
           }
           None => ()
         }
-        // Then remove all nodes
-        for node in current_nodes.val {
+        // Then remove all nodes, including any a nested show / for_each
+        // inserted after the content was rendered
+        for node in live_range(current_nodes.val) {
           if node.parentNode() is Some(parent) {
             parent.removeChild(node) |> ignore
           }
