@@ -59,7 +59,10 @@ jobs:
       - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
       - uses: hustcer/setup-moonbit@87e2bdf5cf20d3b6f5c5f266a8a513f503bb5b76 # v1.25
         with:
-          version: latest
+          # Pinned: moonc 0.10.20 (2026-11-05) passes MoonBit arrays to JS as
+          # wrapper objects, which breaks the mizchi/js* FFI. Bump together.
+          version: 0.10.19+bee578715
+          core-version: 0.10.19+bee578715
       - run: |
           moon update
           node scripts/generate-examples.mjs
