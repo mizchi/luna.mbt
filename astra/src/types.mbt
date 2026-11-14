@@ -6,6 +6,7 @@
 
 ///|
 /// Deploy target for build output
+#derive(Eq, Debug)
 pub(all) enum DeployTarget {
   /// Pure static files (default, works with any host)
   Static
@@ -21,7 +22,7 @@ pub(all) enum DeployTarget {
   Deno
   /// Node.js server
   Node
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DeployTarget with @debug.Debug::{to_repr}
@@ -117,6 +118,7 @@ pub fn I18nConfig::default() -> I18nConfig {
 
 ///|
 /// Locale configuration
+#derive(ToJson, FromJson)
 pub(all) struct LocaleConfig {
   /// Locale code (e.g., "en", "ja", "fr")
   code : String
@@ -124,7 +126,7 @@ pub(all) struct LocaleConfig {
   label : String
   /// URL path prefix (empty for default locale)
   path : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend LocaleConfig with @json.FromJson::{from_json}
@@ -138,6 +140,7 @@ pub extend LocaleConfig with ToJson::{to_json}
 
 ///|
 /// Navigation configuration for SPA-like behavior
+#derive(ToJson, FromJson)
 pub(all) struct NavigationConfig {
   /// Enable SPA-style navigation (fetch + content swap)
   spa : Bool
@@ -145,7 +148,7 @@ pub(all) struct NavigationConfig {
   view_transitions : Bool
   /// Enable keyboard navigation (arrow keys)
   keyboard : Bool
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend NavigationConfig with @json.FromJson::{from_json}
@@ -191,6 +194,7 @@ pub fn SsgConfig::default() -> SsgConfig {
 
 ///|
 /// Navigation item for top navbar
+#derive(ToJson, FromJson)
 pub(all) struct NavItem {
   /// Display text
   text : String
@@ -200,7 +204,7 @@ pub(all) struct NavItem {
   icon : String?
   /// Dropdown items (optional)
   items : Array[NavItem]
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend NavItem with @json.FromJson::{from_json}
@@ -225,6 +229,7 @@ pub(all) enum SidebarConfig {
 
 ///|
 /// Sidebar group
+#derive(ToJson, FromJson)
 pub(all) struct SidebarGroup {
   /// Group title
   text : String
@@ -234,7 +239,7 @@ pub(all) struct SidebarGroup {
   collapsed : Bool
   /// Items in the group
   items : Array[SidebarItem]
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend SidebarGroup with @json.FromJson::{from_json}
@@ -244,12 +249,13 @@ pub extend SidebarGroup with ToJson::{to_json}
 
 ///|
 /// Sidebar item
+#derive(ToJson, FromJson)
 pub(all) enum SidebarItem {
   /// Link to a page
   Link(text~ : String, link~ : String)
   /// Nested group
   Group(SidebarGroup)
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend SidebarItem with @json.FromJson::{from_json}
@@ -319,12 +325,13 @@ pub(all) struct ThemeConfig {
 
 ///|
 /// Social link configuration
+#derive(ToJson, FromJson)
 pub(all) struct SocialLink {
   /// Icon type: "github", "twitter", "discord", etc.
   icon : String
   /// Link URL
   link : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend SocialLink with @json.FromJson::{from_json}
@@ -370,12 +377,13 @@ pub fn ThemeConfig::default() -> ThemeConfig {
 
 ///|
 /// Footer link
+#derive(ToJson, FromJson)
 pub(all) struct FooterLink {
   /// Link text
   label : String
   /// Link URL
   href : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend FooterLink with @json.FromJson::{from_json}
@@ -385,12 +393,13 @@ pub extend FooterLink with ToJson::{to_json}
 
 ///|
 /// Footer column (group of links)
+#derive(ToJson, FromJson)
 pub(all) struct FooterColumn {
   /// Column title
   title : String
   /// Links in this column
   items : Array[FooterLink]
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend FooterColumn with @json.FromJson::{from_json}
@@ -400,6 +409,7 @@ pub extend FooterColumn with ToJson::{to_json}
 
 ///|
 /// Footer configuration
+#derive(ToJson, FromJson)
 pub(all) struct FooterConfig {
   /// Footer message
   message : String?
@@ -411,7 +421,7 @@ pub(all) struct FooterConfig {
   top : Array[FooterElement]
   /// Bottom section elements
   bottom : Array[FooterElement]
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend FooterConfig with @json.FromJson::{from_json}
@@ -425,6 +435,7 @@ pub extend FooterConfig with ToJson::{to_json}
 
 ///|
 /// Header element types for compositional header layout
+#derive(Eq, Debug, ToJson, FromJson)
 pub(all) enum HeaderElement {
   /// Site logo or title
   Logo
@@ -442,7 +453,7 @@ pub(all) enum HeaderElement {
   Spacer
   /// Custom component by tag name
   Custom(String)
-} derive(Eq, Debug, ToJson, FromJson)
+}
 
 ///|
 pub extend HeaderElement with @json.FromJson::{from_json}
@@ -458,6 +469,7 @@ pub extend HeaderElement with Eq::{not_equal, equal}
 
 ///|
 /// Footer element types
+#derive(Eq, Debug, ToJson, FromJson)
 pub(all) enum FooterElement {
   /// Link columns
   Columns
@@ -469,7 +481,7 @@ pub(all) enum FooterElement {
   SocialLinks
   /// Custom component by tag name
   Custom(String)
-} derive(Eq, Debug, ToJson, FromJson)
+}
 
 ///|
 pub extend FooterElement with @json.FromJson::{from_json}
@@ -485,6 +497,7 @@ pub extend FooterElement with Eq::{not_equal, equal}
 
 ///|
 /// Header configuration with element slots
+#derive(ToJson, FromJson)
 pub(all) struct HeaderConfig {
   /// Elements in left section
   left : Array[HeaderElement]
@@ -494,7 +507,7 @@ pub(all) struct HeaderConfig {
   right : Array[HeaderElement]
   /// Sticky header (fixed on scroll)
   sticky : Bool
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend HeaderConfig with @json.FromJson::{from_json}
@@ -608,6 +621,7 @@ pub type NavLink = @frontmatter.NavLink
 
 ///|
 /// Content type for source files
+#derive(Eq, Debug)
 pub(all) enum ContentType {
   /// Markdown file (.md)
   Markdown
@@ -619,7 +633,7 @@ pub(all) enum ContentType {
   TsxComponent
   /// MDX file (.mdx) - Markdown with JSX components
   Mdx
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ContentType with @debug.Debug::{to_repr}

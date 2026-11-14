@@ -198,11 +198,12 @@ async fn about_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
 
 ///|
 /// Todo item structure
+#derive(ToJson, FromJson)
 pub(all) struct Todo {
   id : Int32
   text : String
   completed : Bool
-} derive(ToJson, FromJson)
+}
 
 ///|
 /// Global todo store
@@ -321,24 +322,28 @@ async fn api_delete_todo(props : @sol.PageProps) -> Json {
 // =============================================================================
 
 ///|
+#derive(FromJson)
 priv struct AddTodoRequest {
   text : String
-} derive(FromJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct TodoIdRequest {
   id : Int32
-} derive(FromJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ToggleTodoResponse {
   toggled : Bool
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct DeleteTodoResponse {
   deleted : Bool
-} derive(ToJson)
+}
 
 ///|
 /// Add todo action handler

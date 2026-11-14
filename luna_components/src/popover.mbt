@@ -1,11 +1,12 @@
 ///|
 /// Native HTML Popover API mode.
+#derive(Eq, Debug)
 pub(all) enum PopoverMode {
   /// Light-dismiss popover. This is the browser default.
   Auto
   /// Manual popover, closed explicitly by script or a target button.
   Manual
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PopoverMode with @debug.Debug::{to_repr}
@@ -15,11 +16,12 @@ pub extend PopoverMode with Eq::{not_equal, equal}
 
 ///|
 /// Native `popovertargetaction` values for controls targeting a popover.
+#derive(Eq, Debug)
 pub(all) enum PopoverTargetAction {
   Toggle
   Show
   Hide
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PopoverTargetAction with @debug.Debug::{to_repr}

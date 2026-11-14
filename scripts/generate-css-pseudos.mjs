@@ -22,9 +22,16 @@ const outputs = {
 ///|
 /// Typed pseudo-classes and pseudo-elements. Functional arguments use CSS syntax.
 /// Compound selectors and names outside this catalog can still use String.
+#derive(Eq, Debug)
 pub(all) enum Pseudo {
 ${entries.map(e => `  ${e.variant}${e.functional ? "(String)" : ""}`).join("\n")}
-} derive(Eq, Debug)
+}
+
+///|
+pub extend Pseudo with @debug.Debug::{to_repr}
+
+///|
+pub extend Pseudo with Eq::{not_equal, equal}
 
 ///|
 pub fn Pseudo::css_selector(self : Pseudo) -> String {

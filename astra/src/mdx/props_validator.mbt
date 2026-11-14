@@ -20,10 +20,11 @@ pub(all) struct PropsDiagnostic {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum DiagnosticSeverity {
   Error
   Warning
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DiagnosticSeverity with @debug.Debug::{to_repr}

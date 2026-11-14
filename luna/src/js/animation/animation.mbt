@@ -1,11 +1,12 @@
 ///|
 /// A layout snapshot in viewport coordinates.
+#derive(Debug, Eq)
 pub(all) struct Rect {
   left : Double
   top : Double
   width : Double
   height : Double
-} derive(Debug, Eq)
+}
 
 ///|
 pub extend Rect with Eq::{not_equal, equal}

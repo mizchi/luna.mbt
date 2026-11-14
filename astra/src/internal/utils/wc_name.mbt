@@ -8,7 +8,7 @@ pub fn extract_wc_name_from_url(url : String) -> String {
   let filename_view = if parts.length() > 0 {
     parts[parts.length() - 1]
   } else {
-    "".view()
+    "".clamped_view()
   }
   let filename = filename_view.to_owned()
   let name = if filename.has_suffix(".js") && filename.length() > 3 {

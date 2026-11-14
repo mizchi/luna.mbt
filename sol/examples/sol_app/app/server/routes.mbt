@@ -662,23 +662,26 @@ extern "js" fn get_timestamp() -> String =
 // ============================================================================
 
 ///|
+#derive(FromJson)
 priv struct ContactSubmitRequest {
   name : String
   email : String
-} derive(FromJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ContactSubmitData {
   name : String
   email : String
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ContactSubmitResponse {
   success : Bool
   message : String
   data : ContactSubmitData
-} derive(ToJson)
+}
 
 ///|
 /// Contact form submission handler

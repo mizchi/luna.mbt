@@ -9,6 +9,7 @@
 
 ///|
 /// Type of repair operation performed
+#derive(Eq)
 pub enum RepairType {
   /// Text content was different and updated
   TextMismatch
@@ -30,7 +31,7 @@ pub enum RepairType {
   ForItemCountMismatch
   /// Show content was missing when condition was true
   ShowContentMissing
-} derive(Eq)
+}
 
 ///|
 pub extend RepairType with Eq::{not_equal, equal}

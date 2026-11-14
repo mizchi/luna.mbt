@@ -700,7 +700,7 @@ fn parse_page_json(content : String) -> DynamicPageConfig? {
   if content.is_empty() {
     return None
   }
-  let json : Json = @json.parse(content.view()) catch { _ => return None }
+  let json : Json = @json.parse(content.clamped_view()) catch { _ => return None }
   guard json is Object(obj) else { return None }
 
   // Extract staticParams array
@@ -849,7 +849,7 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
     return @astra.Frontmatter::default()
   }
   // Parse JSON and extract relevant fields
-  let json : Json = @json.parse(content.view()) catch {
+  let json : Json = @json.parse(content.clamped_view()) catch {
     _ => return @astra.Frontmatter::default()
   }
   guard json is Object(obj) else { return @astra.Frontmatter::default() }

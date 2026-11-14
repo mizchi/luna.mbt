@@ -1,10 +1,11 @@
 // Test enum for action
 
 ///|
+#derive(Debug)
 enum TestAction {
   Increment
   DoSomething
-} derive(Debug)
+}
 
 ///|
 impl Show for TestAction with fn output(self, logger) {
