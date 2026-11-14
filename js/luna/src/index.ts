@@ -125,6 +125,8 @@ import {
   Fragment as fragment,  // MoonBit's fragment function (Array -> LunaNode)
   createElement,
   createElementNs,
+  attrDynamicOpt,
+  attrDynamicBool,
   svgNs,
   mathmlNs,
   forEach,
@@ -964,6 +966,8 @@ export {
   fragment,  // Low-level MoonBit fragment function
   createElement,
   createElementNs,
+  attrDynamicOpt,
+  attrDynamicBool,
   svgNs,
   mathmlNs,
   forEach,

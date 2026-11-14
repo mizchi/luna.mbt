@@ -62,6 +62,8 @@ options(
         "fragment:Fragment",
         "create_element:createElement",
         "create_element_ns:createElementNs",
+        "attr_dynamic_opt:attrDynamicOpt",
+        "attr_dynamic_bool:attrDynamicBool",
         "svg_ns:svgNs",
         "mathml_ns:mathmlNs",
         "events",

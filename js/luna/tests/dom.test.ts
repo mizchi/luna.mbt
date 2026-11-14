@@ -4,6 +4,8 @@ import {
   textDyn,
   createElement,
   createElementNs,
+  attrDynamicOpt,
+  attrDynamicBool,
   svgNs,
   mathmlNs,
   render,
@@ -183,6 +185,100 @@ describe("DOM API", () => {
       render(container, nodeEnabled);
       const btn = container.querySelector("button");
       expect(btn?.hasAttribute("disabled")).toBe(false);
+    });
+
+    test("boolean attributes are removed on \"false\"", () => {
+      const [hidden, setHidden] = createSignal(true);
+      const node = createElement(
+        "div",
+        [
+          attr("hidden", AttrValue.Dynamic(() => String(hidden()))),
+          attr("open", AttrValue.Static("false")),
+        ],
+        []
+      );
+      render(container, node);
+      const div = container.querySelector("div")!;
+      expect(div.getAttribute("hidden")).toBe("");
+      expect(div.hasAttribute("open")).toBe(false);
+
+      setHidden(false);
+      expect(div.hasAttribute("hidden")).toBe(false);
+      expect(div.hidden).toBe(false);
+
+      setHidden(true);
+      expect(div.hidden).toBe(true);
+    });
+
+    test("aria-* \"false\" is kept as a value", () => {
+      const node = createElement(
+        "button",
+        [attr("aria-expanded", AttrValue.Static("false"))],
+        []
+      );
+      render(container, node);
+      expect(container.querySelector("button")?.getAttribute("aria-expanded")).toBe("false");
+    });
+
+    test("attrDynamicOpt removes the attribute while the getter returns undefined", () => {
+      const [current, setCurrent] = createSignal<string | undefined>(undefined);
+      const node = createElement(
+        "a",
+        [attr("aria-current", attrDynamicOpt(() => current()))],
+        []
+      );
+      render(container, node);
+      const a = container.querySelector("a")!;
+      expect(a.hasAttribute("aria-current")).toBe(false);
+
+      setCurrent("page");
+      expect(a.getAttribute("aria-current")).toBe("page");
+
+      setCurrent(undefined);
+      expect(a.hasAttribute("aria-current")).toBe(false);
+    });
+
+    test("attrDynamicOpt removes class and style too", () => {
+      const [on, setOn] = createSignal(true);
+      const node = createElement(
+        "div",
+        [
+          attr("class", attrDynamicOpt(() => (on() ? "active" : null))),
+          attr("style", attrDynamicOpt(() => (on() ? "color: red" : null))),
+        ],
+        []
+      );
+      render(container, node);
+      const div = container.querySelector("div")!;
+      expect(div.getAttribute("class")).toBe("active");
+      expect(div.getAttribute("style")).toBe("color: red");
+
+      setOn(false);
+      expect(div.hasAttribute("class")).toBe(false);
+      expect(div.hasAttribute("style")).toBe(false);
+    });
+
+    test("attrDynamicBool toggles any attribute by presence", () => {
+      const [busy, setBusy] = createSignal(false);
+      const node = createElement(
+        "div",
+        [
+          attr("data-busy", attrDynamicBool(busy)),
+          attr("inert", attrDynamicBool(busy)),
+        ],
+        []
+      );
+      render(container, node);
+      const div = container.querySelector("div")!;
+      expect(div.hasAttribute("data-busy")).toBe(false);
+      expect(div.hasAttribute("inert")).toBe(false);
+
+      setBusy(true);
+      expect(div.getAttribute("data-busy")).toBe("");
+      expect(div.getAttribute("inert")).toBe("");
+
+      setBusy(false);
+      expect(div.hasAttribute("data-busy")).toBe(false);
     });
 
     test("createElement with dynamic style", () => {

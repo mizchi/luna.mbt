@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T20:17:47.912Z",
+  "generatedAt": "2026-11-14T20:25:54.853Z",
   "entries": [
     {
       "id": "signals-only",
@@ -18,13 +18,13 @@
     },
     {
       "id": "render",
-      "bytes": 5683,
-      "gzip": 2024
+      "bytes": 6538,
+      "gzip": 2276
     },
     {
       "id": "router-resource",
       "bytes": 23343,
-      "gzip": 6655
+      "gzip": 6656
     },
     {
       "id": "resource-lite",
@@ -34,7 +34,7 @@
     {
       "id": "resource-index",
       "bytes": 8988,
-      "gzip": 3158
+      "gzip": 3157
     },
     {
       "id": "router-lite",
@@ -44,22 +44,22 @@
     {
       "id": "router-index",
       "bytes": 19879,
-      "gzip": 5683
+      "gzip": 5682
     },
     {
       "id": "split-signals",
-      "bytes": 13099,
-      "gzip": 4030
+      "bytes": 13954,
+      "gzip": 4289
     },
     {
       "id": "split-signals-shared",
-      "bytes": 10778,
-      "gzip": 3757
+      "bytes": 11629,
+      "gzip": 4001
     },
     {
       "id": "raw-signals",
       "bytes": 7333,
-      "gzip": 2700
+      "gzip": 2699
     }
   ]
 }

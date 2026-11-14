@@ -12,6 +12,10 @@ import {
 }
 
 // Values
+pub fn attr_dynamic_bool(() -> Bool) -> @mizchi/luna/dom.AttrValue
+
+pub fn attr_dynamic_opt(() -> @js_core.Any) -> @mizchi/luna/dom.AttrValue
+
 pub fn batch(() -> Any) -> Any
 
 pub fn batch_end() -> Unit
