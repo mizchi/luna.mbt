@@ -115,3 +115,33 @@ test "hiding a show removes content a nested element show revealed later" {
   outer.set(true)
   assert_true(get_inner_html(container).contains("head"))
 }
+
+///|
+test "effects of content a nested core show revealed later stop with the outer show" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let outer = @resource.signal(true)
+  let inner = @resource.signal(false)
+  let label = @resource.signal("a")
+  let runs = Ref(0)
+  let node = @element.show(fn() { outer.get() }, fn() {
+    @client.vnode(
+      @luna.show(fn() { inner.get() }, fn() {
+        @luna.h("p", [], [
+          @luna.text_dyn(fn() {
+            runs.val += 1
+            label.get()
+          }),
+        ])
+      }),
+    )
+  })
+  @element.render_to(container, node)
+  inner.set(true)
+  assert_true(get_inner_html(container).contains("<p>a</p>"))
+  outer.set(false)
+  let before = runs.val
+  label.set("b")
+  assert_eq(runs.val, before)
+}
