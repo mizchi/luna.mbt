@@ -141,7 +141,9 @@ pub fn attr_dynamic_opt(getter : () -> String?) -> AttrValue {
 /// A dynamic boolean attribute: present (as `""`) while `getter` returns
 /// `true`, removed while it returns `false`. Works for any attribute name,
 /// including ones the renderer does not know to be boolean (`data-*`,
-/// custom elements' flags).
+/// custom elements' flags). The exceptions are `value`, `checked` and
+/// `__innerHTML`: the renderer sets those as DOM properties and does not
+/// change the attribute.
 pub fn attr_dynamic_bool(getter : () -> Bool) -> AttrValue {
   Dynamic(fn() { if getter() { "" } else { absent_attr_value } })
 }
@@ -149,7 +151,9 @@ pub fn attr_dynamic_bool(getter : () -> Bool) -> AttrValue {
 ///|
 /// HTML boolean attributes whose presence alone means "on", so the string
 /// "false" would still turn them on. The renderer removes them on "false"
-/// and writes them as `""` on "true". (`disabled` and `checked` are handled
+/// and writes them as `""` on "true". Only on HTML elements, where `name`
+/// is matched lowercased, as HTML stores attribute names (`readOnly` is
+/// `readonly`); SVG and other namespaces keep their attributes as written. (`disabled` and `checked` are handled
 /// separately and keep their existing behaviour.)
 fn is_html_boolean_attr(name : String) -> Bool {
   match name {
@@ -175,7 +179,8 @@ fn is_html_boolean_attr(name : String) -> Bool {
     | "default"
     | "ismap"
     | "itemscope"
-    | "nomodule" => true
+    | "nomodule"
+    | "disableremoteplayback" => true
     _ => false
   }
 }
@@ -263,7 +268,9 @@ fn apply_static_attr(
     } else {
       elem.removeAttribute("disabled")
     }
-  } else if is_html_boolean_attr(name) {
+  } else if is_html_element(elem) && is_html_boolean_attr(name.to_lower()) {
+    // `name` is passed as written: an HTML element lowercases it on set and
+    // remove alike, so the two stay paired (`remove_attr` uses it as is too)
     if value == "false" {
       elem.removeAttribute(name)
     } else if value == "true" {
@@ -275,6 +282,10 @@ fn apply_static_attr(
     elem.setAttribute(name, value)
   }
 }
+
+///|
+extern "js" fn is_html_element(elem : @js_dom.Element) -> Bool =
+  #|(el) => el.namespaceURI === "http://www.w3.org/1999/xhtml"
 
 ///|
 /// Apply an event handler
@@ -420,8 +431,10 @@ extern "js" fn same_node(a : @js_dom.Node, b : @js_dom.Node) -> Bool =
 /// Hidden content is unmounted, not hidden: its nodes leave the document
 /// and its state is disposed. When the element must stay in the document
 /// while it is not shown (an `aria-controls` / `aria-labelledby` target, a
-/// form whose input should survive closing, a `<dialog>`), toggle `hidden`
-/// on it instead:
+/// form whose input should survive closing), toggle `hidden` on it instead.
+/// Not for a modal `<dialog>`: `hidden` does not close it, and the page
+/// behind it can stay blocked. Keep the dialog mounted and close it with
+/// `close()` / `requestClose()`:
 ///
 /// ```moonbit nocheck
 /// div(id="panel", dyn_attrs=[("hidden", attr_dynamic_bool(fn() { !open.get() }))], [...])
