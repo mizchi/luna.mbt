@@ -210,6 +210,23 @@ describe("DOM API", () => {
       expect(div.hidden).toBe(true);
     });
 
+    test("boolean attributes match case-insensitively; disableremoteplayback is one", () => {
+      const node = createElement(
+        "video",
+        [
+          attr("readOnly", AttrValue.Static("false")),
+          attr("disableRemotePlayback", AttrValue.Static("false")),
+          attr("Muted", AttrValue.Static("true")),
+        ],
+        []
+      );
+      render(container, node);
+      const video = container.querySelector("video")!;
+      expect(video.hasAttribute("readonly")).toBe(false);
+      expect(video.hasAttribute("disableremoteplayback")).toBe(false);
+      expect(video.getAttribute("muted")).toBe("");
+    });
+
     test("aria-* \"false\" is kept as a value", () => {
       const node = createElement(
         "button",
