@@ -146,20 +146,40 @@ let doc = @server_dom.document(
 
 `input` は `value` / `disabled` / `readonly_` / `required` / `checked` も取ります。`button` は `disabled` を取ります。
 
-### 用意されていない要素
-
-static パッケージには `<table>` / `<tr>` / `<td>` / `<select>` / `<option>` / `<textarea>` のヘルパーはありません。`@server_dom` がカバーしているのは、このリポジトリの SSR 経路が実際に出力する要素だけです。それ以外はタグ名から要素を作る `@luna.h` を使ってください:
+### テーブル
 
 ```moonbit
-@luna.h("table", [], [
-  @luna.h("tr", [], [
-    @luna.h("td", [], [@server_dom.text("Item 1")]),
-    @luna.h("td", [], [@server_dom.text("$10")]),
+@server_dom.table([
+  @server_dom.caption([@server_dom.text("価格")]),
+  @server_dom.thead([
+    @server_dom.tr([
+      @server_dom.th(scope="col", [@server_dom.text("品目")]),
+      @server_dom.th(scope="col", [@server_dom.text("価格")]),
+    ]),
+  ]),
+  @server_dom.tbody([
+    @server_dom.tr([
+      @server_dom.td([@server_dom.text("Item 1")]),
+      @server_dom.td([@server_dom.text("$10")]),
+    ]),
   ]),
 ])
 ```
 
-`h` はノードのイベント型に対してジェネリックなので、同じ呼び出しがブラウザ側でも使えます。第 2 引数は `attrs` と同じ `(名前, Attr)` のタプル列です。同じタグを繰り返し書くようなら、`luna/src/dom/static/` にヘルパーを追加してください。
+`th` は `scope` / `colspan` / `rowspan` / `headers` / `abbr` を、`td` は `colspan` / `rowspan` / `headers` を取ります。`colgroup` / `col` / `tfoot` もあります。
+
+### 用意されていない要素
+
+static パッケージには `<select>` / `<option>` / `<textarea>` のヘルパーはありません。ヘルパーのない要素は、タグ名から要素を作る `@luna.h` を使ってください:
+
+```moonbit
+@luna.h("select", [("name", @luna.attr_static("size"))], [
+  @luna.h("option", [], [@server_dom.text("Small")]),
+  @luna.h("option", [], [@server_dom.text("Large")]),
+])
+```
+
+`h` はノードのイベント型に対してジェネリックなので、同じ呼び出しがブラウザ側でも使えます。第 2 引数は `attrs` と同じ `(名前, Attr)` のタプル列です。同じタグを繰り返し書くようなら、`luna/scripts/generate_dom_elements.ts` に追加してください。ブラウザ側と static の両方のヘルパーを生成します。
 
 ## text
 
@@ -318,13 +338,16 @@ pub struct SSRResult {
 
 | グループ | ヘルパー |
 |----------|----------|
-| ブロック・インライン | `div` `p` `span` `article` `section` `aside` `main_` `header_` `footer_` `nav` `pre` `code` `em` `strong` |
+| ブロック・インライン | `div` `p` `span` `article` `section` `aside` `main_` `header_` `footer_` `nav` `pre` `code` `em` `strong` `b` `i` `small` `sub` `sup` `kbd` `mark` `cite` `abbr` `time` `blockquote` `figure` `figcaption` |
+| 説明リスト | `dl` `dt` `dd` |
+| テーブル | `table` `caption` `colgroup` `col` `thead` `tbody` `tfoot` `tr` `th` `td` |
+| インタラクティブ | `details` `summary` `dialog` |
 | 見出し | `h1`–`h6` |
 | リスト | `ul` `ol` `li` |
 | リンク・メディア | `a` `img` `br` `hr` |
 | ドキュメント | `html` `head` `body` `title` `meta` |
 | リソース | `script` `script_trusted` `style_` `style_trusted` `link` |
-| フォーム | `form` `input` `button` `label` |
+| フォーム | `form` `input` `button` `label` `fieldset` `legend` |
 | SVG | `svg` と `svg_*`(path, circle, rect, text, …) |
 
 ### コンテンツ
