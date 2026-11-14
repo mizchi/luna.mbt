@@ -7,12 +7,13 @@
 
 ///|
 /// Accordion item data
+#derive(Eq)
 pub struct AccordionDemoItem {
   id : String
   title : String
   content : String
   open : Bool
-} derive(Eq)
+}
 
 ///|
 pub extend AccordionDemoItem with Eq::{not_equal, equal}

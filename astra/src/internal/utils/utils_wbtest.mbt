@@ -82,22 +82,22 @@ test "slice_to: negative end returns original" {
 
 ///|
 test "slice_view_from: normal case" {
-  assert_eq(slice_view_from("hello".view(), 2), "llo")
+  assert_eq(slice_view_from("hello".clamped_view(), 2), "llo")
 }
 
 ///|
 test "slice_view_from: start at 0" {
-  assert_eq(slice_view_from("hello".view(), 0), "hello")
+  assert_eq(slice_view_from("hello".clamped_view(), 0), "hello")
 }
 
 ///|
 test "slice_view_from: start equals length returns empty" {
-  assert_eq(slice_view_from("hello".view(), 5), "")
+  assert_eq(slice_view_from("hello".clamped_view(), 5), "")
 }
 
 ///|
 test "slice_view_from: negative start returns empty" {
-  assert_eq(slice_view_from("hello".view(), -1), "")
+  assert_eq(slice_view_from("hello".clamped_view(), -1), "")
 }
 
 // ============================================================================
@@ -106,22 +106,22 @@ test "slice_view_from: negative start returns empty" {
 
 ///|
 test "slice_view_to: normal case" {
-  assert_eq(slice_view_to("hello".view(), 3), "hel")
+  assert_eq(slice_view_to("hello".clamped_view(), 3), "hel")
 }
 
 ///|
 test "slice_view_to: end exceeds length returns original" {
-  assert_eq(slice_view_to("hello".view(), 10), "hello")
+  assert_eq(slice_view_to("hello".clamped_view(), 10), "hello")
 }
 
 ///|
 test "slice_view_to: end at 0 returns original" {
-  assert_eq(slice_view_to("hello".view(), 0), "hello")
+  assert_eq(slice_view_to("hello".clamped_view(), 0), "hello")
 }
 
 ///|
 test "slice_view_to: negative end returns original" {
-  assert_eq(slice_view_to("hello".view(), -1), "hello")
+  assert_eq(slice_view_to("hello".clamped_view(), -1), "hello")
 }
 
 // ============================================================================

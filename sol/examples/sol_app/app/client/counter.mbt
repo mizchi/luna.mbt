@@ -3,9 +3,10 @@
 
 ///|
 /// Props passed from server
+#derive(ToJson, FromJson)
 pub(all) struct CounterProps {
   initial_count : Int
-} derive(ToJson, FromJson)
+}
 
 ///|
 pub extend CounterProps with @json.FromJson::{from_json}

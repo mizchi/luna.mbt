@@ -27,6 +27,7 @@ pub struct AttrDef {
 
 ///|
 /// Shadow DOM mode
+#derive(Eq)
 pub enum ShadowMode {
   /// Open shadow root (default)
   Open
@@ -34,7 +35,7 @@ pub enum ShadowMode {
   Closed
   /// No shadow DOM (light DOM)
   None
-} derive(Eq)
+}
 
 ///|
 pub extend ShadowMode with Eq::{not_equal, equal}

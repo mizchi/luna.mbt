@@ -840,13 +840,14 @@ fn generate_locale_enum(static_dirs : Array[StaticDirEntry]) -> String {
   )
   buf.write_string("///|\n")
   buf.write_string("/// Available locales (auto-generated from i18n config)\n")
+  buf.write_string("#derive(Eq, Show)\n")
   buf.write_string("pub enum Locale {\n")
   for pair in locale_labels {
     let variant = locale_code_to_variant(pair.0)
     buf.write_string("  /// \{pair.1}\n")
     buf.write_string("  \{variant}\n")
   }
-  buf.write_string("} derive(Eq, Show)\n\n")
+  buf.write_string("}\n\n")
 
   // Generate code() method
   buf.write_string("///|\n")

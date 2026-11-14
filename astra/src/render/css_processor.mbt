@@ -209,10 +209,11 @@ pub async fn extract_css_utilities_auto(
 
 ///|
 /// CSS manifest entry from split extraction
+#derive(FromJson, ToJson)
 pub(all) struct CssManifestEntry {
   css : String
   size : Int
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend CssManifestEntry with ToJson::{to_json}
@@ -222,11 +223,12 @@ pub extend CssManifestEntry with @json.FromJson::{from_json}
 
 ///|
 /// CSS split manifest result
+#derive(FromJson, ToJson)
 pub(all) struct CssSplitManifest {
   entries : Map[String, CssManifestEntry]
   shared_css : String
   shared_size : Int
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend CssSplitManifest with ToJson::{to_json}

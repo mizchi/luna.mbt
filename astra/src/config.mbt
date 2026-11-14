@@ -5,7 +5,7 @@
 /// Parse SSG config directly (sol.config.json format)
 pub fn parse_ssg_config(json_str : String) -> SsgConfig? {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Object(ssg_obj) else { return None }
     parse_ssg_object(ssg_obj)
   } catch {
@@ -17,7 +17,7 @@ pub fn parse_ssg_config(json_str : String) -> SsgConfig? {
 /// Parse SSG config from sol.config.json content
 pub fn parse_ssg_from_sol_config(json_str : String) -> SsgConfig? {
   try {
-    let json = @json.parse(json_str.view())
+    let json = @json.parse(json_str.clamped_view())
     guard json is Object(obj) else { return None }
 
     // Get ssg section if exists, otherwise use root object

@@ -3,12 +3,13 @@
 
 ///|
 /// Shorthand property definitions
+#derive(Debug)
 pub struct ShorthandDef {
   /// Shorthand property name (e.g., "margin")
   shorthand : String
   /// Longhand property names in order
   longhands : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend ShorthandDef with @debug.Debug::{to_repr}

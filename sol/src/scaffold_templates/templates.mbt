@@ -301,9 +301,10 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|}
     #|
     #|///| API response type (compile-time structure guarantee)
+    #|#derive(ToJson)
     #|priv struct HealthResponse {
     #|  status : String
-    #|} derive(ToJson)
+    #|}
     #|
     #|///| API handler: health check
     #|async fn api_health(_props : @sol.PageProps) -> HealthResponse {
@@ -371,9 +372,10 @@ pub fn template_client_counter_mbt() -> String {
     #|
     #|///|
     #|/// Props passed from server
+    #|#derive(ToJson, FromJson)
     #|pub(all) struct CounterProps {
     #|  initial_count : Int
-    #|} derive(ToJson, FromJson)
+    #|}
     #|
     #|///|
     #|pub extend CounterProps with ToJson::{to_json}
@@ -415,9 +417,10 @@ pub fn template_client_api_tools_mbt() -> String {
     #|  #|   }
     #|  #| }
     #|
+    #|#derive(ToJson, FromJson)
     #|pub(all) struct ApiToolsProps {
     #|  endpoint : String
-    #|} derive(ToJson, FromJson)
+    #|}
     #|
     #|///|
     #|pub extend ApiToolsProps with ToJson::{to_json}
@@ -619,9 +622,10 @@ pub fn template_gen_types_mbt() -> String {
     #|///| Re-exports Props structs from client packages
     #|
     #|///| Props type from @client
+    #|#derive(ToJson, FromJson)
     #|pub(all) struct CounterProps {
     #|  initial_count : Int
-    #|} derive(ToJson, FromJson)
+    #|}
     #|
     #|///|
     #|pub extend CounterProps with ToJson::{to_json}
@@ -630,9 +634,10 @@ pub fn template_gen_types_mbt() -> String {
     #|pub extend CounterProps with @json.FromJson::{from_json}
     #|
     #|///| Props type from @client
+    #|#derive(ToJson, FromJson)
     #|pub(all) struct ApiToolsProps {
     #|  endpoint : String
-    #|} derive(ToJson, FromJson)
+    #|}
     #|
     #|///|
     #|pub extend ApiToolsProps with ToJson::{to_json}

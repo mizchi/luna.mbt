@@ -30,14 +30,7 @@ fn generate_types_mbt(
   // Generate struct definitions
   for s in structs {
     buf.write_string("///| Props type from @\{s.import_alias}\n")
-    // Check if raw_definition already has derive
-    if s.raw_definition.contains("derive(") {
-      buf.write_string(s.raw_definition)
-      buf.write_string("\n\n")
-    } else {
-      buf.write_string(s.raw_definition)
-      buf.write_string(" derive(ToJson, FromJson)\n\n")
-    }
+    buf.write_string(with_derive_attribute(s.raw_definition))
     buf.write_string(
       generate_derived_method_extensions(s.name, s.raw_definition),
     )
@@ -48,8 +41,9 @@ fn generate_types_mbt(
       continue
     }
     buf.write_string("///| Contract data shape \{shape.name}\n")
-    buf.write_string(contract_data_shape_raw_definition(shape))
-    buf.write_string(" derive(ToJson, FromJson)\n\n")
+    buf.write_string(
+      with_derive_attribute(contract_data_shape_raw_definition(shape)),
+    )
     buf.write_string(generate_derived_method_extensions(shape.name, ""))
     emitted_struct_names.push(shape.name)
   }
@@ -130,6 +124,30 @@ fn generate_types_mbt(
   buf.write_string(generate_locale_enum(static_dirs))
 
   buf.to_string()
+}
+
+///|
+/// Write a struct definition with its derives as a `#derive(...)` attribute.
+///
+/// A trailing `derive(...)` clause is deprecated syntax: under `--deny-warn`
+/// it fails the generated package. A trailing clause in `definition` is moved
+/// to the attribute; without one the struct derives `ToJson, FromJson`.
+fn with_derive_attribute(definition : String) -> String {
+  let (body, traits) = match definition.rev_find("derive(") {
+    Some(start) => {
+      let tail = definition[start + "derive(".length():].to_owned()
+      match tail.find(")") {
+        Some(end) =>
+          (
+            definition[:start].trim_end(chars=" \t\n").to_owned(),
+            tail[:end].to_owned(),
+          )
+        None => (definition, "ToJson, FromJson")
+      }
+    }
+    None => (definition, "ToJson, FromJson")
+  }
+  "#derive(\{traits})\n\{body}\n\n"
 }
 
 ///|
