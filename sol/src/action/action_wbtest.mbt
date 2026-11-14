@@ -190,24 +190,27 @@ test "action_url builds endpoint URL from action key" {
 }
 
 ///|
+#derive(ToJson, FromJson)
 priv struct CreateUserRequest {
   name : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 extend CreateUserRequest with ToJson::{to_json}
 
 ///|
+#derive(FromJson)
 priv struct ContactRequest {
   name : String
   email : String
   message : String
-} derive(FromJson)
+}
 
 ///|
+#derive(ToJson, FromJson)
 priv struct CreateUserResponse {
   id : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 extend CreateUserResponse with ToJson::{to_json}

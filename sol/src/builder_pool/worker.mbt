@@ -34,7 +34,7 @@ let worker_ctx : Ref[WorkerContext?] = Ref(None)
 /// Handle Init message
 async fn handle_init(data_json : String) -> Unit {
   // Parse init data JSON
-  let json = @json.parse(data_json.view()) catch {
+  let json = @json.parse(data_json.clamped_view()) catch {
     _ => {
       @builder.send_error("Failed to parse init data JSON")
       return

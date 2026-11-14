@@ -9,6 +9,7 @@
 
 ///|
 /// A schema is a collection of type definitions
+#derive(Eq, Debug)
 pub struct Schema {
   /// Schema version for compatibility
   version : String
@@ -16,7 +17,7 @@ pub struct Schema {
   definitions : Map[String, TypeDef]
   /// Source file information (optional)
   source : SourceInfo?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Schema with @debug.Debug::{to_repr}
@@ -26,10 +27,11 @@ pub extend Schema with Eq::{not_equal, equal}
 
 ///|
 /// Source file metadata
+#derive(Eq, Debug)
 pub struct SourceInfo {
   file : String
   lang : SourceLang
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SourceInfo with @debug.Debug::{to_repr}
@@ -39,13 +41,14 @@ pub extend SourceInfo with Eq::{not_equal, equal}
 
 ///|
 /// Supported source languages
+#derive(Eq, Debug)
 pub enum SourceLang {
   MoonBit
   TypeScript
   Rust
   Go
   Unknown(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SourceLang with @debug.Debug::{to_repr}
@@ -59,6 +62,7 @@ pub extend SourceLang with Eq::{not_equal, equal}
 
 ///|
 /// A named type definition
+#derive(Eq, Debug)
 pub enum TypeDef {
   /// Struct/Record type
   Struct(StructDef)
@@ -66,7 +70,7 @@ pub enum TypeDef {
   Enum(EnumDef)
   /// Type alias
   Alias(AliasDef)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend TypeDef with @debug.Debug::{to_repr}
@@ -76,6 +80,7 @@ pub extend TypeDef with Eq::{not_equal, equal}
 
 ///|
 /// Struct definition
+#derive(Eq, Debug)
 pub struct StructDef {
   /// Type name
   name : String
@@ -87,7 +92,7 @@ pub struct StructDef {
   fields : Array[Field]
   /// Derive attributes (e.g., Serialize, Eq)
   derives : Array[String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend StructDef with @debug.Debug::{to_repr}
@@ -97,6 +102,7 @@ pub extend StructDef with Eq::{not_equal, equal}
 
 ///|
 /// Enum definition
+#derive(Eq, Debug)
 pub struct EnumDef {
   /// Type name
   name : String
@@ -108,7 +114,7 @@ pub struct EnumDef {
   variants : Array[EnumVariant]
   /// Derive attributes
   derives : Array[String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend EnumDef with @debug.Debug::{to_repr}
@@ -118,6 +124,7 @@ pub extend EnumDef with Eq::{not_equal, equal}
 
 ///|
 /// Enum variant
+#derive(Eq, Debug)
 pub struct EnumVariant {
   /// Variant name
   name : String
@@ -125,7 +132,7 @@ pub struct EnumVariant {
   doc : String?
   /// Payload type (None for unit variants)
   payload : TypeRef?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend EnumVariant with @debug.Debug::{to_repr}
@@ -135,6 +142,7 @@ pub extend EnumVariant with Eq::{not_equal, equal}
 
 ///|
 /// Type alias definition
+#derive(Eq, Debug)
 pub struct AliasDef {
   /// Alias name
   name : String
@@ -144,7 +152,7 @@ pub struct AliasDef {
   type_params : Array[TypeParam]
   /// Target type
   target : TypeRef
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AliasDef with @debug.Debug::{to_repr}
@@ -158,6 +166,7 @@ pub extend AliasDef with Eq::{not_equal, equal}
 
 ///|
 /// A struct field
+#derive(Eq, Debug)
 pub struct Field {
   /// Field name
   name : String
@@ -171,7 +180,7 @@ pub struct Field {
   default : Json?
   /// Field attributes/annotations
   attrs : Map[String, String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Field with @debug.Debug::{to_repr}
@@ -185,6 +194,7 @@ pub extend Field with Eq::{not_equal, equal}
 
 ///|
 /// A reference to a type
+#derive(Eq, Debug)
 pub enum TypeRef {
   /// Primitive types
   Primitive(PrimitiveType)
@@ -210,7 +220,7 @@ pub enum TypeRef {
   Function(FunctionType)
   /// Unknown/Any type
   Unknown
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend TypeRef with @debug.Debug::{to_repr}
@@ -228,6 +238,7 @@ pub impl Show for TypeRef with fn output(self, logger) {
 
 ///|
 /// Primitive types
+#derive(Eq, Debug)
 pub enum PrimitiveType {
   Bool
   Int
@@ -237,7 +248,7 @@ pub enum PrimitiveType {
   String
   Unit
   Never
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PrimitiveType with @debug.Debug::{to_repr}
@@ -247,11 +258,12 @@ pub extend PrimitiveType with Eq::{not_equal, equal}
 
 ///|
 /// Literal type values
+#derive(Eq, Debug)
 pub enum LiteralType {
   BoolLit(Bool)
   IntLit(Int)
   StringLit(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend LiteralType with @debug.Debug::{to_repr}
@@ -261,10 +273,11 @@ pub extend LiteralType with Eq::{not_equal, equal}
 
 ///|
 /// Function type
+#derive(Eq, Debug)
 pub struct FunctionType {
   params : Array[TypeRef]
   return_ : TypeRef
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FunctionType with @debug.Debug::{to_repr}
@@ -278,6 +291,7 @@ pub extend FunctionType with Eq::{not_equal, equal}
 
 ///|
 /// Generic type parameter
+#derive(Eq, Debug)
 pub struct TypeParam {
   /// Parameter name (e.g., "T", "K", "V")
   name : String
@@ -285,7 +299,7 @@ pub struct TypeParam {
   constraint : TypeRef?
   /// Default type (optional)
   default : TypeRef?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend TypeParam with @debug.Debug::{to_repr}
@@ -299,12 +313,13 @@ pub extend TypeParam with Eq::{not_equal, equal}
 
 ///|
 /// Annotation on a type or field
+#derive(Eq, Debug)
 pub struct Annotation {
   /// Annotation name
   name : String
   /// Annotation arguments
   args : Map[String, Json]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Annotation with @debug.Debug::{to_repr}

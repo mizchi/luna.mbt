@@ -16,9 +16,16 @@ const outputs = {
 ///|
 /// CSS property names. Values still use CSS string syntax.
 /// Standard and experimental unprefixed MDN names; strings remain an escape hatch.
+#derive(Eq, Debug)
 pub(all) enum Property {
 ${entries.map(([variant]) => `  ${variant}`).join("\n")}
-} derive(Eq, Debug)
+}
+
+///|
+pub extend Property with @debug.Debug::{to_repr}
+
+///|
+pub extend Property with Eq::{not_equal, equal}
 
 ///|
 pub fn Property::css_name(self : Property) -> String {
