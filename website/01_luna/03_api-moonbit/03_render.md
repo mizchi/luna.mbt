@@ -156,26 +156,47 @@ audited yourself.
 `input` also accepts `value`, `disabled`, `readonly_`, `required` and
 `checked`; `button` accepts `disabled`.
 
-### Not provided
-
-There are no helpers for `<table>`, `<tr>`, `<td>`, `<select>`, `<option>` or
-`<textarea>` in the static package — `@server_dom` covers the elements the SSR
-paths in this repo actually emit. For anything else, `@luna.h` builds an
-element from a tag name:
+### Tables
 
 ```moonbit
-@luna.h("table", [], [
-  @luna.h("tr", [], [
-    @luna.h("td", [], [@server_dom.text("Item 1")]),
-    @luna.h("td", [], [@server_dom.text("$10")]),
+@server_dom.table([
+  @server_dom.caption([@server_dom.text("Prices")]),
+  @server_dom.thead([
+    @server_dom.tr([
+      @server_dom.th(scope="col", [@server_dom.text("Item")]),
+      @server_dom.th(scope="col", [@server_dom.text("Price")]),
+    ]),
   ]),
+  @server_dom.tbody([
+    @server_dom.tr([
+      @server_dom.td([@server_dom.text("Item 1")]),
+      @server_dom.td([@server_dom.text("$10")]),
+    ]),
+  ]),
+])
+```
+
+`th` accepts `scope`, `colspan`, `rowspan`, `headers` and `abbr`; `td` accepts
+`colspan`, `rowspan` and `headers`. `colgroup`, `col` and `tfoot` are there too.
+
+### Not provided
+
+There are no helpers for `<select>`, `<option>` or `<textarea>` in the static
+package. For anything without a helper, `@luna.h` builds an element from a tag
+name:
+
+```moonbit
+@luna.h("select", [("name", @luna.attr_static("size"))], [
+  @luna.h("option", [], [@server_dom.text("Small")]),
+  @luna.h("option", [], [@server_dom.text("Large")]),
 ])
 ```
 
 `h` is generic over the node's event type, so the same call works in the
 browser. Its second argument is the same `(name, Attr)` tuple list `attrs`
-takes. If you find yourself writing the same tag repeatedly, add the helper to
-`luna/src/dom/static/`.
+takes. If you find yourself writing the same tag repeatedly, add it to
+`luna/scripts/generate_dom_elements.ts`, which writes both the browser and the
+static helpers.
 
 ## text
 
@@ -347,13 +368,16 @@ Note that `render_to_string` returns an `SSRResult`, not a `String` —
 
 | Group | Helpers |
 |-------|---------|
-| Block / inline | `div` `p` `span` `article` `section` `aside` `main_` `header_` `footer_` `nav` `pre` `code` `em` `strong` |
+| Block / inline | `div` `p` `span` `article` `section` `aside` `main_` `header_` `footer_` `nav` `pre` `code` `em` `strong` `b` `i` `small` `sub` `sup` `kbd` `mark` `cite` `abbr` `time` `blockquote` `figure` `figcaption` |
+| Description lists | `dl` `dt` `dd` |
+| Tables | `table` `caption` `colgroup` `col` `thead` `tbody` `tfoot` `tr` `th` `td` |
+| Interactive | `details` `summary` `dialog` |
 | Headings | `h1`–`h6` |
 | Lists | `ul` `ol` `li` |
 | Links / media | `a` `img` `br` `hr` |
 | Document | `html` `head` `body` `title` `meta` |
 | Resources | `script` `script_trusted` `style_` `style_trusted` `link` |
-| Forms | `form` `input` `button` `label` |
+| Forms | `form` `input` `button` `label` `fieldset` `legend` |
 | SVG | `svg` and `svg_*` (path, circle, rect, text, …) |
 
 ### Content

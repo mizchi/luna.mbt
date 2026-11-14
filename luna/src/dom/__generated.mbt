@@ -880,6 +880,821 @@ pub fn pre(
   }
   create_element("pre", props, children)
 }
+
+///|
+/// Create b element
+pub fn b(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("b", props, children)
+}
+
+///|
+/// Create i element
+pub fn i(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("i", props, children)
+}
+
+///|
+/// Create small element
+pub fn small(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("small", props, children)
+}
+
+///|
+/// Create sub element
+pub fn sub(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("sub", props, children)
+}
+
+///|
+/// Create sup element
+pub fn sup(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("sup", props, children)
+}
+
+///|
+/// Create kbd element
+pub fn kbd(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("kbd", props, children)
+}
+
+///|
+/// Create mark element
+pub fn mark(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("mark", props, children)
+}
+
+///|
+/// Create cite element
+pub fn cite(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("cite", props, children)
+}
+
+///|
+/// Create abbr element
+pub fn abbr(
+  title? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if title is Some(v) {
+    props.push(("title", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("abbr", props, children)
+}
+
+///|
+/// Create time element
+pub fn time(
+  datetime? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if datetime is Some(v) {
+    props.push(("datetime", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("time", props, children)
+}
+
+///|
+/// Create blockquote element
+pub fn blockquote(
+  cite? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if cite is Some(v) {
+    props.push(("cite", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("blockquote", props, children)
+}
+
+///|
+/// Create figure element
+pub fn figure(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("figure", props, children)
+}
+
+///|
+/// Create figcaption element
+pub fn figcaption(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("figcaption", props, children)
+}
+
+///|
+/// Create dl element
+pub fn dl(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("dl", props, children)
+}
+
+///|
+/// Create dt element
+pub fn dt(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("dt", props, children)
+}
+
+///|
+/// Create dd element
+pub fn dd(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("dd", props, children)
+}
+
+///|
+/// Create table element
+pub fn table(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("table", props, children)
+}
+
+///|
+/// Create caption element
+pub fn caption(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("caption", props, children)
+}
+
+///|
+/// Create colgroup element
+pub fn colgroup(
+  span? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if span is Some(v) {
+    props.push(("span", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("colgroup", props, children)
+}
+
+///|
+/// Create col element
+pub fn col(
+  span? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if span is Some(v) {
+    props.push(("span", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("col", props, [])
+}
+
+///|
+/// Create thead element
+pub fn thead(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("thead", props, children)
+}
+
+///|
+/// Create tbody element
+pub fn tbody(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("tbody", props, children)
+}
+
+///|
+/// Create tfoot element
+pub fn tfoot(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("tfoot", props, children)
+}
+
+///|
+/// Create tr element
+pub fn tr(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("tr", props, children)
+}
+
+///|
+/// Create th element
+pub fn th(
+  scope? : String,
+  colspan? : String,
+  rowspan? : String,
+  headers? : String,
+  abbr? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if scope is Some(v) {
+    props.push(("scope", Static(v)))
+  }
+  if colspan is Some(v) {
+    props.push(("colspan", Static(v)))
+  }
+  if rowspan is Some(v) {
+    props.push(("rowspan", Static(v)))
+  }
+  if headers is Some(v) {
+    props.push(("headers", Static(v)))
+  }
+  if abbr is Some(v) {
+    props.push(("abbr", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("th", props, children)
+}
+
+///|
+/// Create td element
+pub fn td(
+  colspan? : String,
+  rowspan? : String,
+  headers? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if colspan is Some(v) {
+    props.push(("colspan", Static(v)))
+  }
+  if rowspan is Some(v) {
+    props.push(("rowspan", Static(v)))
+  }
+  if headers is Some(v) {
+    props.push(("headers", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("td", props, children)
+}
+
+///|
+/// Create details element
+pub fn details(
+  open? : Bool,
+  name? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if open is Some(true) {
+    props.push(("open", Static("true")))
+  }
+  if name is Some(v) {
+    props.push(("name", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("details", props, children)
+}
+
+///|
+/// Create summary element
+pub fn summary(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("summary", props, children)
+}
+
+///|
+/// Create dialog element
+pub fn dialog(
+  open? : Bool,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if open is Some(true) {
+    props.push(("open", Static("true")))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("dialog", props, children)
+}
+
+///|
+/// Create fieldset element
+pub fn fieldset(
+  disabled? : Bool,
+  name? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if disabled is Some(true) {
+    props.push(("disabled", Static("true")))
+  }
+  if name is Some(v) {
+    props.push(("name", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("fieldset", props, children)
+}
+
+///|
+/// Create legend element
+pub fn legend(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element("legend", props, children)
+}
 // =============================================================================
 // Text helpers
 // =============================================================================

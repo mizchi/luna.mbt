@@ -800,6 +800,41 @@ describe("DOM API", () => {
       expect(rectEl?.getAttribute("fill")).toBe("green");
     });
 
+    // `className` on an SVG element is a read-only SVGAnimatedString: assigning to it is ignored
+    // (and throws in strict mode), so a class must be written with setAttribute.
+    test("createElementNs applies a static class to SVG elements", () => {
+      const path = createElementNs(
+        svgNs(),
+        "path",
+        [attr("class", AttrValue.Static("icon-stroke")), attr("d", AttrValue.Static("M0 0 L10 10"))],
+        []
+      );
+      const svg = createElementNs(svgNs(), "svg", [attr("className", AttrValue.Static("icon"))], [path]);
+      render(container, svg);
+
+      expect(container.querySelector("svg")?.getAttribute("class")).toBe("icon");
+      expect(container.querySelector("path")?.getAttribute("class")).toBe("icon-stroke");
+      expect(container.querySelector("svg.icon path.icon-stroke")).not.toBeNull();
+    });
+
+    test("createElementNs updates a dynamic class on SVG elements", () => {
+      const [active, setActive] = createSignal(false);
+      const svg = createElementNs(
+        svgNs(),
+        "svg",
+        [attr("className", AttrValue.Dynamic(() => (active() ? "icon is-active" : "icon")))],
+        []
+      );
+      render(container, svg);
+
+      const svgEl = container.querySelector("svg");
+      expect(svgEl?.getAttribute("class")).toBe("icon");
+      setActive(true);
+      expect(svgEl?.getAttribute("class")).toBe("icon is-active");
+      setActive(false);
+      expect(svgEl?.getAttribute("class")).toBe("icon");
+    });
+
     test("SVG can be nested inside regular HTML elements", () => {
       const circle = createElementNs(
         svgNs(),

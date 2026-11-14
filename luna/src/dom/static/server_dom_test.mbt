@@ -376,3 +376,69 @@ test "render switch with match fallback" {
   assert_false(html.contains("<span>Second</span>"))
   assert_true(html.contains("Fallback"))
 }
+
+///|
+test "render table elements" {
+  let node = @static.table([
+    @static.caption([@static.text("Scores")]),
+    @static.colgroup([@static.col(span="2")]),
+    @static.thead([
+      @static.tr([
+        @static.th(scope="col", [@static.text("Name")]),
+        @static.th(scope="col", abbr="Pts", [@static.text("Points")]),
+      ]),
+    ]),
+    @static.tbody([
+      @static.tr([
+        @static.td([@static.text("Ada")]),
+        @static.td(colspan="1", [@static.text("3")]),
+      ]),
+    ]),
+    @static.tfoot([]),
+  ])
+  assert_eq(
+    @static.render(node),
+    "<table><caption>Scores</caption><colgroup><col span=\"2\" /></colgroup><thead><tr><th scope=\"col\">Name</th><th scope=\"col\" abbr=\"Pts\">Points</th></tr></thead><tbody><tr><td>Ada</td><td colspan=\"1\">3</td></tr></tbody><tfoot></tfoot></table>",
+  )
+}
+
+///|
+test "render inline text and interactive elements" {
+  let node = @static.p([
+    @static.b([@static.text("b")]),
+    @static.i([@static.text("i")]),
+    @static.small([@static.text("s")]),
+    @static.sub([@static.text("2")]),
+    @static.sup([@static.text("1")]),
+    @static.kbd([@static.text("K")]),
+    @static.mark([@static.text("m")]),
+    @static.cite([@static.text("c")]),
+    @static.abbr(title="HyperText Markup Language", [@static.text("HTML")]),
+    @static.time(datetime="2026-11-14", [@static.text("today")]),
+  ])
+  assert_eq(
+    @static.render(node),
+    "<p><b>b</b><i>i</i><small>s</small><sub>2</sub><sup>1</sup><kbd>K</kbd><mark>m</mark><cite>c</cite><abbr title=\"HyperText Markup Language\">HTML</abbr><time datetime=\"2026-11-14\">today</time></p>",
+  )
+  let details = @static.details(open=true, [
+    @static.summary([@static.text("More")]),
+    @static.dialog([]),
+    @static.fieldset(disabled=true, [@static.legend([@static.text("L")])]),
+    @static.figure([@static.figcaption([@static.text("F")])]),
+    @static.blockquote(cite="https://example.com", []),
+    @static.dl([
+      @static.dt([@static.text("t")]),
+      @static.dd([@static.text("d")]),
+    ]),
+  ])
+  let html = @static.render(details)
+  assert_true(html.contains("<details open"))
+  assert_true(html.contains("<summary>More</summary><dialog></dialog>"))
+  assert_true(html.contains("<fieldset disabled"))
+  assert_true(html.contains("<legend>L</legend>"))
+  assert_true(html.contains("<figure><figcaption>F</figcaption></figure>"))
+  assert_true(
+    html.contains("<blockquote cite=\"https://example.com\"></blockquote>"),
+  )
+  assert_true(html.contains("<dl><dt>t</dt><dd>d</dd></dl>"))
+}

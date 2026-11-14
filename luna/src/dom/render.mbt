@@ -245,7 +245,9 @@ fn apply_static_attr(
   value : String,
 ) -> Unit {
   if name == "className" || name == "class" {
-    elem.setClassName(value)
+    // `className` is a read-only SVGAnimatedString on SVG elements: assigning to it is ignored,
+    // or throws in strict mode. The `class` attribute works on HTML and SVG alike.
+    elem.setAttribute("class", value)
   } else if name == "__innerHTML" {
     // dangerouslySetInnerHTML - set innerHTML as property
     elem.as_any()._set("innerHTML", @js.any(value)) |> ignore
