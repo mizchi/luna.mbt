@@ -5,12 +5,12 @@ published independently to [mooncakes](https://mooncakes.io/):
 
 | Package | Role | Path | Latest |
 |---------|------|------|--------|
-| [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.23.2 |
-| [`mizchi/luna_components`](./luna_components/) | Headless and styled UI components | `luna_components/` | 0.23.2 |
-| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.23.2 |
-| [`mizchi/sol_adapter_cloudflare`](./sol_adapter_cloudflare/) | Cloudflare/Wrangler adapter utilities for Sol | `sol_adapter_cloudflare/` | 0.23.2 |
-| [`mizchi/sol_adapter_node`](./sol_adapter_node/) | Node.js adapter utilities for Sol | `sol_adapter_node/` | 0.23.2 |
-| [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.23.2 |
+| [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.26.0 |
+| [`mizchi/luna_components`](./luna_components/) | Headless and styled UI components | `luna_components/` | 0.24.0 |
+| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.24.0 |
+| [`mizchi/sol_adapter_cloudflare`](./sol_adapter_cloudflare/) | Cloudflare/Wrangler adapter utilities for Sol | `sol_adapter_cloudflare/` | 0.24.0 |
+| [`mizchi/sol_adapter_node`](./sol_adapter_node/) | Node.js adapter utilities for Sol | `sol_adapter_node/` | 0.24.0 |
+| [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.24.0 |
 
 Each package's README has the canonical usage doc.
 
@@ -25,13 +25,13 @@ Add imports to your `moon.mod`:
 
 ```moonbit
 // UI library only
-import { "mizchi/luna@0.25.0" }
+import { "mizchi/luna@0.26.0" }
 
 // SSR framework
-import { "mizchi/sol@0.23.2", "mizchi/luna@0.25.0" }
+import { "mizchi/sol@0.24.0", "mizchi/luna@0.26.0" }
 
 // Static-site middleware (mounts on a Mars Server)
-import { "mizchi/astra@0.23.2", "mizchi/luna@0.25.0" }
+import { "mizchi/astra@0.24.0", "mizchi/luna@0.26.0" }
 ```
 
 ## Install — CLI
@@ -79,11 +79,12 @@ example. Run `just test-void-e2e` to verify it in isolation.
 
 ## Development
 
-Use MoonBit v0.10.19 (the version CI pins; moonc 0.10.20 changes how arrays
-reach JavaScript and breaks the `mizchi/js*` FFI) and Node.js 24.15 or newer. The current
+Use MoonBit 0.10.19 (`0.10.19+bee578715`, the version CI pins) and Node.js
+24.15 or newer. moonc 0.10.20 changes how arrays reach JavaScript and breaks
+the `mizchi/js*` FFI, so do not run `moon upgrade`: it installs the latest
+toolchain. Install 0.10.19 instead, then run `moon update`. The current
 dependencies use the newer MoonBit collection APIs and jsdom's updated Node
-requirements. Run `moon upgrade` and `moon update` when upgrading an older
-toolchain. All npm packages and examples share the root pnpm workspace and
+requirements. All npm packages and examples share the root pnpm workspace and
 `pnpm-lock.yaml`; run `pnpm install` from the repository root.
 
 Keep `parser 0.4.5`, `lexer 0.4.5`, and `moon_config 0.4.4` aligned across
