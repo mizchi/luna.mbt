@@ -115,8 +115,9 @@ Integration test files run sequentially because the example matrix regenerates
 packages that other workspace builds also read.
 
 `pnpm build:moon` and the npm publish hooks check the compiler returned by
-`moon version --all` before building. If it reports an older `moonc`, run
-`moon upgrade` and `moon update` in your normal shell. An alternate toolchain
+`moon version --all` before building. If it reports an older `moonc`, install
+0.10.19 (not `moon upgrade`, which goes past it) and run `moon update` in your
+normal shell. An alternate toolchain
 used in a separate shell does not update the compiler on your default PATH.
 
 ```sh
