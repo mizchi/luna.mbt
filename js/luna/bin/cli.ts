@@ -315,7 +315,7 @@ function getMbtTemplates(projectName: string): Template[] {
 version = "0.0.1"
 
 import {
-  "mizchi/luna@0.25.2",
+  "mizchi/luna@0.26.0",
   "mizchi/signals@0.6.5",
   "mizchi/js@0.13.0",
   "mizchi/js_browser@0.13.0",

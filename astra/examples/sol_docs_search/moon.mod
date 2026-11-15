@@ -3,9 +3,9 @@ name = "example/sol-docs-search"
 version = "0.1.0"
 
 import {
-  "mizchi/astra@0.23.4",
-  "mizchi/sol@0.23.5",
-  "mizchi/luna@0.25.2",
+  "mizchi/astra@0.24.0",
+  "mizchi/sol@0.24.0",
+  "mizchi/luna@0.26.0",
   "mizchi/mars@0.3.13",
   "mizchi/signals@0.6.6",
   "mizchi/js@0.13.0",

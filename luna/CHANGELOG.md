@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna-v0.26.0] - 2026-11-15
+
+### Features
+
+- **dom**: Add table, description-list, inline and interactive element builders.
+- **dom**: Add `for_each_indexed`, whose rows read their current index through a getter that follows reordering.
+- **dom/client**: Add `vnode()` to put a `@core.Node` (such as a `luna_components` component) inside the element DSL; add `@element.raw_node`.
+
+### Bug Fixes
+
+- **dom**: Set `class` with `setAttribute`, so SVG elements receive it.
+- **dom**: Let dynamic attributes be removed: add `attr_dynamic_opt` (removed while `None`) and `attr_dynamic_bool`. An HTML boolean attribute (`hidden`, `open`, `readonly`, ...) set to `"false"` is now removed, matched case-insensitively on HTML elements only.
+- **dom**: Keep `for_each` rows and `show` content whole when nested blocks insert nodes after the first render, so moving, removing or hiding them leaves nothing behind.
+- **dom/client**: Dispose effects created by core `Show`, `For`, `Switch` and error-boundary content when that content is removed.
+
+### Dependencies
+
+- Pin the MoonBit toolchain to 0.10.19 and migrate to the current `#derive` attribute syntax.
+
 ## [luna-v0.25.2] - 2026-10-19
 
 - Update MoonBit dependencies and require compiler 0.10.15 or newer.

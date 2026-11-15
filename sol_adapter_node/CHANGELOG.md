@@ -2,6 +2,10 @@
 
 All notable changes to `mizchi/sol_adapter_node` are documented here.
 
+## [sol_adapter_node-v0.24.0] - 2026-11-15
+
+- Depend on sol 0.24.0.
+
 ## [sol_adapter_node-v0.23.4] - 2026-10-19
 
 - Update Sol and Node.js runtime dependencies for compiler compatibility.

@@ -1,6 +1,6 @@
 name = "mizchi/luna"
 
-version = "0.25.2"
+version = "0.26.0"
 
 import {
   "mizchi/js_builtin@0.13.0",
