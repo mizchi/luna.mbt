@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [sol-v0.24.0] - 2026-11-15
+
+- Depend on luna 0.26.0.
+- Generate `#derive(...)` attributes in typed contracts and scaffold templates, for the current MoonBit compiler.
+
 ## [sol-v0.23.5] - 2026-10-19
 
 - Fix starter JSON methods and exclude associated methods from island entry points.

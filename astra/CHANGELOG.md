@@ -2,6 +2,10 @@
 
 All notable changes to `mizchi/astra` are documented here.
 
+## [astra-v0.24.0] - 2026-11-15
+
+- Depend on luna 0.26.0 and migrate to the current MoonBit syntax.
+
 ## [astra-v0.23.4] - 2026-10-19
 
 - Render React and MoonBit components asynchronously in build and development.

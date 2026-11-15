@@ -1,14 +1,14 @@
 name = "mizchi/sol"
 
-version = "0.23.5"
+version = "0.24.0"
 
 import {
   "mizchi/js_core@0.13.0",
   "mizchi/js_node@0.13.0",
   "mizchi/js_web@0.13.1",
   "moonbitlang/yacc@0.7.25",
-  "mizchi/astra@0.23.4",
-  "mizchi/luna@0.25.2",
+  "mizchi/astra@0.24.0",
+  "mizchi/luna@0.26.0",
   "moonbitlang/async@0.22.5",
   "moonbitlang/x@0.5.5",
   "moonbitlang/parser@0.4.5",
