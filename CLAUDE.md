@@ -92,13 +92,26 @@ just test-npm-pack                    # inspect all eight package archives
 pnpm publish -r --dry-run             # preview unpublished npm versions
 pnpm publish -r                       # or: just release-npm
 ```
-Only the eight release-please-managed `js/*` packages are public. Keep
+Only the eight tag-released `js/*` packages are public. Keep
 examples, internal `@sol/core`, and `js/wcssr` private. Each public package
 has a `prepack` build; MoonBit-backed packages build MoonBit first. Use
 `workspace:^` for internal npm dependencies; pnpm rewrites them when packing.
 Inspect packed manifests when testing registry dependency ranges. CI uses
 `pnpm pack` followed by `npm publish <tarball>` for OIDC. npm versions are
 independent of Mooncake versions, and recursive publish does not bump them.
+
+npm release (per package, independent versions; CI publishes on tag push):
+```sh
+(cd js/luna && npm version 0.24.3 --no-git-tag-version)   # bump
+just changelog-npm luna 0.24.3                            # add the section to js/luna/CHANGELOG.md
+git commit -am "chore(release): @luna_ui/luna 0.24.3"
+git tag luna-npm-v0.24.3 && git push origin main luna-npm-v0.24.3
+```
+Tags are `<component>-npm-v<version>` (`<component>` = npm name without
+`@luna_ui/`, so `js/loader` is `luna-loader-npm-v…`). Push at most three tags
+per `git push`. `.github/workflows/publish.yml` must keep its filename (npm
+trusted publishing is bound to it) and must not receive an npm token. Details:
+`docs/internal/npm-release-onboarding.md`.
 
 ## Conventions
 

@@ -1,0 +1,75 @@
+# git-cliff configuration for the npm packages under js/ (@luna_ui/*).
+# https://git-cliff.org/docs/configuration
+#
+# Each npm package has its own version, tag line (<component>-npm-v<version>)
+# and js/<dir>/CHANGELOG.md, so do not run git-cliff with this file directly:
+# `just changelog-npm <component> <version>` passes the per-package
+# --tag-pattern and --include-path and prepends only the new section.
+# The mooncakes packages keep their own <pkg>/cliff.toml (see `just vup`).
+#
+# The GitHub owner and repository are read from the `origin` remote. Set
+# GITHUB_TOKEN (for example `GITHUB_TOKEN=$(gh auth token)`) so the author and
+# pull request of each commit can be looked up without hitting the rate limit.
+
+[changelog]
+# Must stay identical to the first line of the existing js/*/CHANGELOG.md
+# files: `--prepend` strips it from the old content before adding the section.
+header = """
+# Changelog
+"""
+# Credit everyone except the repository owner and bots.
+body = """
+{%- macro remote_url() -%}
+  https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+{%- macro credit(username) -%}
+  {%- if username and username != remote.github.owner and not username is ending_with("[bot]") %} by @{{ username }}{% endif -%}
+{%- endmacro -%}
+{%- macro newcomers() -%}
+  {%- if github.contributors is defined -%}
+  {%- for contributor in github.contributors | filter(attribute="is_first_time", value=true) -%}
+    {%- if contributor.username and contributor.username != remote.github.owner and not contributor.username is ending_with("[bot]") %}
+- @{{ contributor.username }} made their first contribution{% if contributor.pr_number %} in [#{{ contributor.pr_number }}]({{ self::remote_url() }}/pull/{{ contributor.pr_number }}){% endif %}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- endif -%}
+{%- endmacro %}
+{% if version -%}
+  ## {{ version | split(pat="-npm-v") | last }} ({{ timestamp | date(format="%Y-%m-%d") }})
+{%- else -%}
+  ## Unreleased
+{%- endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim | upper_first }}
+{% for commit in commits %}
+- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{% if commit.breaking %}**BREAKING** {% endif %}{{ commit.message | split(pat="\n") | first | trim | upper_first }}\
+  {% if commit.remote.pr_number and not commit.message is containing("#" ~ commit.remote.pr_number) %} ([#{{ commit.remote.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.remote.pr_number }})){% endif %}\
+  {{ self::credit(username=commit.remote.username | default(value="")) }}
+{%- endfor %}
+{% endfor %}
+{%- set newcomers = self::newcomers() -%}
+{%- if newcomers | trim | length != 0 %}
+### New Contributors
+{{ newcomers }}
+{% endif -%}
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+protect_breaking_commits = true
+# Every npm release tag, past and future: luna-npm-v0.24.2,
+# luna-loader-npm-v0.23.3, ... Mooncakes tags (luna-v0.26.0) do not match.
+# A release run narrows this to one package with --tag-pattern.
+tag_pattern = "^[a-z][a-z-]*-npm-v[0-9]"
+sort_commits = "oldest"
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->Added" },
+  { message = "^fix", group = "<!-- 1 -->Fixed" },
+  { message = "^perf", group = "<!-- 2 -->Changed" },
+  { message = "^revert", group = "<!-- 3 -->Reverted" },
+  { message = "^docs", group = "<!-- 4 -->Documentation" },
+  { message = "^chore\\(release\\)|^chore: release", skip = true },
+  { message = ".*", skip = true },
+]
