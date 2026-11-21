@@ -367,6 +367,31 @@ test-npm-pack:
 release-npm *args:
     pnpm publish -r {{args}}
 
+# npm パッケージの CHANGELOG に新バージョンの節だけを追記（既存の節は保持）
+# component は @luna_ui/ を除いた npm 名。タグは <component>-npm-v<version>
+# 例: just changelog-npm luna 0.24.3, just changelog-npm luna-loader 0.23.4 --offline
+changelog-npm component version *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    case "{{component}}" in
+        luna)        dir=js/luna;   paths=(js/luna luna) ;;
+        sol)         dir=js/sol;    paths=(js/sol sol) ;;
+        astra)       dir=js/astra;  paths=(js/astra astra) ;;
+        luna-loader) dir=js/loader; paths=(js/loader) ;;
+        components|stella|testing|wcr) dir=js/{{component}}; paths=("$dir") ;;
+        *) echo "unknown npm component: {{component}}" >&2; exit 1 ;;
+    esac
+    include=()
+    for p in "${paths[@]}"; do include+=(--include-path "$p/**"); done
+    if [[ " {{args}} " != *" --offline "* && -z "${GITHUB_TOKEN:-}" ]]; then
+        export GITHUB_TOKEN="$(gh auth token)"
+    fi
+    npx -y git-cliff@2.14.2 --unreleased \
+        --tag "{{component}}-npm-v{{version}}" \
+        --tag-pattern "^{{component}}-npm-v[0-9]" \
+        "${include[@]}" \
+        --prepend "$dir/CHANGELOG.md" {{args}}
+
 # CHANGELOG 再生成（全履歴、リリース時に使用）
 changelog tag:
     git cliff --tag {{tag}} -o CHANGELOG.md
@@ -381,7 +406,7 @@ release-mooncakes *args:
     bash scripts/release-mooncakes.sh {{args}}
 
 # バージョンアップ (patch/minor/major or 0.X.Y)
-# Bumps MoonBit mooncakes in lockstep; npm wrappers are release-please-managed.
+# Bumps MoonBit mooncakes in lockstep; npm wrappers are released by tag push (docs/internal/npm-release-onboarding.md).
 # 例: just vup patch, just vup 0.4.0, just vup patch --dry-run, just vup patch --release
 vup version *args:
     #!/usr/bin/env bash

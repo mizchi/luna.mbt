@@ -7,8 +7,9 @@
  * Each package owns its own version, but a single semver bump
  * (patch/minor/major) increments each one relative to its current value.
  *
- * The npm packages under js/* are NOT touched here — they are managed by
- * release-please (see release-please-config.json + .github/workflows/release-please.yml).
+ * The npm packages under js/* are NOT touched here — they have their own
+ * versions and are published by pushing "<component>-npm-v<version>" tags
+ * (see .github/workflows/publish.yml + docs/internal/npm-release-onboarding.md).
  *
  * Files touched (always run from the repo root):
  *   luna/moon.mod
@@ -48,7 +49,7 @@
  *   sol_adapter_node-v<sol_adapter_node_version>
  *   astra-v<astra_version>
  *
- * release-please creates separate "@luna_ui/<pkg>-v<v>" tags for the npm side.
+ * The npm side uses separate "<component>-npm-v<version>" tags.
  *
  * See `just vup` for the wrapper that also regenerates per-package CHANGELOGs.
  */
@@ -480,8 +481,8 @@ function printUsage() {
 Scope:
   This script bumps ONLY the mooncakes packages
   (mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,sol_adapter_node,astra}).
-  The npm packages under js/* are managed by release-please — do not edit
-  their versions by hand. See docs/internal/npm-release-onboarding.md.
+  The npm packages under js/* are versioned and tagged separately
+  (<component>-npm-v<version>). See docs/internal/npm-release-onboarding.md.
 
 Touches manifests:
   luna/moon.mod, luna_components/moon.mod,

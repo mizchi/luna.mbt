@@ -1,5 +1,23 @@
 # luna.mbt — Agent Notes
 
+## TODO: finish the release migration (delete this section when done)
+
+The release flow moved from release-please to tag-triggered npm publishing in https://github.com/mizchi/luna.mbt/pull/133. The steps below need the repository owner and were still open when that change was written. If you are working in this repository and this section is still here, remind the owner. Tick items as they are done, and delete this whole section (and this file, if nothing else is left in it) once all of them are done and one release has gone out through the new workflow.
+
+- [ ] Protect release tags: `protect-tags.sh --pattern '*-npm-v*' mizchi/luna.mbt` (npm-release skill)
+- [ ] `npm trust list @luna_ui/luna`; if `publish.yml` is not listed: `npm trust github @luna_ui/luna --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] `npm trust list @luna_ui/sol`; if `publish.yml` is not listed: `npm trust github @luna_ui/sol --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] `npm trust list @luna_ui/astra`; if `publish.yml` is not listed: `npm trust github @luna_ui/astra --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] `npm trust list @luna_ui/components`; if `publish.yml` is not listed: `npm trust github @luna_ui/components --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] `npm trust list @luna_ui/luna-loader`; if `publish.yml` is not listed: `npm trust github @luna_ui/luna-loader --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] `npm trust list @luna_ui/stella`; if `publish.yml` is not listed: `npm trust github @luna_ui/stella --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] `npm trust list @luna_ui/testing`; if `publish.yml` is not listed: `npm trust github @luna_ui/testing --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] `npm trust list @luna_ui/wcr`; if `publish.yml` is not listed: `npm trust github @luna_ui/wcr --repo mizchi/luna.mbt --file publish.yml --allow-publish -y`
+- [ ] Delete the `RELEASE_PLEASE_APP_PRIVATE_KEY` secret if it exists
+- [ ] Push the first release tag and confirm the workflow publishes to npm and creates the GitHub Release (it has never run)
+
+GitHub creates no push event when more than three tags are pushed at once, so push at most three tags per `git push`. Push a dependency tag (wcr, luna) and wait for it before its dependents (stella, testing). The existing `just changelog` recipes now pick up the new root `cliff.toml` and would overwrite the root `CHANGELOG.md`; they need a follow-up.
+
 Monorepo for six MoonBit packages plus their npm wrappers. Each
 mooncake publishes independently but lives and is tested together.
 
@@ -92,13 +110,26 @@ just test-npm-pack                    # inspect all eight package archives
 pnpm publish -r --dry-run             # preview unpublished npm versions
 pnpm publish -r                       # or: just release-npm
 ```
-Only the eight release-please-managed `js/*` packages are public. Keep
+Only the eight tag-released `js/*` packages are public. Keep
 examples, internal `@sol/core`, and `js/wcssr` private. Each public package
 has a `prepack` build; MoonBit-backed packages build MoonBit first. Use
 `workspace:^` for internal npm dependencies; pnpm rewrites them when packing.
 Inspect packed manifests when testing registry dependency ranges. CI uses
 `pnpm pack` followed by `npm publish <tarball>` for OIDC. npm versions are
 independent of Mooncake versions, and recursive publish does not bump them.
+
+npm release (per package, independent versions; CI publishes on tag push):
+```sh
+(cd js/luna && npm version 0.24.3 --no-git-tag-version)   # bump
+just changelog-npm luna 0.24.3                            # add the section to js/luna/CHANGELOG.md
+git commit -am "chore(release): @luna_ui/luna 0.24.3"
+git tag luna-npm-v0.24.3 && git push origin main luna-npm-v0.24.3
+```
+Tags are `<component>-npm-v<version>` (`<component>` = npm name without
+`@luna_ui/`, so `js/loader` is `luna-loader-npm-v…`). Push at most three tags
+per `git push`. `.github/workflows/publish.yml` must keep its filename (npm
+trusted publishing is bound to it) and must not receive an npm token. Details:
+`docs/internal/npm-release-onboarding.md`.
 
 ## Conventions
 

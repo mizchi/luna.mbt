@@ -133,17 +133,26 @@ pnpm test:integration   # build/dev parity + example matrix (node:test)
 
 - mooncakes (`mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,sol_adapter_node,astra}`) are bumped via `luna/scripts/vup.mjs`
   and pushed to https://mooncakes.io/.
-- npm (`@luna_ui/*`) is automated end-to-end:
-  - `release-please` (workflow_dispatch) opens a Release PR aggregating
-    Conventional Commits across `js/*`.
-  - Merging the PR creates per-package GitHub Releases tagged
-    `<pkg>-npm-v<version>`.
-  - `.github/workflows/publish.yml` reacts to each Release event, packs
-    the matching `js/<pkg>` with pnpm, and publishes the tarball with
-    `npm publish --provenance` using OIDC Trusted Publishing (no `NPM_TOKEN`).
+- npm (`@luna_ui/*`) packages have independent versions and are published by
+  pushing a tag `<component>-npm-v<version>` (`<component>` is the npm name
+  without the scope, e.g. `luna-npm-v0.24.3`, `luna-loader-npm-v0.23.4`):
+
+  ```sh
+  (cd js/luna && npm version 0.24.3 --no-git-tag-version)  # bump the version
+  just changelog-npm luna 0.24.3          # add the section to js/luna/CHANGELOG.md
+  git commit -am "chore(release): @luna_ui/luna 0.24.3"
+  git tag luna-npm-v0.24.3
+  git push origin main luna-npm-v0.24.3   # at most three tags per push
+  ```
+
+  `.github/workflows/publish.yml` runs on the tag push: it checks that the
+  tag matches `js/<dir>/package.json`, packs the package with pnpm, publishes
+  the tarball with npm through OIDC Trusted Publishing (no `NPM_TOKEN`;
+  provenance is attached), and creates the GitHub Release from the package's
+  `CHANGELOG.md` section.
 - Documentation deploys (`luna.mizchi.workers.dev`,
-  `mizchi.github.io/luna.mbt`) are tied to the `@luna_ui/luna` Release event,
-  so each release-please cycle redeploys the docs once for both targets.
+  `mizchi.github.io/luna.mbt`) run on GitHub Releases whose tag starts with
+  `luna-v`, or by `workflow_dispatch`. npm releases do not trigger them.
 
 For a local batch release, run from the repository root:
 
@@ -159,15 +168,15 @@ artifacts, including MoonBit output where needed; no separate build is
 required. Internal `workspace:^` dependencies become registry semver ranges
 in the tarball. `just release-npm` forwards arguments to `pnpm publish -r`.
 
-Set the intended versions in `js/*/package.json` before publishing (normally
-via release-please). npm versions are independent of Mooncake versions;
-recursive publish does not bump versions and skips versions already on npm.
+Set the intended versions in `js/*/package.json` before publishing. npm
+versions are independent of Mooncake versions; recursive publish does not
+bump versions and skips versions already on npm.
 Local publishing uses your npm login and pnpm's default Git checks: use a
 clean, committed `main` that is current with origin. For a dry run of pending
 changes, use `pnpm publish -r --dry-run --no-git-checks`.
 
 See `docs/internal/npm-release-onboarding.md` for the maintainer setup
-(GitHub App secret, npm Trusted Publisher × 8 packages, Cloudflare API
+(npm Trusted Publisher × 8 packages, release tag ruleset, Cloudflare API
 token + account ID, GH Pages source).
 
 ## Background

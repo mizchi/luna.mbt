@@ -1,42 +1,44 @@
 name: publish
 
-# Triggered by the GitHub Releases that release-please creates.
-# Each release-please-managed package gets its own Release whose tag is
-# "@luna_ui/<pkg>-v<version>" (because include-component-in-tag is true in
-# release-please-config.json). This workflow runs once per Release event,
-# resolves the tag back to a workspace directory, and runs `npm publish`
-# from there with OIDC Trusted Publishing.
+# Publishes one @luna_ui/* npm package per tag push.
 #
-# Prerequisites (see docs/internal/npm-release-onboarding.md):
-#   - Each @luna_ui/* package has a Trusted Publisher entry on npmjs.com
-#     pointing at this repo + workflow filename "publish.yml".
-#   - npm 2FA on each package is set to "Authorization only" (NOT
-#     "Authorization and writes"), otherwise OIDC publish is rejected.
+# Tag scheme (independent versions, one tag per package):
+#
+#   <component>-npm-v<version>      e.g. luna-npm-v0.24.3, luna-loader-npm-v0.23.4
+#
+# <component> is the npm name without the "@luna_ui/" scope:
+#   luna, sol, astra, components, luna-loader, stella, testing, wcr
+# The "-npm" infix keeps these tags apart from the mooncakes tags
+# ("luna-v0.26.0", "sol-v0.24.0", ... cut by `just vup`), which must never
+# trigger an npm publish. A version containing "-" (e.g. 0.25.0-rc.0) is a
+# pre-release and is published under the "next" dist-tag.
+#
+# Release steps (details: docs/internal/npm-release-onboarding.md):
+#   1. bump js/<dir>/package.json
+#   2. just changelog-npm <component> <version>
+#   3. commit, tag <component>-npm-v<version>, push main and the tag
+#      (GitHub creates no push event when more than three tags are pushed
+#      at once, so push at most three tags per `git push`)
+#
+# Authentication is npm Trusted Publishing (OIDC). npm trusts this workflow by
+# its filename, so do not rename this file:
+#   npm trust github @luna_ui/<component> --repo mizchi/luna.mbt --file publish.yml --allow-publish
+# Never add NPM_TOKEN / NODE_AUTH_TOKEN here: a token takes precedence over OIDC.
 on:
-  release:
-    types: [published]
-  # Manual fallback for republishing a tag whose original release event
-  # ran an old (broken) version of this workflow. GitHub Actions reruns
-  # use the workflow code at the event SHA, so workflow_dispatch is the
-  # only path to pick up post-release publish.yml fixes.
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to publish (e.g. luna-npm-v0.23.1)'
-        required: true
+  push:
+    tags:
+      - "*-npm-v*"
 
-permissions:
-  contents: read
-  id-token: write  # required for OIDC Trusted Publishing
+permissions: {}
 
 jobs:
-  publish-monorepo:
+  publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # gh release create
+      id-token: write  # npm trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # For workflow_dispatch we want the tag's commit, not main.
-          ref: ${{ inputs.tag || github.ref }}
 
       # pnpm/action-setup reads the pinned version from package.json::packageManager.
       # Specifying `version:` here in addition causes ERR_PNPM_BAD_PM_VERSION.
@@ -48,6 +50,52 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           cache: pnpm
 
+      # Split "<component>-npm-v<version>" and find the js/* directory whose
+      # package.json name is "@luna_ui/<component>" (js/loader publishes as
+      # @luna_ui/luna-loader, so the directory cannot be derived from the tag).
+      - name: Resolve package from tag
+        id: pkg
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          case "$TAG" in
+            *-npm-v[0-9]*) ;;
+            *) echo "::error::Tag '$TAG' is not <component>-npm-v<version>"; exit 1 ;;
+          esac
+          COMPONENT="${TAG%-npm-v*}"
+          VERSION="${TAG##*-npm-v}"
+          NAME="@luna_ui/${COMPONENT}"
+          DIR=""
+          for f in js/*/package.json; do
+            if [ "$(node -p "require('./${f}').name")" = "$NAME" ]; then
+              DIR=$(dirname "$f")
+              break
+            fi
+          done
+          if [ -z "$DIR" ]; then
+            echo "::error::No package.json under js/* is named '$NAME' (tag '$TAG')"
+            exit 1
+          fi
+          if [ "$(node -p "require('./${DIR}/package.json').private === true")" = "true" ]; then
+            echo "::error::$NAME ($DIR) is private and is not published"
+            exit 1
+          fi
+          {
+            echo "name=$NAME"
+            echo "dir=$DIR"
+            echo "version=$VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Tag matches package.json version
+        env:
+          DIR: ${{ steps.pkg.outputs.dir }}
+          VERSION: ${{ steps.pkg.outputs.version }}
+        run: |
+          ACTUAL=$(node -p "require('./${DIR}/package.json').version")
+          if [ "$ACTUAL" != "$VERSION" ]; then
+            echo "::error::$DIR/package.json is $ACTUAL, tag $GITHUB_REF_NAME expects $VERSION"
+            exit 1
+          fi
+
       - uses: hustcer/setup-moonbit@87e2bdf5cf20d3b6f5c5f266a8a513f503bb5b76 # v1.25
         with:
           # Pinned: moonc 0.10.20 (2026-11-05) passes MoonBit arrays to JS as
@@ -58,36 +106,6 @@ jobs:
       - run: moon update
 
       - run: pnpm install --frozen-lockfile
-
-      # release-please tag format is "<component>-v<version>". Each npm package
-      # sets component to "<name>-npm" in release-please-config.json so these
-      # tags (e.g. "luna-npm-v0.23.1") never collide with the mooncake release
-      # flow's "<name>-v<version>" tags (cut by `just vup`). Strip the "-v*"
-      # version suffix, then the trailing "-npm" component suffix, to recover
-      # the package name; walk js/*/package.json to find the matching directory.
-      - name: Resolve package directory from tag
-        id: pkg
-        env:
-          DISPATCH_TAG: ${{ inputs.tag }}
-        run: |
-          TAG="${DISPATCH_TAG:-$GITHUB_REF_NAME}"
-          COMPONENT="${TAG%-v*}"
-          COMPONENT="${COMPONENT%-npm}"
-          NAME="@luna_ui/${COMPONENT}"
-          DIR=""
-          for f in js/*/package.json; do
-            PKG_NAME=$(node -p "require('./${f}').name")
-            if [ "$PKG_NAME" = "$NAME" ]; then
-              DIR=$(dirname "$f")
-              break
-            fi
-          done
-          if [ -z "$DIR" ]; then
-            echo "::error::No package.json under js/* matches name '$NAME' (tag '$TAG')"
-            exit 1
-          fi
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
-          echo "dir=$DIR"   >> "$GITHUB_OUTPUT"
 
       # Moon resolves the whole checkout's workspace even for Luna-only builds.
       # Bootstrap generated example imports before the npm prepack hook runs.
@@ -101,9 +119,47 @@ jobs:
         working-directory: ${{ steps.pkg.outputs.dir }}
         run: pnpm pack --pack-destination "$RUNNER_TEMP/npm-package"
 
+      # Trusted publishing needs npm >= 11.5.1.
+      - run: npm install -g npm@11
+
+      # Provenance is attached automatically by trusted publishing.
       - name: Publish ${{ steps.pkg.outputs.name }}
-        working-directory: ${{ steps.pkg.outputs.dir }}
-        # --provenance is auto-attached by npm 11+ in OIDC environments;
-        # explicitly opting in here keeps it on for older npm too.
-        # Do NOT set NPM_TOKEN — its presence disables the OIDC code path.
-        run: npm publish "$RUNNER_TEMP"/npm-package/*.tgz --provenance --access public
+        env:
+          VERSION: ${{ steps.pkg.outputs.version }}
+        run: |
+          case "$VERSION" in
+            *-*) npm publish "$RUNNER_TEMP"/npm-package/*.tgz --access public --tag next ;;
+            *)   npm publish "$RUNNER_TEMP"/npm-package/*.tgz --access public ;;
+          esac
+
+      # The release body is the "## <version>" section of the package's own
+      # CHANGELOG.md; headings written by release-please ("## [x.y.z](url)")
+      # are matched too.
+      - name: GitHub release from the changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ steps.pkg.outputs.name }}
+          DIR: ${{ steps.pkg.outputs.dir }}
+          VERSION: ${{ steps.pkg.outputs.version }}
+        run: |
+          NOTES="$RUNNER_TEMP/release-notes.md"
+          : > "$NOTES"
+          if [ -f "$DIR/CHANGELOG.md" ]; then
+            awk -v v="$VERSION" '
+              /^## / {
+                if (on) exit
+                h = $2
+                sub(/^\[/, "", h)
+                sub(/\].*$/, "", h)
+                if (h == v) { on = 1; next }
+              }
+              on
+            ' "$DIR/CHANGELOG.md" > "$NOTES"
+          fi
+          set -- "$GITHUB_REF_NAME" --verify-tag --title "$NAME@$VERSION"
+          case "$VERSION" in *-*) set -- "$@" --prerelease ;; esac
+          if grep -q '[^[:space:]]' "$NOTES"; then
+            gh release create "$@" --notes-file "$NOTES"
+          else
+            gh release create "$@" --generate-notes
+          fi
